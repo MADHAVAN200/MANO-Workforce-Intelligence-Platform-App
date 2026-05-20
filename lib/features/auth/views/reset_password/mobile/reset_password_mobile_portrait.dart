@@ -46,7 +46,7 @@ class ResetPasswordMobilePortrait extends StatelessWidget {
                   labelText: 'New Password',
                   labelStyle: const TextStyle(color: Colors.grey),
                   filled: true,
-                  fillColor: isDark ? const Color(0xFF1E2939) : Colors.grey[100],
+                  fillColor: isDark ? const Color(0xFF161B22) : Colors.grey[100],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -73,7 +73,7 @@ class ResetPasswordMobilePortrait extends StatelessWidget {
                   labelText: 'Confirm Password',
                   labelStyle: const TextStyle(color: Colors.grey),
                   filled: true,
-                  fillColor: isDark ? const Color(0xFF1E2939) : Colors.grey[100],
+                  fillColor: isDark ? const Color(0xFF161B22) : Colors.grey[100],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,

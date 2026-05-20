@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../shared/services/auth_service.dart';
-import '../../login_screen.dart';
+import '../../../../main.dart';
 import 'mobile/reset_password_mobile_portrait.dart';
 import 'tablet/reset_password_tablet_portrait.dart';
 import 'tablet/reset_password_tablet_landscape.dart';
@@ -61,10 +61,10 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
         const SnackBar(content: Text('Password reset successfully. Please login.')),
       );
 
-      // Navigate back to Login and remove all routes
+      // Navigate back to AuthWrapper and remove all routes
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const AuthWrapper()),
         (route) => false,
       );
     } catch (e) {
@@ -82,7 +82,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFF101828), // Removed hardcoded color
+      // backgroundColor: const Color(0xFF0D1117), // Removed hardcoded color
       body: LayoutBuilder(
         builder: (context, constraints) {
            if (constraints.maxWidth < 600) {

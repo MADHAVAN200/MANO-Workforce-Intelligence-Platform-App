@@ -14,7 +14,7 @@ class ForgotPasswordTabletPortrait extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: Card(
-          color: isDark ? const Color(0xFF1E2939) : Colors.white,
+          color: isDark ? const Color(0xFF161B22) : Colors.white,
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
@@ -49,7 +49,7 @@ class ForgotPasswordTabletPortrait extends StatelessWidget {
                       labelText: 'Email Address',
                       labelStyle: const TextStyle(color: Colors.grey),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF101828) : Colors.grey[50], // Background Color for input
+                      fillColor: isDark ? const Color(0xFF0D1117) : Colors.grey[50], // Background Color for input
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,

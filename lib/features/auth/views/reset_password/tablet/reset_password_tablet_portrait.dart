@@ -13,7 +13,7 @@ class ResetPasswordTabletPortrait extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: Card(
-          color: const Color(0xFF1E2939),
+          color: const Color(0xFF161B22),
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
@@ -51,7 +51,7 @@ class ResetPasswordTabletPortrait extends StatelessWidget {
                       labelText: 'New Password',
                       labelStyle: const TextStyle(color: Colors.grey),
                       filled: true,
-                      fillColor: const Color(0xFF101828),
+                      fillColor: const Color(0xFF0D1117),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
@@ -78,7 +78,7 @@ class ResetPasswordTabletPortrait extends StatelessWidget {
                       labelText: 'Confirm Password',
                       labelStyle: const TextStyle(color: Colors.grey),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF101828) : Colors.grey[50],
+                      fillColor: isDark ? const Color(0xFF0D1117) : Colors.grey[50],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,

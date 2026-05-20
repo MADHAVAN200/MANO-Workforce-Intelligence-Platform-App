@@ -74,7 +74,7 @@ class VerifyOtpScreenState extends State<VerifyOtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFF101828), // Removed hardcoded color
+      // backgroundColor: const Color(0xFF0D1117), // Removed hardcoded color
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 600) {

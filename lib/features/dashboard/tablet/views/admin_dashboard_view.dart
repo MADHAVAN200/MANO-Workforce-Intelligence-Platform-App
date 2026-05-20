@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../../shared/services/dashboard_provider.dart';
 import '../../../../shared/models/dashboard_model.dart';
 import '../../../../shared/navigation/navigation_controller.dart'; 
-import '../../dashboard.dart';
 import '../widgets/action_card.dart';
 import '../widgets/activity_feed.dart';
 import '../widgets/stat_card.dart';
@@ -25,6 +24,31 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     });
   }
 
+  // Quick actions specific to Admin
+  final List<Map<String, dynamic>> adminQuickActions = [
+    {
+      'title': 'Manage Shifts',
+      'subtitle': 'Update work schedules',
+      'icon': Icons.work_outline,
+      'color': const Color(0xFF8B5CF6),
+      'page': PageType.policyEngine,
+    },
+    {
+      'title': 'Geo Fencing',
+      'subtitle': 'Configure site coordinates',
+      'icon': Icons.map_outlined,
+      'color': const Color(0xFFE11D48),
+      'page': PageType.geoFencing,
+    },
+    {
+      'title': 'Add Employee',
+      'subtitle': 'Create new user profile',
+      'icon': Icons.person_add_outlined,
+      'color': const Color(0xFF6366F1),
+      'page': PageType.employees,
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
@@ -33,30 +57,36 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Row 1: KPI Cards
-              _buildKPISection(provider.stats, provider.trends),
-              const SizedBox(height: 32),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final isLandscape = constraints.maxWidth >= 900;
 
-              // Row 2: Quick Actions
-              _buildQuickActions(),
-              const SizedBox(height: 32),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(32, 4, 32, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Row 1: KPI Cards
+                  _buildKPISection(provider.stats, provider.trends, isLandscape),
+                  const SizedBox(height: 32),
 
-              // Row 3: Split View (Chart & Feed)
-              _buildSplitView(provider),
-              const SizedBox(height: 16),
-            ],
-          ),
+                  // Row 2: Quick Actions
+                  _buildQuickActions(isLandscape),
+                  const SizedBox(height: 32),
+
+                  // Row 3: Split View (Chart, Feed, and Anomalies)
+                  _buildSplitView(provider, isLandscape),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          }
         );
       }
     );
   }
 
-  Widget _buildKPISection(DashboardStats stats, DashboardTrends trends) {
+  Widget _buildKPISection(DashboardStats stats, DashboardTrends trends, bool isLandscape) {
     final kpis = [
       {
         'title': 'Present Today',
@@ -69,14 +99,14 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         'color': const Color(0xFF10B981),
       },
       {
-        'title': 'Absent',
-        'value': stats.absentToday.toString(),
-        'total': 'Employees',
-        'percentage': trends.absent.startsWith('-') ? trends.absent : '+${trends.absent}',
-        'context': 'vs yesterday',
-        'isPositive': trends.absent.startsWith('-'), 
-        'icon': Icons.cancel_outlined,
-        'color': const Color(0xFFEF4444), // Red
+        'title': 'Total Employees',
+        'value': stats.totalEmployees.toString(),
+        'total': 'Registered',
+        'percentage': '',
+        'context': 'Active Staff',
+        'isPositive': true,
+        'icon': Icons.people_outline,
+        'color': const Color(0xFF3B82F6),
       },
       {
         'title': 'Late Check-ins',
@@ -100,31 +130,68 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       },
     ];
 
-    return Row(
-      children: kpis.map((data) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10), // Gutter
-             child: SizedBox(
-               height: 140, // Fixed height to constrain Expanded child
-               child: StatCard(
-                title: data['title'] as String,
-                value: data['value'] as String,
-                total: data['total'] as String,
-                percentage: data['percentage'] as String,
-                contextText: data['context'] as String,
-                isPositive: data['isPositive'] as bool,
-                icon: data['icon'] as IconData,
-                baseColor: data['color'] as Color,
+    if (isLandscape) {
+      return Row(
+        children: kpis.map((data) {
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SizedBox(
+                height: 140,
+                child: StatCard(
+                  title: data['title'] as String,
+                  value: data['value'] as String,
+                  total: data['total'] as String,
+                  percentage: data['percentage'] as String,
+                  contextText: data['context'] as String,
+                  isPositive: data['isPositive'] as bool,
+                  icon: data['icon'] as IconData,
+                  baseColor: data['color'] as Color,
+                ),
               ),
             ),
-          ),
-        );
-      }).toList(),
-    );
+          );
+        }).toList(),
+      );
+    } else {
+      return GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+        childAspectRatio: 2.2,
+        children: kpis.map((data) {
+          return StatCard(
+            title: data['title'] as String,
+            value: data['value'] as String,
+            total: data['total'] as String,
+            percentage: data['percentage'] as String,
+            contextText: data['context'] as String,
+            isPositive: data['isPositive'] as bool,
+            icon: data['icon'] as IconData,
+            baseColor: data['color'] as Color,
+          );
+        }).toList(),
+      );
+    }
   }
 
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(bool isLandscape) {
+    final actions = adminQuickActions.map((data) {
+      return ActionCard(
+        title: data['title'],
+        subtitle: data['subtitle'],
+        icon: data['icon'],
+        color: data['color'],
+        onTap: () {
+          if (data['page'] != null) {
+            navigateTo(data['page'] as PageType);
+          }
+        },
+      );
+    }).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -138,49 +205,90 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           ),
         ),
         const SizedBox(height: 16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 2.5,
-          ),
-          itemCount: DashboardLogic.quickActions.length,
-          itemBuilder: (context, index) {
-            final data = DashboardLogic.quickActions[index];
-            return ActionCard(
-              title: data['title'],
-              subtitle: data['subtitle'],
-              icon: data['icon'],
-              color: data['color'],
-               onTap: () {
+        if (isLandscape)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              childAspectRatio: 2.5,
+            ),
+            itemCount: adminQuickActions.length,
+            itemBuilder: (context, index) {
+              final data = adminQuickActions[index];
+              return ActionCard(
+                title: data['title'],
+                subtitle: data['subtitle'],
+                icon: data['icon'],
+                color: data['color'],
+                onTap: () {
                   if (data['page'] != null) {
                     navigateTo(data['page'] as PageType);
                   }
-               },
-            );
-          },
-        ),
+                },
+              );
+            },
+          )
+        else
+          // Portrait: Stack actions one below the other
+          Column(
+            children: actions.map((card) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 100,
+                  child: card,
+                ),
+              );
+            }).toList(),
+          ),
       ],
     );
   }
 
-  Widget _buildSplitView(DashboardProvider provider) {
-    // Always use Column layout as per user request for Tablet Landscape
-    return Column(
-      children: [
-        SizedBox(
-          height: 400,
-          child: TrendsChart(chartData: provider.chartData),
-        ),
-        const SizedBox(height: 32),
-        // ActivityFeed grows naturally in Column, no fixed height needed
-        ActivityFeed(
-          activities: provider.activities,
-        ),
-      ],
-    );
+  Widget _buildSplitView(DashboardProvider provider, bool isLandscape) {
+    if (isLandscape) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 3,
+            child: SizedBox(
+              height: 400,
+              child: TrendsChart(chartData: provider.chartData),
+            ),
+          ),
+          const SizedBox(width: 32),
+          Expanded(
+            flex: 2,
+            child: SizedBox(
+              height: 400,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    ActivityFeed(activities: provider.activities),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          SizedBox(
+            height: 350,
+            child: TrendsChart(chartData: provider.chartData),
+          ),
+          const SizedBox(height: 32),
+          ActivityFeed(activities: provider.activities),
+        ],
+      );
+    }
   }
 }
