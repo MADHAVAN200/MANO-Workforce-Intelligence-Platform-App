@@ -13,6 +13,8 @@ class CustomDialog extends StatelessWidget {
   final Color? iconColor;
   final bool isDestructive;
   final Color? positiveButtonColor;
+  final AlignmentGeometry? alignment;
+  final EdgeInsets? insetPadding;
 
   const CustomDialog({
     super.key,
@@ -26,6 +28,8 @@ class CustomDialog extends StatelessWidget {
     this.iconColor,
     this.isDestructive = false,
     this.positiveButtonColor,
+    this.alignment,
+    this.insetPadding,
   });
 
   static Future<bool?> show({
@@ -40,6 +44,8 @@ class CustomDialog extends StatelessWidget {
     Color? iconColor,
     bool isDestructive = false,
     Color? positiveButtonColor,
+    AlignmentGeometry? alignment,
+    EdgeInsets? insetPadding,
   }) {
     return showDialog<bool>(
       context: context,
@@ -55,6 +61,8 @@ class CustomDialog extends StatelessWidget {
         iconColor: iconColor,
         isDestructive: isDestructive,
         positiveButtonColor: positiveButtonColor,
+        alignment: alignment,
+        insetPadding: insetPadding,
       ),
     );
   }
@@ -64,6 +72,8 @@ class CustomDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
+      alignment: alignment,
+      insetPadding: insetPadding ?? const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
       child: _buildCardDialog(context),
     );
   }
@@ -76,7 +86,7 @@ class CustomDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2939) : Colors.white,
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.05)) : null,
         boxShadow: [
@@ -92,7 +102,7 @@ class CustomDialog extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, {required bool isDark}) {
-    final textColor = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textColor = isDark ? Colors.white : const Color(0xFF30363D);
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF64748B);
 
     return Column(

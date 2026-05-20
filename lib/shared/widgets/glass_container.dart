@@ -63,10 +63,10 @@ class GlassContainer extends StatelessWidget {
       margin: margin,
       decoration: BoxDecoration(
         // Use provided color OR default to Card Color (#1E2939). 
-        color: color ?? const Color(0xFF1E2939),
+        color: color ?? const Color(0xFF161B22),
         gradient: gradient, // Added
         borderRadius: BorderRadius.circular(borderRadius),
-        border: border, 
+        border: border ?? Border.all(color: const Color(0xFF30363D), width: 1), 
         boxShadow: const <BoxShadow>[], 
       ),
       child: Padding(

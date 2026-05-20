@@ -40,7 +40,7 @@ class GlassDropdown<T> extends StatelessWidget {
               value: value,
               items: items,
               onChanged: onChanged,
-              dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+              dropdownColor: isDark ? const Color(0xFF30363D) : Colors.white,
               style: GoogleFonts.poppins(color: isDark ? Colors.white : Colors.black87),
               icon: Icon(Icons.arrow_drop_down, color: isDark ? Colors.white70 : Colors.black54),
             ),

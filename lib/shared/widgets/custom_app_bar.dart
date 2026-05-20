@@ -4,12 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../providers/theme_simple.dart';
 import 'glass_container.dart';
 import 'package:provider/provider.dart';
-import '../../features/auth/login_screen.dart';
+import '../../main.dart';
 import '../services/auth_service.dart';
 import '../navigation/navigation_controller.dart';
 import '../../features/notifications/mobile/views/notifications_view.dart'; // Import Mobile View
 import '../services/notification_service.dart';
 import 'notification_list.dart';
+import 'toast_helper.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showDrawerButton;
@@ -26,15 +27,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: isDark ? const Color(0xFF101828) : Colors.white,
+        statusBarColor: isDark ? const Color(0xFF0D1117) : Colors.white,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF101828) : Colors.white,
+          color: isDark ? const Color(0xFF0D1117) : Colors.white,
           border: Border(
             bottom: BorderSide(
-              color: isDark ? const Color(0xFF1E293B) : Colors.grey[300]!,
+              color: isDark ? const Color(0xFF30363D) : Colors.grey[300]!,
               width: 1,
             ),
           ),
@@ -198,14 +199,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                       await auth.logout();
                                       
                                       if (context.mounted) {
+                                        context.showToast('Logged out successfully', isSuccess: true);
                                         Navigator.pushAndRemoveUntil(
                                           context,
-                                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                          MaterialPageRoute(builder: (_) => const AuthWrapper()),
                                           (route) => false,
-                                        );
-                                        
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Logged out successfully')),
                                         );
                                       }
                                     }, isDestructive: true),

@@ -59,7 +59,8 @@ class _GlassDatePickerState extends State<GlassDatePicker> {
     return Dialog(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: padding, vertical: padding),
+      insetPadding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
+      alignment: Alignment.bottomCenter,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: width),
         child: GlassContainer(
