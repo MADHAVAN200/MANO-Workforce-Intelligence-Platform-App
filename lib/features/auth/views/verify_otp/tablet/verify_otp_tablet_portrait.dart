@@ -14,7 +14,7 @@ class VerifyOtpTabletPortrait extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: Card(
-          color: const Color(0xFF1E2939),
+          color: const Color(0xFF161B22),
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
@@ -55,7 +55,7 @@ class VerifyOtpTabletPortrait extends StatelessWidget {
                       hintText: '000000',
                       hintStyle: const TextStyle(color: Colors.grey, letterSpacing: 4),
                       filled: true,
-                      fillColor: const Color(0xFF101828),
+                      fillColor: const Color(0xFF0D1117),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,

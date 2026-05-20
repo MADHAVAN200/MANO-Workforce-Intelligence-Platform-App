@@ -19,7 +19,7 @@ class MobileEmployeeDashboardContent extends StatelessWidget {
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -28,6 +28,7 @@ class MobileEmployeeDashboardContent extends StatelessWidget {
                 userName: user?.name ?? 'Employee', 
                 onAttendanceTap: () => navigateTo(PageType.myAttendance), 
                 onHolidayTap: () => navigateTo(PageType.leavesAndHolidays),
+                onLeaveTap: () => navigateTo(PageType.leavesAndHolidays),
               ),
               const SizedBox(height: 24),
 

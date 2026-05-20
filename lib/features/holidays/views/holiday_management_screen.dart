@@ -206,7 +206,7 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2939) : Colors.white,
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.white.withAlpha(12) : Colors.grey.shade300,
@@ -236,7 +236,7 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
       ),
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        backgroundColor: isDark ? const Color(0xFF1E2939) : Colors.white,
+        backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
         shape: RoundedRectangleBorder(
            borderRadius: BorderRadius.circular(12),
            side: BorderSide(color: isDark ? Colors.white.withAlpha(12) : Colors.grey.shade300)
@@ -271,7 +271,7 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
     return GlassContainer(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      color: isDark ? const Color(0xFF1E2939) : Colors.white,
+      color: isDark ? const Color(0xFF161B22) : Colors.white,
       border: isDark ? null : Border.all(color: Colors.grey.shade200),
       child: Column(
         children: [
