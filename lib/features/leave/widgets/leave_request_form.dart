@@ -110,7 +110,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2939) : Colors.white,
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -124,7 +124,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : const Color(0xFF1E293B),
+                color: isDark ? Colors.white : const Color(0xFF30363D),
               ),
               textAlign: TextAlign.center,
             ),
@@ -142,7 +142,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
               }).toList(),
               onChanged: (val) => setState(() => _selectedLeaveType = val),
               validator: (val) => val == null ? 'Required' : null,
-              dropdownColor: isDark ? const Color(0xFF1E2939) : Colors.white,
+              dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
               style: TextStyle(color: isDark ? Colors.white : Colors.black87),
             ),
             const SizedBox(height: 16),

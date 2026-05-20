@@ -263,7 +263,7 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait> with SingleTi
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark 
-            ? const Color(0xFF0F172A) 
+            ? const Color(0xFF0D1117) 
             : const Color(0xFFF1F5F9), // Match MyAttendanceView
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -277,7 +277,7 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait> with SingleTi
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark 
-              ? const Color(0xFF334155) 
+              ? const Color(0xFF30363D) 
               : Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [

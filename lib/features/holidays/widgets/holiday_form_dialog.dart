@@ -100,7 +100,7 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
                  validator: (value) => value == null || value.isEmpty ? 'Please enter a name' : null,
                  decoration: InputDecoration(
                    filled: true,
-                   fillColor: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.5) : Colors.grey[100],
+                   fillColor: isDark ? const Color(0xFF0D1117).withValues(alpha: 0.5) : Colors.grey[100],
                    hintText: "e.g. New Year's Day",
                    hintStyle: GoogleFonts.poppins(color: Colors.grey),
                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -119,7 +119,7 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
                  child: Container(
                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                    decoration: BoxDecoration(
-                     color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.5) : Colors.grey[100],
+                     color: isDark ? const Color(0xFF0D1117).withValues(alpha: 0.5) : Colors.grey[100],
                      borderRadius: BorderRadius.circular(12),
                      border: Border.all(color: isDark ? Colors.white10 : Colors.grey.shade300),
                    ),
@@ -143,13 +143,13 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
                const SizedBox(height: 8),
                DropdownButtonFormField<String>(
                  value: _type,
-                 dropdownColor: isDark ? const Color(0xFF1E2939) : Colors.white,
+                 dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
                  style: GoogleFonts.poppins(color: textColor),
                  items: ["Public", "Optional", "Observance"].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                  onChanged: (val) => setState(() => _type = val!),
                  decoration: InputDecoration(
                    filled: true,
-                   fillColor: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.5) : Colors.grey[100],
+                   fillColor: isDark ? const Color(0xFF0D1117).withValues(alpha: 0.5) : Colors.grey[100],
                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : Colors.grey.shade300)),

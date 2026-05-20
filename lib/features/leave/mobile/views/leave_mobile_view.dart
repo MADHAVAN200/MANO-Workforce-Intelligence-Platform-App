@@ -336,7 +336,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView> with SingleTickerProv
       builder: (context) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E2939) : Colors.white,
+            color: isDark ? const Color(0xFF161B22) : Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: SafeArea(
@@ -366,7 +366,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView> with SingleTickerProv
                     'Edit Holiday',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : const Color(0xFF1E2939),
+                      color: isDark ? Colors.white : const Color(0xFF161B22),
                     ),
                   ),
                   onTap: () {
@@ -387,7 +387,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView> with SingleTickerProv
                     'Delete Holiday',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : const Color(0xFF1E2939),
+                      color: isDark ? Colors.white : const Color(0xFF161B22),
                     ),
                   ),
                   onTap: () {
@@ -427,7 +427,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView> with SingleTickerProv
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF334155) : Theme.of(context).primaryColor.withOpacity(0.1),
+                    color: isDark ? const Color(0xFF30363D) : Theme.of(context).primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -469,7 +469,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView> with SingleTickerProv
       child: Container(
         height: 48,
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E2939) : const Color(0xFFF1F5F9), 
+          color: isDark ? const Color(0xFF161B22) : const Color(0xFFF1F5F9), 
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(4),
@@ -477,7 +477,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView> with SingleTickerProv
           controller: _tabController,
           onTap: (index) => setState(() {}),
           indicator: BoxDecoration(
-            color: isDark ? const Color(0xFF334155) : Colors.white,
+            color: isDark ? const Color(0xFF30363D) : Colors.white,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(

@@ -182,7 +182,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape> with Single
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+          color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey[300]!
@@ -192,7 +192,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape> with Single
           controller: _tabController,
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
-            color: isDark ? const Color(0xFF334155) : Colors.white,
+            color: isDark ? const Color(0xFF30363D) : Colors.white,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -234,7 +234,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape> with Single
 
   Widget _buildHolidaysView(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF1E2939) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
     final borderColor = isDark ? Colors.transparent : Colors.grey[200]!;
 
     return Column(
@@ -333,7 +333,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape> with Single
 
   Widget _buildLeaveApplicationView(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? const Color(0xFF1E2939) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
     final borderColor = isDark ? Colors.transparent : Colors.grey[200]!;
     
     return SingleChildScrollView(
