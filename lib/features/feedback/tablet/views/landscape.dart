@@ -117,7 +117,7 @@ class _FeedbackTabletLandscapeState extends State<FeedbackTabletLandscape> with 
              margin: const EdgeInsets.only(bottom: 32),
              padding: const EdgeInsets.all(4),
              decoration: BoxDecoration(
-               color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9), 
+               color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9), 
                borderRadius: BorderRadius.circular(12),
                border: Border.all(
                  color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey[300]!
@@ -127,7 +127,7 @@ class _FeedbackTabletLandscapeState extends State<FeedbackTabletLandscape> with 
                controller: _tabController,
                indicatorSize: TabBarIndicatorSize.tab,
                indicator: BoxDecoration(
-                 color: isDark ? const Color(0xFF334155) : Colors.white,
+                 color: isDark ? const Color(0xFF30363D) : Colors.white,
                  borderRadius: BorderRadius.circular(8),
                  boxShadow: [
                    BoxShadow(
@@ -235,7 +235,7 @@ class _FeedbackTabletLandscapeState extends State<FeedbackTabletLandscape> with 
                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor)),
                        filled: true,
-                       fillColor: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                       fillColor: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                      ),
                    ),
                    const SizedBox(height: 24),
@@ -258,7 +258,7 @@ class _FeedbackTabletLandscapeState extends State<FeedbackTabletLandscape> with 
                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor)),
                          filled: true,
-                         fillColor: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                         fillColor: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                        ),
                      ),
                    ),

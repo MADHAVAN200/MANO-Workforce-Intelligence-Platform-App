@@ -55,7 +55,7 @@ class _AdminLeaveHistoryState extends State<AdminLeaveHistory> {
                   height: 36,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E293B) : Colors.grey[100],
+                    color: isDark ? const Color(0xFF30363D) : Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: isDark ? Colors.white10 : Colors.grey[300]!),
                   ),
@@ -63,7 +63,7 @@ class _AdminLeaveHistoryState extends State<AdminLeaveHistory> {
                     child: DropdownButton<String>(
                       value: _selectedStatus,
                       isDense: true,
-                      dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      dropdownColor: isDark ? const Color(0xFF30363D) : Colors.white,
                       style: TextStyle(
                         fontSize: 13,
                         color: isDark ? Colors.white : Colors.black87,

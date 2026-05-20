@@ -220,7 +220,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
           SizedBox(
             width: 320,
             child: GlassContainer(
-              color: isDark ? const Color(0xFF1E2939) : Colors.white,
+              color: isDark ? const Color(0xFF161B22) : Colors.white,
               borderRadius: 12,
               padding: EdgeInsets.zero,
               child: Column(
@@ -239,7 +239,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
           Expanded(
             flex: 2,
             child: GlassContainer(
-               color: isDark ? const Color(0xFF1E2939) : Colors.white,
+               color: isDark ? const Color(0xFF161B22) : Colors.white,
                borderRadius: 12,
                padding: const EdgeInsets.all(24),
                child: _selectedLocation == null 
@@ -254,7 +254,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
           SizedBox(
             width: 320,
             child: GlassContainer(
-              color: isDark ? const Color(0xFF1E2939) : Colors.white,
+              color: isDark ? const Color(0xFF161B22) : Colors.white,
               borderRadius: 12,
               padding: EdgeInsets.zero,
               child: Column(
@@ -368,7 +368,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
      return Container(
        padding: const EdgeInsets.all(16),
        decoration: BoxDecoration(
-         color: isDark ? const Color(0xFF0F172A) : Colors.grey[50],
+         color: isDark ? const Color(0xFF0D1117) : Colors.grey[50],
          borderRadius: BorderRadius.circular(12),
          border: Border.all(color: isDark ? Colors.white10 : Colors.grey[200]!)
        ),
@@ -443,7 +443,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
              decoration: BoxDecoration(
                color: isSelected && !isMobile
                   ? (isDark ? Colors.indigo.withValues(alpha: 0.2) : Colors.indigo[50])
-                  : (isDark ? const Color(0xFF1E2939) : Colors.white),
+                  : (isDark ? const Color(0xFF161B22) : Colors.white),
                borderRadius: BorderRadius.circular(8),
                border: isSelected && !isMobile ? Border.all(color: Colors.indigo.withValues(alpha: 0.5)) : null,
              ),
@@ -593,7 +593,7 @@ class __LocationFormDialogState extends State<_LocationFormDialog> {
       final isDark = Theme.of(context).brightness == Brightness.dark;
       
       // Theme Colors
-      final glassColor = isDark ? const Color(0xFF1E2939) : Colors.white;
+      final glassColor = isDark ? const Color(0xFF161B22) : Colors.white;
       final textColor = isDark ? Colors.white : Colors.black87;
       final hintColor = isDark ? Colors.white54 : Colors.grey;
 
@@ -724,7 +724,7 @@ class _GlassTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.grey[100],
+        color: isDark ? const Color(0xFF0D1117) : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: isDark ? Colors.white10 : Colors.grey[300]!),
       ),

@@ -120,7 +120,7 @@ class _FeedbackMobileViewState extends State<FeedbackMobileView> with SingleTick
      final primaryColor = const Color(0xFF5B60F6);
 
      return Scaffold(
-       backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+       backgroundColor: isDark ? const Color(0xFF0D1117) : Colors.white,
        body: SafeArea(
          top: false, // Prevent double padding with CustomAppBar
          child: Column(
@@ -131,14 +131,14 @@ class _FeedbackMobileViewState extends State<FeedbackMobileView> with SingleTick
                child: Container(
                  height: 48,
                  decoration: BoxDecoration(
-                   color: isDark ? const Color(0xFF1E2939) : const Color(0xFFF1F5F9), 
+                   color: isDark ? const Color(0xFF161B22) : const Color(0xFFF1F5F9), 
                    borderRadius: BorderRadius.circular(12),
                  ),
                  padding: const EdgeInsets.all(4),
                  child: TabBar(
                    controller: _tabController!,
                    indicator: BoxDecoration(
-                     color: isDark ? const Color(0xFF334155) : Colors.white,
+                     color: isDark ? const Color(0xFF30363D) : Colors.white,
                      borderRadius: BorderRadius.circular(10),
                      boxShadow: [
                        BoxShadow(
@@ -216,7 +216,7 @@ class _FeedbackMobileViewState extends State<FeedbackMobileView> with SingleTick
                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor)),
                  filled: true,
-                 fillColor: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                 fillColor: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                ),
              ),
              const SizedBox(height: 20),
@@ -237,7 +237,7 @@ class _FeedbackMobileViewState extends State<FeedbackMobileView> with SingleTick
                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor)),
                  filled: true,
-                 fillColor: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                 fillColor: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                ),
              ),
              const SizedBox(height: 20),
@@ -252,7 +252,7 @@ class _FeedbackMobileViewState extends State<FeedbackMobileView> with SingleTick
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                    color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),

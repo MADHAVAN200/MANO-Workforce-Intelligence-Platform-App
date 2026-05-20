@@ -116,7 +116,7 @@ class _FeedbackTabletPortraitState extends State<FeedbackTabletPortrait> with Si
            child: Container(
              height: 50,
              decoration: BoxDecoration(
-               color: isDark ? const Color(0xFF1E2939) : const Color(0xFFF1F5F9), 
+               color: isDark ? const Color(0xFF161B22) : const Color(0xFFF1F5F9), 
                borderRadius: BorderRadius.circular(12),
              ),
              padding: const EdgeInsets.all(4),
@@ -170,7 +170,7 @@ class _FeedbackTabletPortraitState extends State<FeedbackTabletPortrait> with Si
       borderRadius: BorderRadius.circular(10),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? (isDark ? const Color(0xFF334155) : Colors.white) : Colors.transparent,
+          color: isSelected ? (isDark ? const Color(0xFF30363D) : Colors.white) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           boxShadow: isSelected ? [
             BoxShadow(
@@ -225,7 +225,7 @@ class _FeedbackTabletPortraitState extends State<FeedbackTabletPortrait> with Si
                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor)),
                    filled: true,
-                   fillColor: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                   fillColor: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                  ),
                ),
                const SizedBox(height: 24),
@@ -246,7 +246,7 @@ class _FeedbackTabletPortraitState extends State<FeedbackTabletPortrait> with Si
                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: primaryColor)),
                    filled: true,
-                   fillColor: isDark ? const Color(0xFF1E2939) : const Color(0xFFF8FAFC),
+                   fillColor: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
                  ),
                ),
                const SizedBox(height: 24),

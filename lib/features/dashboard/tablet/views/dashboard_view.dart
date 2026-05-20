@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../shared/services/auth_service.dart';
 import 'admin_dashboard_view.dart';
 import 'employee_dashboard_view.dart';
+import 'hr_dashboard_view.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -21,7 +22,11 @@ class DashboardView extends StatelessWidget {
       return const EmployeeDashboardView();
     }
 
-    // Default to Admin view for Admin/HR
+    if (user.isHr) {
+      return const HrDashboardView();
+    }
+
+    // Default to Admin view
     return const AdminDashboardView();
   }
 }

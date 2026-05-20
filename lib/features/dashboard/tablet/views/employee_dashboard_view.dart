@@ -35,15 +35,16 @@ class _EmployeeDashboardViewState extends State<EmployeeDashboardView> {
             final isPortrait = constraints.maxWidth < 900;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.fromLTRB(32, 4, 32, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch for full width
                 children: [
-                   // 1. Hero Section
+                  // 1. Hero Section
                   EmployeeHero(
                     userName: user?.name ?? 'Employee',
                     onAttendanceTap: () => navigateTo(PageType.myAttendance),
                     onHolidayTap: () => navigateTo(PageType.leavesAndHolidays),
+                    onLeaveTap: () => navigateTo(PageType.leavesAndHolidays),
                   ),
                   const SizedBox(height: 32),
 

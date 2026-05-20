@@ -12,7 +12,7 @@ import '../../../leave/tablet/views/leave_view.dart';
 import '../../../policy_engine/tablet/views/policy_engine_view.dart';
 import '../../../profile/tablet/views/profile_view.dart';
 import '../../../feedback/tablet/views/landscape.dart';
-import '../../../daily_activity/tablet/views/daily_activity_tablet_landscape.dart';
+import '../../../daily_activity/daily_activity_screen.dart';
 
 class TabletLandscape extends StatelessWidget {
   const TabletLandscape({super.key});
@@ -22,7 +22,7 @@ class TabletLandscape extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? const Color(0xFF101828) : const Color(0xFFF8FAFC), // Solid background
+      color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC), // Solid background
       // decoration: BoxDecoration(...) removed for flat design
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -32,7 +32,7 @@ class TabletLandscape extends StatelessWidget {
             Expanded(
               child: Scaffold(
                 backgroundColor: Theme.of(context).brightness == Brightness.dark 
-                    ? const Color(0xFF101828) // Matches Sidebar
+                    ? const Color(0xFF0D1117) // Matches Sidebar
                     : Colors.transparent,
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -69,7 +69,7 @@ class TabletLandscape extends StatelessWidget {
                       case PageType.profile:
                         return const ProfileView();
                       case PageType.dailyActivity:
-                        return const TabletLandscapeDailyActivityView();
+                        return const DailyActivityScreen();
                       default:
                         // GeoFencing check might be needed if mobile-only
                          if (currentPage == PageType.geoFencing) {

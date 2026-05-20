@@ -21,7 +21,7 @@ class TabletPortrait extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      color: isDark ? const Color(0xFF101828) : const Color(0xFFF8FAFC), // Dynamic background
+      color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC), // Dynamic background
       // Gradients removed for stricter flat design
       // decoration: BoxDecoration(...) removed
       child: Scaffold(
