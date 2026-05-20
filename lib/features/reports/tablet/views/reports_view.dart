@@ -7,6 +7,7 @@ import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../services/report_service.dart';
 import '../../models/report_history_model.dart';
+import '../../../../shared/widgets/toast_helper.dart';
 
 class ReportsView extends StatefulWidget {
   const ReportsView({super.key});
@@ -119,6 +120,9 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
       if (path != null && mounted) {
         // Refresh history from storage
         _loadHistory();
+
+        // Show success toast
+        context.showToast("Report downloaded successfully!", isSuccess: true);
 
         // Show Success Popup
         showDialog(
@@ -290,7 +294,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
                           height: 48,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF1E2939) : Colors.grey[100],
+                            color: isDark ? const Color(0xFF161B22) : Colors.grey[100],
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[300]!),
                           ),
@@ -337,7 +341,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2939) : Colors.grey[100],
+                        color: isDark ? const Color(0xFF161B22) : Colors.grey[100],
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[300]!),
                       ),
@@ -352,7 +356,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
                             color: Theme.of(context).textTheme.bodyLarge?.color,
                             fontWeight: FontWeight.w500,
                           ),
-                          dropdownColor: isDark ? const Color(0xFF1E2939) : Colors.white,
+                          dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
                           onChanged: (String? newValue) {
                             if (newValue != null) {
                               setState(() {
@@ -494,7 +498,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
          color: Theme.of(context).brightness == Brightness.dark 
-            ? const Color(0xFF0F172A) // Match Dark Color
+            ? const Color(0xFF0D1117) // Match Dark Color
             : const Color(0xFFF1F5F9), // Match Light Color
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -508,7 +512,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark 
-              ? const Color(0xFF334155) 
+              ? const Color(0xFF30363D) 
               : Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [

@@ -24,13 +24,13 @@ class AppSidebar extends StatelessWidget {
       height: double.infinity,
       blur: 0, // No blur
       color: Theme.of(context).brightness == Brightness.dark 
-          ? const Color(0xFF0F172A) // Darker Sidebar (Slate 900)
+          ? const Color(0xFF0D1117) // Darker Sidebar (Slate 900)
           : const Color(0xFFFFFFFF), // Solid White for Light Mode
       borderRadius: 0,
       border: Border(
         right: BorderSide(
           color: isDark 
-              ? const Color(0xFF1E293B) // Slate 800 for subtle contrast
+              ? const Color(0xFF30363D) // Slate 800 for subtle contrast
               : Colors.grey[300]!,
           width: 1,
         ),
@@ -48,7 +48,7 @@ class AppSidebar extends StatelessWidget {
                   border: Border(
                     bottom: BorderSide(
                       color: isDark 
-                          ? const Color(0xFF1E293B) // Slate 800 for subtle contrast in black mode
+                          ? const Color(0xFF30363D) // Slate 800 for subtle contrast in black mode
                           : Colors.grey[300]!,
                       width: 1,
                     ),

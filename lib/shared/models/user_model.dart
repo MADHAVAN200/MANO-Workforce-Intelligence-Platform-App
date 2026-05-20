@@ -37,6 +37,8 @@ class User {
   }
 
   bool get isAdmin => role == 'admin' || role == 'hr';
+  bool get isHr => role == 'hr';
+  bool get isSystemAdmin => role == 'admin';
   bool get isEmployee => role == 'employee';
   
   // Alias for clarity as per API docs (user_code = Employee ID)

@@ -23,7 +23,7 @@ class MainLayout extends StatelessWidget {
 
     return Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF101828) : const Color(0xFFF8FAFC),
+          color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
           // No gradient in dark mode
         ),
       child: Scaffold(
@@ -38,7 +38,7 @@ class MainLayout extends StatelessWidget {
                 builder: (context, currentPage, _) {
                   return Scaffold(
                     backgroundColor: Theme.of(context).brightness == Brightness.dark 
-                        ? const Color(0xFF101828) 
+                        ? const Color(0xFF0D1117) 
                         : Colors.transparent,
                     appBar: CustomAppBar(
                       showDrawerButton: false,

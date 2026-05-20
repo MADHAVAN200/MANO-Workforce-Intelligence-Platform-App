@@ -7,6 +7,7 @@ import '../../../../shared/widgets/glass_date_picker.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../services/report_service.dart';
 import '../../models/report_history_model.dart';
+import '../../../../shared/widgets/toast_helper.dart';
 
 class MobileReportsContent extends StatefulWidget {
   const MobileReportsContent({super.key});
@@ -114,6 +115,9 @@ class _MobileReportsContentState extends State<MobileReportsContent> with Single
       
       if (path != null && mounted) {
         _loadHistory(); // Refresh history
+        
+        // Show success toast
+        context.showToast("Report downloaded successfully!", isSuccess: true);
         
         // Show Success Popup
         showDialog(
@@ -277,7 +281,7 @@ class _MobileReportsContentState extends State<MobileReportsContent> with Single
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2939) : Colors.grey[100],
+                  color: isDark ? const Color(0xFF161B22) : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[300]!),
                 ),
@@ -315,7 +319,7 @@ class _MobileReportsContentState extends State<MobileReportsContent> with Single
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E2939) : Colors.grey[100],
+              color: isDark ? const Color(0xFF161B22) : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[300]!),
             ),
@@ -439,13 +443,13 @@ class _MobileReportsContentState extends State<MobileReportsContent> with Single
       height: 48,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        color: isDark ? const Color(0xFF30363D) : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-          color: isDark ? const Color(0xFF334155) : Colors.white,
+          color: isDark ? const Color(0xFF30363D) : Colors.white,
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
