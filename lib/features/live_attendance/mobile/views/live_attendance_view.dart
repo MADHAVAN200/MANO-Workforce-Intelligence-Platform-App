@@ -156,13 +156,13 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
       height: 48,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        color: isDark ? const Color(0xFF30363D) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TabBar(
         controller: _tabController,
         indicator: BoxDecoration(
-          color: isDark ? const Color(0xFF334155) : Colors.white, 
+          color: isDark ? const Color(0xFF30363D) : Colors.white, 
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(

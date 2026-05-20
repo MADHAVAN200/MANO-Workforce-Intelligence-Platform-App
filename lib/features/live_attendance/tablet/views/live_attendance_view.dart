@@ -156,7 +156,7 @@ class _LiveAttendanceViewState extends State<LiveAttendanceView> with SingleTick
       margin: const EdgeInsets.fromLTRB(32, 24, 32, 24),
       height: 48,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2939) : Colors.white,
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[300]!),
       ),
@@ -349,7 +349,7 @@ class _LiveAttendanceViewState extends State<LiveAttendanceView> with SingleTick
           height: 44,
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark 
-                ? const Color(0xFF1E2939) 
+                ? const Color(0xFF161B22) 
                 : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
@@ -375,7 +375,7 @@ class _LiveAttendanceViewState extends State<LiveAttendanceView> with SingleTick
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark 
-                ? const Color(0xFF1E2939) 
+                ? const Color(0xFF161B22) 
                 : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(

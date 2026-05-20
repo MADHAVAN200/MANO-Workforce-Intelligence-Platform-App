@@ -3,9 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../shared/navigation/navigation_controller.dart';
 import '../../../../shared/services/auth_service.dart';
-import '../../../auth/login_screen.dart';
+import '../../../../main.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/custom_dialog.dart';
+import '../../../../shared/widgets/toast_helper.dart';
 
 class MobileProfileContent extends StatelessWidget {
   const MobileProfileContent({super.key});
@@ -193,8 +194,10 @@ class MobileProfileContent extends StatelessWidget {
                // Reset internal navigation state
                navigationNotifier.value = PageType.dashboard;
     
+               context.showToast('Logged out successfully', isSuccess: true);
+
               Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(builder: (_) => const AuthWrapper()),
                 (route) => false,
               );
             }

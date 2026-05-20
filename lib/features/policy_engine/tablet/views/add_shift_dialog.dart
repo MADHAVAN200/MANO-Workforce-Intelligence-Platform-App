@@ -121,7 +121,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Dynamic Colors
-    final bgColor = isDark ? const Color(0xFF1E2939) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF161B22) : Colors.white;
     final inputColor = isDark ? const Color(0xFF2D3748) : const Color(0xFFF3F4F6);
     final borderColor = isDark ? const Color(0xFF4A5568) : const Color(0xFFE5E7EB);
     final textColor = isDark ? Colors.white : const Color(0xFF1F2937);
