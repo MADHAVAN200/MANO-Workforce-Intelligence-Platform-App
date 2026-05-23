@@ -30,11 +30,7 @@ class LoginMobilePortrait extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Logo
-                  Image.asset(
-                    'assets/mano.png',
-                    height: 64,
-                    width: 64,
-                  ),
+                  Image.asset('assets/mano.png', height: 64, width: 64),
                   const SizedBox(height: 16),
 
                   // Welcome Back Text
@@ -42,30 +38,33 @@ class LoginMobilePortrait extends StatelessWidget {
                     'Welcome Back',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : Colors.black,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Sign in to continue to MANO Attendance',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        ),
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
                   ),
                   const SizedBox(height: 24),
 
                   Card(
                     elevation: 4,
                     color: isDark ? const Color(0xFF161B22) : Colors.white,
-                    shadowColor: Colors.black.withOpacity(0.1),
+                    shadowColor: Colors.black.withValues(alpha: 0.1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     clipBehavior: Clip.none,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 24,
+                      ),
                       child: Form(
                         key: controller.formKey,
                         child: Column(
@@ -77,29 +76,49 @@ class LoginMobilePortrait extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Email or Phone', 
+                                  'Email or Phone',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white70 : Colors.black87
-                                  )
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.black87,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: controller.identifierController,
-                                  style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : Colors.black,
+                                    fontSize: 14,
+                                  ),
                                   decoration: InputDecoration(
                                     hintText: 'Enter email/phone no.',
-                                    hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.black38),
+                                    hintStyle: TextStyle(
+                                      color: isDark
+                                          ? Colors.white30
+                                          : Colors.black38,
+                                    ),
                                     filled: true,
-                                    fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF0F4FA),
+                                    fillColor: isDark
+                                        ? const Color(0xFF0D1117)
+                                        : const Color(0xFFF0F4FA),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
                                     ),
-                                    prefixIcon: Icon(Icons.mail_outline, color: isDark ? Colors.white54 : Colors.grey),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                    prefixIcon: Icon(
+                                      Icons.mail_outline,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : Colors.grey,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 14,
+                                    ),
                                   ),
-                                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                                  validator: (v) =>
+                                      v!.isEmpty ? 'Required' : null,
                                 ),
                               ],
                             ),
@@ -110,34 +129,39 @@ class LoginMobilePortrait extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'Password', 
+                                      'Password',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white70 : Colors.black87
-                                      )
+                                        color: isDark
+                                            ? Colors.white70
+                                            : Colors.black87,
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) => const ForgotPasswordScreen(),
+                                            builder: (_) =>
+                                                const ForgotPasswordScreen(),
                                           ),
                                         );
                                       },
                                       style: TextButton.styleFrom(
                                         padding: EdgeInsets.zero,
                                         minimumSize: Size.zero,
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
                                       child: const Text(
                                         'Forgot password?',
                                         style: TextStyle(
-                                          color: Color(0xFF4F46E5), 
-                                          fontWeight: FontWeight.bold
+                                          color: Color(0xFF4F46E5),
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -147,35 +171,61 @@ class LoginMobilePortrait extends StatelessWidget {
                                 TextFormField(
                                   controller: controller.passwordController,
                                   obscureText: !controller.isPasswordVisible,
-                                  style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : Colors.black,
+                                  ),
                                   decoration: InputDecoration(
                                     hintText: '••••••',
-                                    hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.black38, letterSpacing: 2),
+                                    hintStyle: TextStyle(
+                                      color: isDark
+                                          ? Colors.white30
+                                          : Colors.black38,
+                                      letterSpacing: 2,
+                                    ),
                                     filled: true,
-                                    fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF0F4FA),
+                                    fillColor: isDark
+                                        ? const Color(0xFF0D1117)
+                                        : const Color(0xFFF0F4FA),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
                                     ),
-                                    prefixIcon: Icon(Icons.lock_outline, color: isDark ? Colors.white54 : Colors.grey),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(controller.isPasswordVisible
-                                          ? Icons.visibility
-                                          : Icons.visibility_off, color: isDark ? Colors.white54 : Colors.grey),
-                                      onPressed: controller.togglePasswordVisibility,
+                                    prefixIcon: Icon(
+                                      Icons.lock_outline,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : Colors.grey,
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        controller.isPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        color: isDark
+                                            ? Colors.white54
+                                            : Colors.grey,
+                                      ),
+                                      onPressed:
+                                          controller.togglePasswordVisibility,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 14,
+                                    ),
                                   ),
-                                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                                  validator: (v) =>
+                                      v!.isEmpty ? 'Required' : null,
                                 ),
                               ],
                             ),
-                            
+
                             // Captcha
                             const SizedBox(height: 20),
                             Center(
                               child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 304),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 304,
+                                ),
                                 child: controller.buildCaptcha(),
                               ),
                             ),
@@ -184,12 +234,15 @@ class LoginMobilePortrait extends StatelessWidget {
 
                             // Login Button
                             ElevatedButton(
-                              onPressed: (controller.isLoading ||
+                              onPressed:
+                                  (controller.isLoading ||
                                       controller.captchaValue == null)
                                   ? null
                                   : controller.handleLogin,
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -202,15 +255,21 @@ class LoginMobilePortrait extends StatelessWidget {
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2),
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
                                     )
                                   : const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Text('Sign in',
-                                            style: TextStyle(
-                                                fontSize: 16, fontWeight: FontWeight.bold)),
+                                        Text(
+                                          'Sign in',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                         SizedBox(width: 8),
                                         Icon(Icons.arrow_forward, size: 20),
                                       ],

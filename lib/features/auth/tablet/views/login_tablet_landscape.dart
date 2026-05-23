@@ -20,11 +20,7 @@ class LoginTabletLandscape extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Logo
-              Image.asset(
-                'assets/mano.png',
-                height: 100,
-                width: 100,
-              ),
+              Image.asset('assets/mano.png', height: 100, width: 100),
               const SizedBox(height: 32),
 
               // Welcome Back Text
@@ -32,25 +28,25 @@ class LoginTabletLandscape extends StatelessWidget {
                 'Welcome Back',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Sign in to continue to MANO Attendance',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                      fontSize: 18,
-                    ),
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  fontSize: 18,
+                ),
               ),
               const SizedBox(height: 48),
 
               Card(
                 elevation: 4,
                 color: isDark ? const Color(0xFF161B22) : Colors.white,
-                shadowColor: Colors.black.withOpacity(0.1),
+                shadowColor: Colors.black.withValues(alpha: 0.1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -68,28 +64,42 @@ class LoginTabletLandscape extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Email or Phone', 
+                              'Email or Phone',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white70 : Colors.black87,
-                                fontSize: 16
-                              )
+                                fontSize: 16,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: controller.identifierController,
-                              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
                               decoration: InputDecoration(
                                 hintText: 'Mano',
-                                hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.black38),
+                                hintStyle: TextStyle(
+                                  color: isDark
+                                      ? Colors.white30
+                                      : Colors.black38,
+                                ),
                                 filled: true,
-                                fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF0F4FA),
+                                fillColor: isDark
+                                    ? const Color(0xFF0D1117)
+                                    : const Color(0xFFF0F4FA),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
                                 ),
-                                prefixIcon: Icon(Icons.mail_outline, color: isDark ? Colors.white54 : Colors.grey),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                                prefixIcon: Icon(
+                                  Icons.mail_outline,
+                                  color: isDark ? Colors.white54 : Colors.grey,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 24,
+                                ),
                               ),
                               validator: (v) => v!.isEmpty ? 'Required' : null,
                             ),
@@ -105,33 +115,37 @@ class LoginTabletLandscape extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Password', 
+                                  'Password',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white70 : Colors.black87,
-                                    fontSize: 16
-                                  )
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.black87,
+                                    fontSize: 16,
+                                  ),
                                 ),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => const ForgotPasswordScreen(),
+                                        builder: (_) =>
+                                            const ForgotPasswordScreen(),
                                       ),
                                     );
                                   },
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   child: const Text(
                                     'Forgot password?',
                                     style: TextStyle(
-                                      color: Color(0xFF4F46E5), 
+                                      color: Color(0xFF4F46E5),
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
@@ -141,30 +155,51 @@ class LoginTabletLandscape extends StatelessWidget {
                             TextFormField(
                               controller: controller.passwordController,
                               obscureText: !controller.isPasswordVisible,
-                              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
                               decoration: InputDecoration(
                                 hintText: '••••••',
-                                hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.black38, letterSpacing: 2),
+                                hintStyle: TextStyle(
+                                  color: isDark
+                                      ? Colors.white30
+                                      : Colors.black38,
+                                  letterSpacing: 2,
+                                ),
                                 filled: true,
-                                fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF0F4FA),
+                                fillColor: isDark
+                                    ? const Color(0xFF0D1117)
+                                    : const Color(0xFFF0F4FA),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
                                 ),
-                                prefixIcon: Icon(Icons.lock_outline, color: isDark ? Colors.white54 : Colors.grey),
-                                suffixIcon: IconButton(
-                                  icon: Icon(controller.isPasswordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off, color: isDark ? Colors.white54 : Colors.grey),
-                                  onPressed: controller.togglePasswordVisibility,
+                                prefixIcon: Icon(
+                                  Icons.lock_outline,
+                                  color: isDark ? Colors.white54 : Colors.grey,
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    controller.isPasswordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    color: isDark
+                                        ? Colors.white54
+                                        : Colors.grey,
+                                  ),
+                                  onPressed:
+                                      controller.togglePasswordVisibility,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 24,
+                                ),
                               ),
                               validator: (v) => v!.isEmpty ? 'Required' : null,
                             ),
                           ],
                         ),
-                        
+
                         // Captcha
                         const SizedBox(height: 32),
                         Center(
@@ -178,7 +213,8 @@ class LoginTabletLandscape extends StatelessWidget {
 
                         // Login Button
                         ElevatedButton(
-                          onPressed: (controller.isLoading ||
+                          onPressed:
+                              (controller.isLoading ||
                                   controller.captchaValue == null)
                               ? null
                               : controller.handleLogin,
@@ -196,15 +232,20 @@ class LoginTabletLandscape extends StatelessWidget {
                                   width: 24,
                                   height: 24,
                                   child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2),
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Sign in',
-                                        style: TextStyle(
-                                            fontSize: 18, fontWeight: FontWeight.bold)),
+                                    Text(
+                                      'Sign in',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     SizedBox(width: 8),
                                     Icon(Icons.arrow_forward, size: 24),
                                   ],

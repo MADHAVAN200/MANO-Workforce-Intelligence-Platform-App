@@ -8,6 +8,7 @@ import 'tablet/views/login_tablet_portrait.dart';
 import 'tablet/views/login_tablet_landscape.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/widgets/toast_helper.dart';
+import '../../shared/navigation/navigation_controller.dart';
 import '../../main.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,10 +25,12 @@ class LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
   bool isPasswordVisible = false;
-  
+
   // New Captcha State
   String? captchaId;
   String? captchaValue;
+
+
 
   void togglePasswordVisibility() {
     setState(() => isPasswordVisible = !isPasswordVisible);
@@ -36,7 +39,7 @@ class LoginScreenState extends State<LoginScreen> {
   void onCaptchaChanged(String? id, String? value) {
     final bool wasValid = captchaValue != null && captchaValue!.isNotEmpty;
     final bool isValid = value != null && value.isNotEmpty;
-    
+
     // Always update the values
     captchaId = id;
     captchaValue = value;
@@ -68,6 +71,9 @@ class LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
       context.showToast("Logged in successfully!", isSuccess: true);
+      // Reset navigation state to dashboard upon login
+      navigateTo(PageType.dashboard);
+
       // Navigate to AuthWrapper to ensure clean state and proper redirection
       Navigator.pushAndRemoveUntil(
         context,
@@ -85,6 +91,8 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
+
+
   void _showError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -95,10 +103,10 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Widget buildCaptcha() {
-    return WordCaptcha(
-      onCaptchaChanged: onCaptchaChanged,
-    );
+    return WordCaptcha(onCaptchaChanged: onCaptchaChanged);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
