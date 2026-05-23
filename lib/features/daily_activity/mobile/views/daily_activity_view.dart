@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../shared/services/auth_service.dart';
@@ -44,6 +45,25 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
     'Meeting',
     'Testing',
   ];
+
+  String _getErrorMessage(dynamic e) {
+    if (e is DioException) {
+      if (e.response != null && e.response!.data != null) {
+        final data = e.response!.data;
+        if (data is Map) {
+          if (data.containsKey('message')) {
+            return data['message'].toString();
+          }
+          if (data.containsKey('error')) {
+            return data['error'].toString();
+          }
+        }
+        return data.toString();
+      }
+      return e.message ?? e.toString();
+    }
+    return e.toString();
+  }
 
   @override
   void initState() {
@@ -90,7 +110,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
       await _fetchMetadata();
     } catch (e) {
       if (mounted)
-        context.showToast("Error loading initial data: $e", isError: true);
+        context.showToast("Error loading initial data: ${_getErrorMessage(e)}", isError: true);
     } finally {
       setState(() => _isLoading = false);
     }
@@ -278,7 +298,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
           _fetchDayData();
         } catch (e) {
           if (mounted)
-            context.showToast("Failed to submit request: $e", isError: true);
+            context.showToast("Failed to submit request: ${_getErrorMessage(e)}", isError: true);
         } finally {
           setState(() => _isLoading = false);
         }
@@ -314,7 +334,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
         _fetchDayData();
       } catch (e) {
         if (mounted)
-          context.showToast("Failed to save task: $e", isError: true);
+          context.showToast("Failed to save task: ${_getErrorMessage(e)}", isError: true);
       } finally {
         setState(() => _isLoading = false);
       }
@@ -372,7 +392,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
         } catch (e) {
           if (mounted)
             context.showToast(
-              "Failed to submit deletion request: $e",
+              "Failed to submit deletion request: ${_getErrorMessage(e)}",
               isError: true,
             );
         } finally {
@@ -391,7 +411,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
         }
       } catch (e) {
         if (mounted)
-          context.showToast("Failed to delete task: $e", isError: true);
+          context.showToast("Failed to delete task: ${_getErrorMessage(e)}", isError: true);
       } finally {
         setState(() => _isLoading = false);
       }
@@ -479,6 +499,14 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
     );
   }
 
+  String? _getInitialTimeIn() {
+    final todayPunch = _attendanceData[_selectedDate];
+    if (todayPunch != null && todayPunch['hasTimedIn'] == true) {
+      return todayPunch['timeIn'];
+    }
+    return null;
+  }
+
   void _openTaskEditor({DarItem? initialItem}) {
     showModalBottomSheet(
       context: context,
@@ -489,6 +517,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
           initialData: initialItem,
           initialDate: _selectedDate,
           categories: _categories,
+          initialTimeIn: _getInitialTimeIn(),
           onSave: (payload) => _handleSaveTask(payload, initialItem),
           onDelete: initialItem == null
               ? null
@@ -542,7 +571,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
               _fetchDayData();
             } catch (e) {
               if (mounted)
-                context.showToast("Failed to save event: $e", isError: true);
+                context.showToast("Failed to save event: ${_getErrorMessage(e)}", isError: true);
             } finally {
               setState(() => _isLoading = false);
             }
@@ -567,7 +596,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                   } catch (e) {
                     if (mounted)
                       context.showToast(
-                        "Failed to delete event: $e",
+                        "Failed to delete event: ${_getErrorMessage(e)}",
                         isError: true,
                       );
                   } finally {
@@ -640,35 +669,6 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.purple.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.videocam_outlined,
-                    color: Colors.purple,
-                    size: 22,
-                  ),
-                ),
-                title: Text(
-                  "Schedule Meeting",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  "Create Google Meet/Zoom link or offline meet",
-                  style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey),
-                ),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _openEventMeetingEditor(type: 'MEETING');
-                },
-              ),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
                     color: Colors.blue.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
@@ -679,7 +679,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                   ),
                 ),
                 title: Text(
-                  "Schedule Event",
+                  "Schedule Meeting",
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -878,22 +878,15 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Daily Activity Report",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    Text(
                       _rangeEndDate != null
                           ? "${DateFormat('d MMM').format(DateTime.parse(_selectedDate))} - ${DateFormat('d MMM yyyy').format(DateTime.parse(_rangeEndDate!))}"
                           : DateFormat(
                               'MMMM yyyy',
                             ).format(DateTime.parse(_selectedDate)),
                       style: GoogleFonts.poppins(
-                        fontSize: 11,
-                        color: Colors.grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
                   ],

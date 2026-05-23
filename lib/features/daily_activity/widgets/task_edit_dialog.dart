@@ -10,6 +10,7 @@ class TaskEditDialog extends StatefulWidget {
   final Function(Map<String, dynamic> payload) onSave;
   final VoidCallback? onDelete;
   final bool isBottomSheet;
+  final String? initialTimeIn; // Optional initial clocked session start
 
   const TaskEditDialog({
     super.key,
@@ -19,6 +20,7 @@ class TaskEditDialog extends StatefulWidget {
     required this.onSave,
     this.onDelete,
     this.isBottomSheet = false,
+    this.initialTimeIn,
   });
 
   @override
@@ -44,8 +46,41 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
     _titleController.text = _isEdit ? widget.initialData!.title : '';
     _descController.text = _isEdit ? widget.initialData!.description : '';
     _dateStr = _isEdit ? widget.initialData!.date : widget.initialDate;
-    _startTime = _isEdit ? widget.initialData!.startTime : _getRoundedTime(0);
-    _endTime = _isEdit ? widget.initialData!.endTime : _getRoundedTime(60);
+    
+    if (_isEdit) {
+      _startTime = widget.initialData!.startTime;
+      _endTime = widget.initialData!.endTime;
+    } else {
+      final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      if (_dateStr == todayStr) {
+        final now = DateTime.now();
+        final nowStr = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+        if (widget.initialTimeIn != null) {
+          _startTime = widget.initialTimeIn!;
+          if (_startTime.compareTo(nowStr) > 0) {
+            _startTime = nowStr;
+          }
+          final candidateEnd = _addOneHour(widget.initialTimeIn!);
+          if (candidateEnd.compareTo(nowStr) > 0) {
+            _endTime = nowStr;
+          } else {
+            _endTime = candidateEnd;
+          }
+        } else {
+          _endTime = nowStr;
+          final oneHourAgo = now.subtract(const Duration(hours: 1));
+          _startTime = "${oneHourAgo.hour.toString().padLeft(2, '0')}:${oneHourAgo.minute.toString().padLeft(2, '0')}";
+        }
+      } else {
+        if (widget.initialTimeIn != null) {
+          _startTime = widget.initialTimeIn!;
+          _endTime = _addOneHour(widget.initialTimeIn!);
+        } else {
+          _startTime = _getRoundedTime(0);
+          _endTime = _getRoundedTime(60);
+        }
+      }
+    }
     
     final initialCat = _isEdit ? widget.initialData!.category : '';
     _selectedCategory = widget.categories.contains(initialCat)
@@ -58,6 +93,13 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
     _titleController.dispose();
     _descController.dispose();
     super.dispose();
+  }
+
+  String _addOneHour(String timeStr) {
+    final parts = timeStr.split(':');
+    final h = (int.tryParse(parts[0]) ?? 9) + 1;
+    final m = parts.length > 1 ? parts[1] : '00';
+    return "${(h % 24).toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
   }
 
   String _getRoundedTime(int addMinutes) {
@@ -126,6 +168,18 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
       return;
     }
 
+    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    if (_dateStr == todayStr) {
+      final now = DateTime.now();
+      final nowStr = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+      if (_endTime.compareTo(nowStr) > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("End time cannot be in the future (after $nowStr).")),
+        );
+        return;
+      }
+    }
+
     widget.onSave({
       'title': _titleController.text.trim(),
       'description': _descController.text.trim(),
@@ -138,6 +192,10 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
   }
 
   Widget _buildFormContent(BuildContext context, bool isDark, String formattedDate) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final dividerColor = Theme.of(context).dividerColor;
+    final fillColor = Theme.of(context).scaffoldBackgroundColor;
+    
     return Form(
       key: _formKey,
       child: Column(
@@ -175,8 +233,8 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
             decoration: InputDecoration(
               hintText: 'Task Title',
               hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
-              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[350]!)),
-              focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF6366F1), width: 2)),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: dividerColor)),
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: primaryColor, width: 2)),
             ),
             validator: (val) => (val == null || val.trim().isEmpty) ? 'Title is required' : null,
           ),
@@ -193,14 +251,14 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF0D1117) : Colors.grey[50],
+                    fillColor: fillColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[200]!),
+                      borderSide: BorderSide(color: dividerColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[200]!),
+                      borderSide: BorderSide(color: dividerColor),
                     ),
                   ),
                   style: GoogleFonts.poppins(fontSize: 13, color: isDark ? Colors.white : Colors.grey[800]),
@@ -305,14 +363,14 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     filled: true,
-                    fillColor: isDark ? const Color(0xFF0D1117) : Colors.grey[50],
+                    fillColor: fillColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[200]!),
+                      borderSide: BorderSide(color: dividerColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[200]!),
+                      borderSide: BorderSide(color: dividerColor),
                     ),
                   ),
                 ),
@@ -352,7 +410,7 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6366F1),
+                      backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -376,13 +434,15 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final formattedDate = DateFormat('EEEE, d MMMM').format(DateTime.parse(_dateStr));
+    final cardColor = Theme.of(context).cardColor;
+    final dividerColor = Theme.of(context).dividerColor;
 
     if (widget.isBottomSheet) {
       return Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF161B22) : Colors.white,
+          color: cardColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: isDark ? Border.all(color: const Color(0xFF30363D), width: 1) : null,
+          border: Border.all(color: dividerColor, width: 1),
         ),
         padding: EdgeInsets.only(
           top: 16,
@@ -397,8 +457,11 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
     }
 
     return Dialog(
-      backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: dividerColor, width: 1),
+      ),
       child: Container(
         width: 440,
         padding: const EdgeInsets.all(24),

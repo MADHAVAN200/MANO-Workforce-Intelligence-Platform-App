@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../shared/services/auth_service.dart';
@@ -13,6 +14,7 @@ import '../../widgets/day_snapshot_card.dart';
 import '../../widgets/multi_day_timeline_widget.dart';
 import '../../widgets/mini_calendar_widget.dart';
 import '../../widgets/event_meeting_dialog.dart';
+import '../../widgets/task_edit_dialog.dart';
 
 class TabletDailyActivityView extends StatefulWidget {
   final bool isLandscape;
@@ -49,9 +51,24 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     'Testing',
   ];
 
-  // Right sidebar draft tasks state
-  List<DarItem> _draftTasks = [];
-  List<int> _deletedTaskIds = [];
+  String _getErrorMessage(dynamic e) {
+    if (e is DioException) {
+      if (e.response != null && e.response!.data != null) {
+        final data = e.response!.data;
+        if (data is Map) {
+          if (data.containsKey('message')) {
+            return data['message'].toString();
+          }
+          if (data.containsKey('error')) {
+            return data['error'].toString();
+          }
+        }
+        return data.toString();
+      }
+      return e.message ?? e.toString();
+    }
+    return e.toString();
+  }
 
   @override
   void initState() {
@@ -82,13 +99,10 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
         if (cats.isNotEmpty) _categories = cats;
         _isLoading = false;
       });
-
-      // Load selected day's drafts
-      _loadDraftsForSelectedDate();
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted)
-        context.showToast("Error loading initial data: $e", isError: true);
+        context.showToast("Error loading initial data: ${_getErrorMessage(e)}", isError: true);
     }
   }
 
@@ -152,16 +166,6 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     });
   }
 
-  void _loadDraftsForSelectedDate() {
-    final dayTasks = _tasks
-        .where((t) => t.date == _selectedDate && t.type == DarItemType.task)
-        .toList();
-    setState(() {
-      _draftTasks = dayTasks.map((t) => t.copyWith()).toList();
-      _deletedTaskIds.clear();
-    });
-  }
-
   /// Called by MiniCalendarWidget whenever the user taps a date or completes a range.
   void _onCalendarRange(String startDate, String? endDate) {
     setState(() {
@@ -171,9 +175,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
       // Align timeline start to the selected date
       _startDate = startDate;
     });
-    _fetchTimelineData().then((_) {
-      _loadDraftsForSelectedDate();
-    });
+    _fetchTimelineData();
   }
 
   void _focusDay(String date) {
@@ -198,52 +200,6 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     _fetchTimelineData();
   }
 
-  // Right sidebar actions: Add Task Slot
-  void _addDraftTaskSlot() {
-    final now = DateTime.now();
-    // Default times: 09:00 - 10:00 or similar based on existing drafts
-    String startTime = "09:00";
-    String endTime = "10:00";
-
-    if (_draftTasks.isNotEmpty) {
-      final last = _draftTasks.last;
-      startTime = last.endTime;
-      final endParts = last.endTime.split(':');
-      final h = (int.tryParse(endParts[0]) ?? 9) + 1;
-      endTime =
-          "${h.toString().padLeft(2, '0')}:${endParts.length > 1 ? endParts[1] : '00'}";
-    }
-
-    setState(() {
-      _draftTasks.add(
-        DarItem(
-          id: 'draft-${now.millisecondsSinceEpoch}',
-          title: '',
-          description: '',
-          startTime: startTime,
-          endTime: endTime,
-          date: _selectedDate,
-          type: DarItemType.task,
-          category: _categories.first,
-          isSaved: false,
-        ),
-      );
-    });
-  }
-
-  void _removeDraftTaskSlot(int index) {
-    final task = _draftTasks[index];
-    setState(() {
-      _draftTasks.removeAt(index);
-      if (!task.id.startsWith('draft-')) {
-        final id = int.tryParse(task.id.replaceFirst('act-', ''));
-        if (id != null) {
-          _deletedTaskIds.add(id);
-        }
-      }
-    });
-  }
-
   bool get _isPastDate {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -251,78 +207,232 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     return sel.isBefore(today);
   }
 
-  // Validates times and overlap
-  bool _validateDrafts() {
-    for (int i = 0; i < _draftTasks.length; i++) {
-      final t = _draftTasks[i];
-      if (t.title.trim().isEmpty) {
-        if (mounted)
-          context.showToast(
-            "Task #${i + 1} title cannot be empty.",
-            isWarning: true,
-          );
-        return false;
-      }
-      if (t.startTime.compareTo(t.endTime) >= 0) {
-        if (mounted)
-          context.showToast(
-            "Task #${i + 1} end time must be after start time.",
-            isWarning: true,
-          );
-        return false;
-      }
+  String? _getInitialTimeIn() {
+    final todayPunch = _attendanceData[_selectedDate];
+    if (todayPunch != null && todayPunch['hasTimedIn'] == true) {
+      return todayPunch['timeIn'];
     }
-    return true;
+    return null;
   }
 
-  Future<void> _saveDrafts() async {
-    if (!_validateDrafts()) return;
+  void _openTaskEditor({DarItem? initialItem}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return TaskEditDialog(
+          initialData: initialItem,
+          initialDate: _selectedDate,
+          categories: _categories,
+          initialTimeIn: _getInitialTimeIn(),
+          onSave: (payload) => _handleSaveTask(payload, initialItem),
+          onDelete: initialItem == null
+              ? null
+              : () => _handleDeleteTask(initialItem),
+          isBottomSheet: true,
+        );
+      },
+    );
+  }
 
+  Future<void> _handleSaveTask(
+    Map<String, dynamic> payload,
+    DarItem? initialItem,
+  ) async {
     if (_isPastDate) {
-      // Past date: Request justification modal
-      _showJustificationDialog();
+      _showPastDateJustification((reason) async {
+        setState(() => _isLoading = true);
+        try {
+          // Original list
+          final original = _tasks
+              .where((t) => t.date == _selectedDate && t.type == DarItemType.task)
+              .map(
+                (t) => {
+                  'title': t.title,
+                  'description': t.description,
+                  'start_time': t.startTime,
+                  'end_time': t.endTime,
+                  'activity_type': t.category,
+                  'status': t.status,
+                },
+              )
+              .toList();
+
+          // Proposed list after applying change
+          final List<Map<String, dynamic>> proposed = [];
+          bool appliedEdit = false;
+          
+          for (var item in _tasks.where((t) => t.date == _selectedDate && t.type == DarItemType.task)) {
+            if (initialItem != null && item.id == initialItem.id) {
+              proposed.add({
+                'title': payload['title'],
+                'description': payload['description'],
+                'start_time': payload['start_time'],
+                'end_time': payload['end_time'],
+                'activity_type': payload['activity_type'],
+                'status': 'COMPLETED',
+              });
+              appliedEdit = true;
+            } else {
+              proposed.add({
+                'title': item.title,
+                'description': item.description,
+                'start_time': item.startTime,
+                'end_time': item.endTime,
+                'activity_type': item.category,
+                'status': item.status,
+              });
+            }
+          }
+
+          if (!appliedEdit) {
+            proposed.add({
+              'title': payload['title'],
+              'description': payload['description'],
+              'start_time': payload['start_time'],
+              'end_time': payload['end_time'],
+              'activity_type': payload['activity_type'],
+              'status': 'COMPLETED',
+            });
+          }
+
+          await _darService.submitRequest(
+            date: _selectedDate,
+            reason: reason,
+            originalData: original,
+            proposedData: proposed,
+          );
+
+          if (mounted)
+            context.showToast(
+              "Past date correction request submitted successfully!",
+              isSuccess: true,
+            );
+          _fetchTimelineData();
+        } catch (e) {
+          if (mounted)
+            context.showToast("Failed to submit request: ${_getErrorMessage(e)}", isError: true);
+        } finally {
+          setState(() => _isLoading = false);
+        }
+      });
     } else {
-      // Today or future date: Save changes directly
+      // Today or future date: direct API call
       setState(() => _isLoading = true);
       try {
-        // 1. Delete tasks
-        for (var id in _deletedTaskIds) {
-          await _darService.deleteActivity(id);
-        }
+        final isEdit = initialItem != null;
+        final id = isEdit
+            ? int.tryParse(initialItem.id.replaceFirst('act-', ''))
+            : null;
 
-        // 2. Add / Update tasks
-        for (var t in _draftTasks) {
-          final isNew = t.id.startsWith('draft-');
-          final act = DarActivity(
-            activityId: isNew
-                ? null
-                : int.tryParse(t.id.replaceFirst('act-', '')),
-            title: t.title,
-            description: t.description,
-            startTime: t.startTime,
-            endTime: t.endTime,
-            activityDate: _selectedDate,
-            activityType: t.category,
-            status: 'COMPLETED',
-          );
-          await _darService.saveActivity(act);
-        }
+        final act = DarActivity(
+          activityId: id,
+          title: payload['title'],
+          description: payload['description'],
+          startTime: payload['start_time'],
+          endTime: payload['end_time'],
+          activityDate: payload['activity_date'],
+          activityType: payload['activity_type'],
+          status: 'COMPLETED',
+        );
 
+        await _darService.saveActivity(act);
         if (mounted)
-          context.showToast("Activities saved successfully!", isSuccess: true);
-        await _fetchTimelineData();
-        _loadDraftsForSelectedDate();
+          context.showToast(
+            isEdit
+                ? "Task updated successfully!"
+                : "Task created successfully!",
+            isSuccess: true,
+          );
+        _fetchTimelineData();
       } catch (e) {
         if (mounted)
-          context.showToast("Failed to save activities: $e", isError: true);
+          context.showToast("Failed to save task: ${_getErrorMessage(e)}", isError: true);
       } finally {
         setState(() => _isLoading = false);
       }
     }
   }
 
-  // Show dialog to request changes for a past date
-  void _showJustificationDialog() {
+  Future<void> _handleDeleteTask(DarItem task) async {
+    if (_isPastDate) {
+      _showPastDateJustification((reason) async {
+        setState(() => _isLoading = true);
+        try {
+          // Original list
+          final original = _tasks
+              .where((t) => t.date == _selectedDate && t.type == DarItemType.task)
+              .map(
+                (t) => {
+                  'title': t.title,
+                  'description': t.description,
+                  'start_time': t.startTime,
+                  'end_time': t.endTime,
+                  'activity_type': t.category,
+                  'status': t.status,
+                },
+              )
+              .toList();
+
+          // Proposed list after removing task
+          final proposed = _tasks
+              .where((t) => t.date == _selectedDate && t.type == DarItemType.task && t.id != task.id)
+              .map(
+                (t) => {
+                  'title': t.title,
+                  'description': t.description,
+                  'start_time': t.startTime,
+                  'end_time': t.endTime,
+                  'activity_type': t.category,
+                  'status': t.status,
+                },
+              )
+              .toList();
+
+          await _darService.submitRequest(
+            date: _selectedDate,
+            reason: reason,
+            originalData: original,
+            proposedData: proposed,
+          );
+
+          if (mounted)
+            context.showToast(
+              "Past date deletion request submitted successfully!",
+              isSuccess: true,
+            );
+          _fetchTimelineData();
+        } catch (e) {
+          if (mounted)
+            context.showToast(
+              "Failed to submit deletion request: ${_getErrorMessage(e)}",
+              isError: true,
+            );
+        } finally {
+          setState(() => _isLoading = false);
+        }
+      });
+    } else {
+      setState(() => _isLoading = true);
+      try {
+        final id = int.tryParse(task.id.replaceFirst('act-', ''));
+        if (id != null) {
+          await _darService.deleteActivity(id);
+          if (mounted)
+            context.showToast("Task deleted successfully!", isSuccess: true);
+          _fetchTimelineData();
+        }
+      } catch (e) {
+        if (mounted)
+          context.showToast("Failed to delete task: ${_getErrorMessage(e)}", isError: true);
+      } finally {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showPastDateJustification(Function(String reason) onSubmit) {
     final reasonController = TextEditingController();
     showDialog(
       context: context,
@@ -334,28 +444,28 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Reason for Past Date Modification",
+            "Justification Reason Required",
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "You are modifying tasks for a past date. Please provide a justification for this correction request to be reviewed by HR/Admin.",
-                style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                "You are modifying activities on a past date. Please enter a justification for your corrections.",
+                style: GoogleFonts.poppins(fontSize: 11.5, color: Colors.grey),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               TextField(
                 controller: reasonController,
                 maxLines: 3,
-                style: GoogleFonts.poppins(fontSize: 13),
+                style: GoogleFonts.poppins(fontSize: 12.5),
                 decoration: InputDecoration(
                   hintText: "Enter justification reason here...",
                   hintStyle: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.grey[400],
                   ),
                   filled: true,
@@ -387,13 +497,13 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                   return;
                 }
                 Navigator.of(ctx).pop();
-                _submitPastDateCorrectionRequest(reason);
+                onSubmit(reason);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6366F1),
               ),
               child: Text(
-                "Submit Request",
+                "Submit",
                 style: GoogleFonts.poppins(color: Colors.white),
               ),
             ),
@@ -403,72 +513,21 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     );
   }
 
-  Future<void> _submitPastDateCorrectionRequest(String reason) async {
-    setState(() => _isLoading = true);
-    try {
-      // Original data
-      final original = _tasks
-          .where((t) => t.date == _selectedDate && t.type == DarItemType.task)
-          .map(
-            (t) => {
-              'title': t.title,
-              'description': t.description,
-              'start_time': t.startTime,
-              'end_time': t.endTime,
-              'activity_type': t.category,
-              'status': t.status,
-            },
-          )
-          .toList();
-
-      // Proposed data
-      final proposed = _draftTasks
-          .map(
-            (t) => {
-              'title': t.title,
-              'description': t.description,
-              'start_time': t.startTime,
-              'end_time': t.endTime,
-              'activity_type': t.category,
-              'status': 'COMPLETED',
-            },
-          )
-          .toList();
-
-      await _darService.submitRequest(
-        date: _selectedDate,
-        reason: reason,
-        originalData: original,
-        proposedData: proposed,
-      );
-
-      if (mounted)
-        context.showToast(
-          "Past date correction request submitted successfully!",
-          isSuccess: true,
-        );
-      await _fetchTimelineData();
-      _loadDraftsForSelectedDate();
-    } catch (e) {
-      if (mounted)
-        context.showToast("Failed to submit request: $e", isError: true);
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   // Create or edit a Meeting / Event
   void _openEventMeetingDialog({
     DarItem? initialItem,
     String type = 'MEETING',
   }) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
         return EventMeetingDialog(
           initialData: initialItem,
           initialDate: _selectedDate,
           type: type,
+          isBottomSheet: true,
           onSave: (payload) async {
             setState(() => _isLoading = true);
             try {
@@ -499,7 +558,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
               _fetchTimelineData();
             } catch (e) {
               if (mounted)
-                context.showToast("Failed to save event: $e", isError: true);
+                context.showToast("Failed to save event: ${_getErrorMessage(e)}", isError: true);
             } finally {
               setState(() => _isLoading = false);
             }
@@ -524,7 +583,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                   } catch (e) {
                     if (mounted)
                       context.showToast(
-                        "Failed to delete event: $e",
+                        "Failed to delete event: ${_getErrorMessage(e)}",
                         isError: true,
                       );
                   } finally {
@@ -537,15 +596,11 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
   }
 
   void _onEditItemFromTimeline(DarItem item) {
+    _focusDay(item.date);
     if (item.type == DarItemType.task) {
-      _focusDay(item.date);
-      if (_rangeEndDate == null) {
-        // Highlight in edit sidebar when not showing a range.
-        _loadDraftsForSelectedDate();
-      }
+      _openTaskEditor(initialItem: item);
     } else {
       // Open dialog
-      _focusDay(item.date);
       _openEventMeetingDialog(
         initialItem: item,
         type: item.type == DarItemType.event ? 'EVENT' : 'MEETING',
@@ -571,40 +626,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Row header with prev/next navigation
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Daily Activity Timeline",
-                              style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : Colors.grey[800],
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              _rangeEndDate != null
-                                  ? '${DateFormat('d MMM').format(DateTime.parse(_selectedDate))} – ${DateFormat('d MMM yyyy').format(DateTime.parse(_rangeEndDate!))}'
-                                  : DateFormat(
-                                      'EEEE, d MMMM yyyy',
-                                    ).format(DateTime.parse(_selectedDate)),
-                              style: GoogleFonts.poppins(
-                                fontSize: 11,
-                                color: Colors.grey,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+
 
                   // Horizontal Stack Timeline scrollable area
                   Expanded(
@@ -693,424 +715,55 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                   const SizedBox(height: 10),
 
                   // Quick Action Buttons (Add Meeting / Event)
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              _openEventMeetingDialog(type: 'MEETING'),
-                          icon: const Icon(Icons.videocam_outlined, size: 16),
-                          label: Text(
-                            "Meeting",
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                              color: const Color(0xFF8B5CF6).withOpacity(0.5),
-                            ),
-                            foregroundColor: const Color(0xFF8B5CF6),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              _openEventMeetingDialog(type: 'EVENT'),
-                          icon: const Icon(Icons.event_outlined, size: 16),
-                          label: Text(
-                            "Event",
-                            style: GoogleFonts.poppins(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(
-                              color: const Color(0xFF3B82F6).withOpacity(0.5),
-                            ),
-                            foregroundColor: const Color(0xFF3B82F6),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Tasks list header & Add task trigger
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Activities (${_draftTasks.length})",
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _addDraftTaskSlot,
-                        icon: const Icon(Icons.add, size: 14),
+                      OutlinedButton.icon(
+                        onPressed: () => _openTaskEditor(),
+                        icon: const Icon(Icons.check_circle_outline, size: 16),
                         label: Text(
-                          "Add",
+                          "Log Task",
                           style: GoogleFonts.poppins(
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFF6366F1),
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.5),
+                          ),
+                          foregroundColor: const Color(0xFF10B981),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            _openEventMeetingDialog(type: 'EVENT'),
+                        icon: const Icon(Icons.event_outlined, size: 16),
+                        label: Text(
+                          "Schedule Meeting",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: const Color(0xFF3B82F6).withValues(alpha: 0.5),
+                          ),
+                          foregroundColor: const Color(0xFF3B82F6),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-
-                  // Draft rows
-                  if (_draftTasks.isEmpty)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24.0),
-                        child: Text(
-                          "No activities logged for this day.",
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.5,
-                            color: Colors.grey,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  else
-                    ...List.generate(_draftTasks.length, (idx) {
-                      final item = _draftTasks[idx];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? const Color(0xFF161B22)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF30363D)
-                                : Colors.grey[200]!,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Header Row: Title & Remove
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    initialValue: item.title,
-                                    onChanged: (val) {
-                                      _draftTasks[idx] = item.copyWith(
-                                        title: val,
-                                      );
-                                    },
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12.5,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Task Title',
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () => _removeDraftTaskSlot(idx),
-                                  icon: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.redAccent,
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                              ],
-                            ),
-                            const Divider(height: 8),
-
-                            // Category select & time window
-                            Row(
-                              children: [
-                                // Category Select
-                                Expanded(
-                                  flex: 3,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? const Color(0xFF0D1117)
-                                          : Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        value:
-                                            _categories.contains(item.category)
-                                            ? item.category
-                                            : _categories.first,
-                                        isDense: true,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 10,
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black87,
-                                        ),
-                                        items: _categories.map((cat) {
-                                          return DropdownMenuItem<String>(
-                                            value: cat,
-                                            child: Text(cat),
-                                          );
-                                        }).toList(),
-                                        onChanged: (val) {
-                                          if (val != null) {
-                                            setState(() {
-                                              _draftTasks[idx] = item.copyWith(
-                                                category: val,
-                                              );
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-
-                                // Timing inputs
-                                Expanded(
-                                  flex: 4,
-                                  child: Row(
-                                    children: [
-                                      // Start
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            final parts = item.startTime.split(
-                                              ':',
-                                            );
-                                            final tod = TimeOfDay(
-                                              hour: int.tryParse(parts[0]) ?? 9,
-                                              minute: parts.length > 1
-                                                  ? int.tryParse(parts[1]) ?? 0
-                                                  : 0,
-                                            );
-                                            final picked = await showTimePicker(
-                                              context: context,
-                                              initialTime: tod,
-                                            );
-                                            if (picked != null) {
-                                              setState(() {
-                                                final fmt =
-                                                    "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
-                                                _draftTasks[idx] = item
-                                                    .copyWith(startTime: fmt);
-                                              });
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 4,
-                                            ),
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: isDark
-                                                    ? const Color(0xFF30363D)
-                                                    : Colors.grey[300]!,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Text(
-                                              item.startTime,
-                                              style: const TextStyle(
-                                                fontSize: 10.5,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 2.0,
-                                        ),
-                                        child: Text(
-                                          "-",
-                                          style: TextStyle(fontSize: 10),
-                                        ),
-                                      ),
-                                      // End
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            final parts = item.endTime.split(
-                                              ':',
-                                            );
-                                            final tod = TimeOfDay(
-                                              hour:
-                                                  int.tryParse(parts[0]) ?? 10,
-                                              minute: parts.length > 1
-                                                  ? int.tryParse(parts[1]) ?? 0
-                                                  : 0,
-                                            );
-                                            final picked = await showTimePicker(
-                                              context: context,
-                                              initialTime: tod,
-                                            );
-                                            if (picked != null) {
-                                              setState(() {
-                                                final fmt =
-                                                    "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
-                                                _draftTasks[idx] = item
-                                                    .copyWith(endTime: fmt);
-                                              });
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 4,
-                                            ),
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: isDark
-                                                    ? const Color(0xFF30363D)
-                                                    : Colors.grey[300]!,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Text(
-                                              item.endTime,
-                                              style: const TextStyle(
-                                                fontSize: 10.5,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-
-                            // Description field
-                            TextFormField(
-                              initialValue: item.description,
-                              onChanged: (val) {
-                                _draftTasks[idx] = item.copyWith(
-                                  description: val,
-                                );
-                              },
-                              style: GoogleFonts.poppins(fontSize: 11.5),
-                              maxLines: 2,
-                              decoration: InputDecoration(
-                                hintText: 'Enter task details...',
-                                hintStyle: GoogleFonts.poppins(
-                                  fontSize: 11,
-                                  color: Colors.grey[400],
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 6,
-                                ),
-                                filled: true,
-                                fillColor: isDark
-                                    ? const Color(0xFF0D1117)
-                                    : Colors.grey[50],
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                  borderSide: BorderSide(
-                                    color: isDark
-                                        ? const Color(0xFF30363D)
-                                        : Colors.grey[200]!,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                  borderSide: BorderSide(
-                                    color: isDark
-                                        ? const Color(0xFF30363D)
-                                        : Colors.grey[200]!,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  const SizedBox(height: 8),
-
-                  // Action Buttons: Save / Submit Change Request
-                  if (_draftTasks.isNotEmpty || _deletedTaskIds.isNotEmpty)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _saveDrafts,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6366F1),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(
-                                _isPastDate
-                                    ? "Submit Correction Request"
-                                    : "Save Activities",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                      ),
-                    ),
                   const SizedBox(height: 20),
                 ],
               ),

@@ -43,9 +43,7 @@ class _EventMeetingDialogState extends State<EventMeetingDialog> {
   void initState() {
     super.initState();
     _isEdit = widget.initialData != null;
-    _selectedType = _isEdit
-        ? (widget.initialData!.type == DarItemType.event ? 'EVENT' : 'MEETING')
-        : widget.type.toUpperCase();
+    _selectedType = 'MEETING';
 
     _titleController.text = _isEdit ? widget.initialData!.title : '';
     _descController.text = _isEdit ? widget.initialData!.description : '';
@@ -161,48 +159,17 @@ class _EventMeetingDialogState extends State<EventMeetingDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row: Type selection & Close
+          // Header Row: Title & Close
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: _isEdit
-                        ? null
-                        : () => setState(() => _selectedType = 'EVENT'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedType == 'EVENT'
-                          ? const Color(0xFF3B82F6)
-                          : (isDark ? const Color(0xFF21262D) : Colors.grey[100]),
-                      foregroundColor: _selectedType == 'EVENT'
-                          ? Colors.white
-                          : (isDark ? Colors.grey[300] : Colors.grey[700]),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: Text("Event", style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _isEdit
-                        ? null
-                        : () => setState(() => _selectedType = 'MEETING'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedType == 'MEETING'
-                          ? const Color(0xFF3B82F6)
-                          : (isDark ? const Color(0xFF21262D) : Colors.grey[100]),
-                      foregroundColor: _selectedType == 'MEETING'
-                          ? Colors.white
-                          : (isDark ? Colors.grey[300] : Colors.grey[700]),
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: Text("Meeting", style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
-                ],
+              Text(
+                _isEdit ? "Edit Meeting" : "Schedule Meeting",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.grey[900],
+                ),
               ),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -361,36 +328,6 @@ class _EventMeetingDialogState extends State<EventMeetingDialog> {
                       hintText: _locationType == 'online'
                           ? 'Google Meet / Zoom link'
                           : 'Meeting Room name / Address',
-                      hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      filled: true,
-                      fillColor: isDark ? const Color(0xFF0D1117) : Colors.grey[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[200]!),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: isDark ? const Color(0xFF30363D) : Colors.grey[200]!),
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(height: 20),
-          ] else ...[
-            // Event specific location field
-            Row(
-              children: [
-                const Icon(Icons.map_outlined, color: Colors.grey, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _locationController,
-                    style: GoogleFonts.poppins(fontSize: 12.5),
-                    decoration: InputDecoration(
-                      hintText: 'Add location (Optional)',
                       hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       filled: true,

@@ -88,16 +88,17 @@ class _SidebarContent extends StatelessWidget {
                     children: [
                       ...PageType.values.where((p) {
                          final user = context.read<AuthService>().user;
-                         if (user != null && user.isEmployee) {
-                             final allowed = [
-                               PageType.dashboard,
-                               PageType.myAttendance,
-                               PageType.leavesAndHolidays,
-                               PageType.feedback,
-                               PageType.profile,
-                             ];
-                             if (!allowed.contains(p)) return false;
-                         }
+                          if (user != null && user.isEmployee) {
+                              final allowed = [
+                                PageType.dashboard,
+                                PageType.myAttendance,
+                                PageType.dailyActivity,
+                                PageType.leavesAndHolidays,
+                                PageType.feedback,
+                                PageType.profile,
+                              ];
+                              if (!allowed.contains(p)) return false;
+                          }
                          if (p == PageType.profile) return false;
                          if (p == PageType.feedback) return false; // Hide feedback from list
                          return true;

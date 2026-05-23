@@ -20,7 +20,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode =9
-        versionName = "2.0.4"
+        versionName = "2.0.5"
         multiDexEnabled = true // Fixes "crash" due to method limit on older devices
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

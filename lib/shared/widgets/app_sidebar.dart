@@ -87,14 +87,14 @@ class AppSidebar extends StatelessWidget {
                 final user = context.read<AuthService>().user;
                 if (user != null && user.isEmployee) {
                    // Employee Allowed Pages
-                   final allowed = [
-                     PageType.dashboard,
-                     PageType.myAttendance,
-                     PageType.myAttendance,
-                     PageType.leavesAndHolidays,   // UPDATED
-                     PageType.feedback, // ADDED
-                     PageType.profile,
-                   ];
+                    final allowed = [
+                      PageType.dashboard,
+                      PageType.myAttendance,
+                      PageType.dailyActivity,
+                      PageType.leavesAndHolidays,   // UPDATED
+                      PageType.feedback, // ADDED
+                      PageType.profile,
+                    ];
                    if (!allowed.contains(p)) return false;
                 }
 

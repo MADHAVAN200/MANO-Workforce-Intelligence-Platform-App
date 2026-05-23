@@ -9,7 +9,6 @@ import '../services/auth_service.dart';
 import '../navigation/navigation_controller.dart';
 import '../../features/notifications/mobile/views/notifications_view.dart'; // Import Mobile View
 import '../services/notification_service.dart';
-import 'notification_list.dart';
 import 'toast_helper.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -95,31 +94,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           icon: const Icon(Icons.notifications_outlined),
                           tooltip: 'Notifications',
                           onPressed: () {
-                            if (MediaQuery.of(context).size.width < 600) {
-                               // Mobile: Navigate to separate screen
-                               Navigator.push(
-                                 context, 
-                                 MaterialPageRoute(builder: (_) => const NotificationsView())
-                               );
-                            } else {
-                              // Tablet/Desktop: Show Popup
-                              showDialog(
-                                context: context,
-                                barrierColor: Colors.transparent,
-                                builder: (context) => Stack(
-                                  children: [
-                                    Positioned(
-                                      top: 60,
-                                      right: 80,
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: const NotificationList(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(builder: (_) => const NotificationsView()),
+                            );
                           },
                         ),
                         if (notificationService.unreadCount > 0)

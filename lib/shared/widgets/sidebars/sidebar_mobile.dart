@@ -83,6 +83,7 @@ class _SidebarContent extends StatelessWidget {
                             final allowed = [
                               PageType.dashboard,
                               PageType.myAttendance,
+                              PageType.dailyActivity,
                               PageType.leavesAndHolidays,
                               PageType.feedback, // Kept in logic for permission check, but excluded from this loop
                               PageType.profile,
