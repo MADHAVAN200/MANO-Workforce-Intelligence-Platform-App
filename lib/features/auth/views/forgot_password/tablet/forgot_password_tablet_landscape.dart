@@ -6,95 +6,87 @@ class ForgotPasswordTabletLandscape extends StatelessWidget {
 
   const ForgotPasswordTabletLandscape({super.key, required this.controller});
 
-  // Reusing the same layout as portrait for now, but in a wider container handled by the parent
-  // layout builder. Alternatively, we can use a split view if there were illustrations.
-  // For simplicity and consistency with the "centered card" approach on large screens:
-  
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 550),
-        child: Card(
-          color: const Color(0xFF161B22), // Card Color
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(48),
-            child: Form(
-              key: controller.formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Forgot Password?',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Enter your registered email address to receive an OTP.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[400],
-                        ),
-                  ),
-                  const SizedBox(height: 48),
-                  TextFormField(
-                    controller: controller.emailController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Email Address',
-                      labelStyle: const TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: const Color(0xFF0D1117), // Background Color
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+        constraints: const BoxConstraints(maxWidth: 620),
+        child: Form(
+          key: controller.formKey,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 30),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161B22),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFF30363D)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Forgot Password',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFC9D1D9),
                       ),
-                      prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Enter your registered email to receive OTP.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: const Color(0xFF8B949E),
+                      ),
+                ),
+                const SizedBox(height: 28),
+                TextFormField(
+                  controller: controller.emailController,
+                  style: const TextStyle(color: Color(0xFFC9D1D9)),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email Address',
+                    labelStyle: const TextStyle(color: Color(0xFF8B949E)),
+                    prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF8B949E)),
+                    filled: true,
+                    fillColor: const Color(0xFF0D1117),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Required';
-                      if (!v.contains('@')) return 'Invalid email';
-                      return null;
-                    },
                   ),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Required';
+                    if (!v.contains('@')) return 'Invalid email';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
                     onPressed: controller.isLoading ? null : controller.sendOtp,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      backgroundColor: isDark ? const Color(0xFF4F46E5) : Theme.of(context).primaryColor,
+                      backgroundColor: const Color(0xFF2F81F7),
                       foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: controller.isLoading
                         ? const SizedBox(
-                            width: 24, 
-                            height: 24, 
+                            width: 22,
+                            height: 22,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text(
-                            'SEND OTP',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
+                        : const Text('SEND OTP', style: TextStyle(fontWeight: FontWeight.w600)),
                   ),
-                  const SizedBox(height: 24),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Back to Login', style: TextStyle(fontSize: 16)),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Back to Login'),
+                ),
+              ],
             ),
           ),
         ),
