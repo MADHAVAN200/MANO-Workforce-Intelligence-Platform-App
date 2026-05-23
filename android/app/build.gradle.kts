@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId = "co.mano.attendance"
-        minSdk = flutter.minSdkVersion // Required for webview_flutter
+        minSdk = 24
         targetSdk = 35
         versionCode = 5 
         versionName = "2.0.0"
