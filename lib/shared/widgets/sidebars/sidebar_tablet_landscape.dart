@@ -40,7 +40,7 @@ class _SidebarContent extends StatelessWidget {
             children: [
               // Fixed Sidebar Header (Aligned with AppBar)
               Container(
-                height: 55,
+                height: 56,
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
                   border: Border(

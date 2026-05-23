@@ -43,7 +43,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: SafeArea(
           bottom: false,
           child: Container(
-            height: 59,
+            height: 56,
             padding: EdgeInsets.fromLTRB(
               MediaQuery.of(context).size.width < 900 ? 8 : 24,
               0,
@@ -297,5 +297,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(70);
+  Size get preferredSize => const Size.fromHeight(56);
 }

@@ -49,7 +49,7 @@ class _SidebarContent extends StatelessWidget {
                 height: 55,
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 alignment: Alignment.centerLeft,
-                margin: const EdgeInsets.only(bottom: 8),
+                margin: const EdgeInsets.only(top: 20, bottom: 8), // Brought down by adding top margin
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
