@@ -35,7 +35,7 @@ class _EmployeeDashboardViewState extends State<EmployeeDashboardView> {
             final isPortrait = constraints.maxWidth < 900;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch for full width
                 children: [

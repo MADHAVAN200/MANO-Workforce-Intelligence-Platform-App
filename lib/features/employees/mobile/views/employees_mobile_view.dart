@@ -72,6 +72,9 @@ class _EmployeesMobileViewState extends State<EmployeesMobileView> {
     // 2. Status Tab filter
     filtered = filtered.where((e) => e.status == _statusFilter).toList();
 
+    // 3. Alphabetical sort by user_name
+    filtered.sort((a, b) => a.userName.toLowerCase().compareTo(b.userName.toLowerCase()));
+
     setState(() {
       _filteredEmployees = filtered;
       // Keep selected employee if still in filtered list

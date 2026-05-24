@@ -20,7 +20,9 @@ class EmployeeService {
         // Adjust based on actual API response structure. Postman says:
         // { "success": true, "users": [...] }
         final List<dynamic> data = response.data['users'];
-        return data.map((json) => Employee.fromJson(json)).toList();
+        final List<Employee> list = data.map((json) => Employee.fromJson(json)).toList();
+        list.sort((a, b) => a.userName.toLowerCase().compareTo(b.userName.toLowerCase()));
+        return list;
       }
       return [];
     } catch (e) {

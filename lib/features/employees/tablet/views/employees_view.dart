@@ -79,6 +79,9 @@ class _EmployeesViewState extends State<EmployeesView> {
     // 2. Status Tab filter
     filtered = filtered.where((e) => e.status == _statusFilter).toList();
 
+    // 3. Alphabetical sort by user_name
+    filtered.sort((a, b) => a.userName.toLowerCase().compareTo(b.userName.toLowerCase()));
+
     setState(() {
       _filteredEmployees = filtered;
     });
@@ -385,7 +388,7 @@ class _EmployeesViewState extends State<EmployeesView> {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           child: Column(
             children: [
               _buildFilterSection(context),
