@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../shared/widgets/glass_container.dart';
 import '../../models/shift_model.dart';
 
 class AddShiftDialog extends StatefulWidget {
@@ -272,7 +271,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                         value: _isOvertimeEnabled,
                         onChanged: (v) => setState(() => _isOvertimeEnabled = v),
                         activeTrackColor: const Color(0xFF6366F1), // Indigo
-                        activeColor: Colors.white,
+                        activeThumbColor: Colors.white,
                         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
                         inactiveThumbColor: isDark ? Colors.grey[400] : Colors.white,
                         inactiveTrackColor: isDark ? Colors.grey[700] : Colors.grey[300],

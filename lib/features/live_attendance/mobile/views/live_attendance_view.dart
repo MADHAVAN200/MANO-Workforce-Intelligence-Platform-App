@@ -206,12 +206,12 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
         color: isDark ? const Color(0xFF161B22) : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF30363D) : Colors.black.withOpacity(0.05),
+          color: isDark ? const Color(0xFF30363D) : Colors.black.withValues(alpha: 0.05),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -231,7 +231,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               ? []
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -460,7 +460,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.35),
+                          color: primaryColor.withValues(alpha: 0.35),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         )
@@ -542,7 +542,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
             padding: const EdgeInsets.symmetric(vertical: 12.0),
             child: Row(
               children: [
-                Expanded(child: Divider(color: Colors.grey.withOpacity(0.3))),
+                Expanded(child: Divider(color: Colors.grey.withValues(alpha: 0.3))),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
@@ -555,7 +555,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     ),
                   ),
                 ),
-                Expanded(child: Divider(color: Colors.grey.withOpacity(0.3))),
+                Expanded(child: Divider(color: Colors.grey.withValues(alpha: 0.3))),
               ],
             ),
           ),
@@ -583,12 +583,12 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
           height: 44,
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark 
-                ? Colors.white.withOpacity(0.05) 
+                ? Colors.white.withValues(alpha: 0.05) 
                 : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: Theme.of(context).brightness == Brightness.dark 
-                  ? Colors.white.withOpacity(0.1) 
+                  ? Colors.white.withValues(alpha: 0.1) 
                   : Colors.grey[300]!,
             ),
           ),
@@ -615,12 +615,12 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark 
-                ? Colors.white.withOpacity(0.05) 
+                ? Colors.white.withValues(alpha: 0.05) 
                 : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: Theme.of(context).brightness == Brightness.dark 
-                  ? Colors.white.withOpacity(0.1) 
+                  ? Colors.white.withValues(alpha: 0.1) 
                   : Colors.grey[300]!,
             ),
           ),
@@ -673,7 +673,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: color.withOpacity(0.1),
+                  backgroundColor: color.withValues(alpha: 0.1),
                   child: Text(
                     item.name.isNotEmpty ? item.name[0].toUpperCase() : '?', 
                     style: GoogleFonts.poppins(color: color, fontWeight: FontWeight.bold, fontSize: 12),
@@ -706,9 +706,9 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: color.withOpacity(0.2)),
+                    border: Border.all(color: color.withValues(alpha: 0.2)),
                   ),
                   child: Text(
                     item.statusLabel,
@@ -723,7 +723,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
             ),
             
             const SizedBox(height: 8),
-            Divider(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.5)),
+            Divider(height: 1, color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
             const SizedBox(height: 6),
 
             // Row 2: Metrics
@@ -985,7 +985,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     barWidth: 2.5,
                     belowBarData: BarAreaData(
                       show: true,
-                      color: const Color(0xFF10B981).withOpacity(0.12),
+                      color: const Color(0xFF10B981).withValues(alpha: 0.12),
                     ),
                   ),
                   LineChartBarData(
@@ -995,7 +995,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     barWidth: 2.5,
                     belowBarData: BarAreaData(
                       show: true,
-                      color: const Color(0xFF6366F1).withOpacity(0.08),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.08),
                     ),
                   ),
                 ],
@@ -1134,10 +1134,15 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
     for (final item in _items) {
       if (item.status != "Absent") {
         final count = item.records.length;
-        if (count == 1) s1++;
-        else if (count == 2) s2++;
-        else if (count == 3) s3++;
-        else if (count >= 4) s4Plus++;
+        if (count == 1) {
+          s1++;
+        } else if (count == 2) {
+          s2++;
+        } else if (count == 3) {
+          s3++;
+        } else if (count >= 4) {
+          s4Plus++;
+        }
       }
     }
 
@@ -1284,7 +1289,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withOpacity(0.1),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text('${activeItems.length} employees',
@@ -1293,7 +1298,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               ],
             ),
           ),
-          Divider(height: 1, color: Colors.grey.withOpacity(0.15)),
+          Divider(height: 1, color: Colors.grey.withValues(alpha: 0.15)),
           // Gantt body — horizontally scrollable
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -1323,7 +1328,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     ],
                   ),
                   // Divider under hour labels
-                  Container(height: 1, color: Colors.grey.withOpacity(0.15)),
+                  Container(height: 1, color: Colors.grey.withValues(alpha: 0.15)),
                   // Employee rows
                   ...activeItems.map((item) => _buildGanttRow(
                         item: item,
@@ -1370,7 +1375,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
 
     return Container(
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.1))),
+        border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
       ),
       height: rowHeight,
       child: Row(
@@ -1384,7 +1389,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                 children: [
                   CircleAvatar(
                     radius: 13,
-                    backgroundColor: Theme.of(context).primaryColor.withOpacity(0.15),
+                    backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.15),
                     child: Text(
                       item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
                       style: GoogleFonts.poppins(
@@ -1420,7 +1425,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     bottom: 0,
                     child: Container(
                       width: 1,
-                      color: Colors.grey.withOpacity(0.08),
+                      color: Colors.grey.withValues(alpha: 0.08),
                     ),
                   );
                 }),
@@ -1457,7 +1462,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                             borderRadius: BorderRadius.circular(4),
                             boxShadow: [
                               BoxShadow(
-                                color: barColor.withOpacity(0.3),
+                                color: barColor.withValues(alpha: 0.3),
                                 blurRadius: 4,
                                 offset: const Offset(0, 1),
                               ),
@@ -1467,7 +1472,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                       ),
                     ),
                   );
-                }).toList(),
+                }),
                 // Current time line (today only)
                 if (DateFormat('yyyy-MM-dd').format(_selectedDate) == DateFormat('yyyy-MM-dd').format(DateTime.now()))
                   Builder(builder: (context) {
@@ -1480,7 +1485,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                       bottom: 0,
                       child: Container(
                         width: 1.5,
-                        color: Colors.red.withOpacity(0.6),
+                        color: Colors.red.withValues(alpha: 0.6),
                       ),
                     );
                   }),
@@ -1573,7 +1578,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               shape: BoxShape.circle,
               border: Border.all(color: color, width: 3),
               color: isDark ? const Color(0xFF1C1C2E) : Colors.white,
-              boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 2))],
             ),
             child: Center(
               child: Text(
@@ -1596,7 +1601,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               options: MapOptions(
                 initialCenter: initialCenter,
                 initialZoom: 11.0,
-                onTap: (_, __) {
+                onTap: (_, _) {
                   if (_selectedMapItem != null || _isMapThemeMenuOpen) {
                     setState(() {
                       _selectedMapItem = null;
@@ -1629,9 +1634,9 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.black.withOpacity(0.7) : Colors.white.withOpacity(0.9),
+                  color: isDark ? Colors.black.withValues(alpha: 0.7) : Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6)],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6)],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1667,9 +1672,9 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: isDark ? Colors.black.withOpacity(0.75) : Colors.white.withOpacity(0.92),
+              color: isDark ? Colors.black.withValues(alpha: 0.75) : Colors.white.withValues(alpha: 0.92),
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6)],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6)],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1695,7 +1700,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1C1C2E) : Colors.white,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8)],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 8)],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1711,7 +1716,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: isActive
-                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                          ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                           : Colors.transparent,
                     ),
                     child: Text(
@@ -1768,7 +1773,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: color.withOpacity(0.1),
+                backgroundColor: color.withValues(alpha: 0.1),
                 child: Text(
                   item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
                   style: GoogleFonts.poppins(color: color, fontWeight: FontWeight.bold, fontSize: 10),
@@ -1798,7 +1803,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
             ],
           ),
           const SizedBox(height: 8),
-          Divider(color: Colors.grey.withOpacity(0.2), height: 1),
+          Divider(color: Colors.grey.withValues(alpha: 0.2), height: 1),
           const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1813,7 +1818,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
+                        color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -1887,7 +1892,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               top: 16,
               right: 16,
               child: CircleAvatar(
-                backgroundColor: Colors.black.withOpacity(0.5),
+                backgroundColor: Colors.black.withValues(alpha: 0.5),
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
@@ -1899,7 +1904,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -1931,7 +1936,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               topRight: Radius.circular(24),
             ),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey.withOpacity(0.2),
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.withValues(alpha: 0.2),
             ),
           ),
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -1948,7 +1953,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.5),
+                    color: Colors.grey.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1960,7 +1965,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: Colors.blue.withOpacity(0.1),
+                    backgroundColor: Colors.blue.withValues(alpha: 0.1),
                     child: Text(
                       item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
                       style: GoogleFonts.poppins(color: Colors.blue, fontSize: 16, fontWeight: FontWeight.bold),
@@ -1989,7 +1994,7 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                 ],
               ),
               const SizedBox(height: 16),
-              Divider(color: Colors.grey.withOpacity(0.2), height: 1),
+              Divider(color: Colors.grey.withValues(alpha: 0.2), height: 1),
               const SizedBox(height: 16),
               
               // Daily Stats Row
@@ -2031,9 +2036,9 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02),
+                                color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                                border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

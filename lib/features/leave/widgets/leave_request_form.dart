@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +22,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   DateTime? _startDate;
   DateTime? _endDate;
   final _reasonController = TextEditingController();
-  List<PlatformFile> _selectedFiles = [];
+  final List<PlatformFile> _selectedFiles = [];
 
   final List<String> _leaveTypes = [
     'Casual Leave',
@@ -95,9 +94,11 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
       await context.read<LeaveProvider>().submitLeaveRequest(requestData);
       widget.onSuccess();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to submit: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit: $e')),
+        );
+      }
     }
   }
 
@@ -150,7 +151,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
             
             // Leave Type Dropdown
             DropdownButtonFormField<String>(
-              value: _selectedLeaveType,
+              initialValue: _selectedLeaveType,
               decoration: _inputDecoration(isDark, 'Leave Type', Icons.category_outlined),
               items: _leaveTypes.map((type) {
                 return DropdownMenuItem(
@@ -255,9 +256,9 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.3)),
+                          border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

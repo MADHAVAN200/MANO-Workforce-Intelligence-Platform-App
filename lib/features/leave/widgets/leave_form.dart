@@ -57,7 +57,7 @@ class _LeaveFormState extends State<LeaveForm> {
     final textColor = isDark ? Colors.white : Colors.black87;
     final labelColor = isDark ? Colors.grey : const Color(0xFF64748B); // Slate 500
     final inputFillColor = isDark ? Colors.transparent : Colors.white;
-    final borderColor = isDark ? Colors.white.withOpacity(0.1) : const Color(0xFFE2E8F0); // Slate 200
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE2E8F0); // Slate 200
 
     return Form(
       key: _formKey,
@@ -77,7 +77,7 @@ class _LeaveFormState extends State<LeaveForm> {
           Text("LEAVE TYPE", style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: labelColor)),
           const SizedBox(height: 6),
           DropdownButtonFormField<String>(
-            value: _selectedType,
+            initialValue: _selectedType,
             items: ['Casual Leave', 'Sick Leave', 'Other'].map((t) => DropdownMenuItem(value: t, child: Text(t, style: GoogleFonts.poppins(color: textColor)))).toList(),
             onChanged: (v) => setState(() => _selectedType = v!),
             decoration: InputDecoration(
@@ -206,7 +206,7 @@ class _LeaveFormState extends State<LeaveForm> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-               color: isDark ? const Color(0xFF161B22).withOpacity(0.5) : const Color(0xFFF8FAFC),
+               color: isDark ? const Color(0xFF161B22).withValues(alpha: 0.5) : const Color(0xFFF8FAFC),
                borderRadius: BorderRadius.circular(12),
                border: Border.all(color: borderColor),
             ),
@@ -267,7 +267,7 @@ class _LeaveFormState extends State<LeaveForm> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                       Icon(Icons.attach_file, color: const Color(0xFF5B60F6).withOpacity(0.8), size: 18),
+                       Icon(Icons.attach_file, color: const Color(0xFF5B60F6).withValues(alpha: 0.8), size: 18),
                        const SizedBox(width: 8),
                        Text(
                          _attachedFile != null ? _attachedFile!.name : "Click to attach document...",
@@ -318,7 +318,7 @@ class DottedBorderContainer extends StatelessWidget {
          borderRadius: BorderRadius.circular(12),
       ),
       child: CustomPaint(
-        painter: _DottedPainter(color: Colors.grey.withOpacity(0.5)),
+        painter: _DottedPainter(color: Colors.grey.withValues(alpha: 0.5)),
         child: child,
       ),
     );
