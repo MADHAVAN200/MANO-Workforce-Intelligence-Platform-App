@@ -20,7 +20,7 @@ class HolidayManagementScreen extends StatefulWidget {
   const HolidayManagementScreen({super.key, required this.holidayService});
 
   @override
-  _HolidayManagementScreenState createState() =>
+  State<HolidayManagementScreen> createState() =>
       _HolidayManagementScreenState();
 }
 
@@ -108,10 +108,11 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
               context.showToast("Holiday added successfully.", isSuccess: true);
             }
           } catch (e) {
-            if (mounted)
+            if (mounted) {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text("Error: $e")));
+            }
           }
         },
       ),
@@ -138,10 +139,11 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
               );
             }
           } catch (e) {
-            if (mounted)
+            if (mounted) {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text("Error: $e")));
+            }
           }
         },
       ),
@@ -340,7 +342,7 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
           Expanded(
             child: ListView.separated(
               itemCount: _filteredHolidays.length,
-              separatorBuilder: (_, __) => Divider(
+              separatorBuilder: (_, _) => Divider(
                 height: 1,
                 color: isDark
                     ? Colors.white.withAlpha(12)
@@ -631,10 +633,11 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
             );
           }
         } else {
-          if (mounted)
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("No valid data found in CSV")),
             );
+          }
         }
       }
     } catch (e) {

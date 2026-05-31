@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../shared/constants/api_constants.dart';
 import '../models/location_model.dart';
 
@@ -110,7 +111,7 @@ class LocationService {
       }
       return '';
     } catch (e) {
-      print("Geocoding failed: $e");
+      debugPrint("Geocoding failed: $e");
       return '';
     }
   }

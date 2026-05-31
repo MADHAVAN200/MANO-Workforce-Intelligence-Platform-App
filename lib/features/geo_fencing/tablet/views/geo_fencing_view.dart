@@ -5,7 +5,7 @@ import '../../services/location_service.dart';
 import '../../views/geofencing_screen.dart';
 
 class GeoFencingView extends StatelessWidget {
-  const GeoFencingView({Key? key}) : super(key: key);
+  const GeoFencingView({super.key});
 
   @override
   Widget build(BuildContext context) {

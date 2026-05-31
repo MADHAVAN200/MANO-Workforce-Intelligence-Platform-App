@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -162,7 +162,7 @@ class _LeaveCalendarState extends State<LeaveCalendar> {
                 color: const Color(0xFF5B60F6), // End circle
                 shape: BoxShape.circle,
               ),
-              rangeHighlightColor: const Color(0xFF5B60F6).withOpacity(0.2), // The trace between
+              rangeHighlightColor: const Color(0xFF5B60F6).withValues(alpha: 0.2), // The trace between
               
               markerSize: 0, 
             ),

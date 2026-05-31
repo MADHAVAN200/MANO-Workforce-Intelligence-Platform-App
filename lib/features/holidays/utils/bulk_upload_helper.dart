@@ -112,8 +112,9 @@ class HolidayBulkUploadHelper {
       eol: '\n',
     );
 
-    if (rows.length < 2)
+    if (rows.length < 2) {
       throw Exception("CSV file must have a header and at least one row.");
+    }
 
     // Simple Header Mapping
     final headers = rows.first
@@ -130,8 +131,9 @@ class HolidayBulkUploadHelper {
     List<Map<String, dynamic>> holidays = [];
     for (int i = 1; i < rows.length; i++) {
       final row = rows[i];
-      if (row.length <= dateIdx || row.length <= nameIdx)
+      if (row.length <= dateIdx || row.length <= nameIdx) {
         continue; // Skip bad rows
+      }
 
       holidays.add({
         'holiday_name': row[nameIdx],
@@ -154,8 +156,9 @@ class HolidayBulkUploadHelper {
     if (sheet == null) throw Exception("Excel file is empty.");
 
     // Assuming Row 1 is header
-    if (sheet.maxRows < 2)
+    if (sheet.maxRows < 2) {
       throw Exception("Excel file must have headers and data.");
+    }
 
     // Find headers in first row
     final headerRow = sheet.rows.first;
@@ -234,8 +237,6 @@ class HolidayBulkUploadHelper {
         throw Exception("Web download not implemented yet");
       } else {
         // Mobile/Desktop
-        final directory =
-            await getApplicationDocumentsDirectory(); // Use generic docs or temp
         // Ideally getExternalStorage for Android user visibility, but open_filex works with app dirs too usually
         // Actually, for user to "see" it outside, External might be needed on Android.
         // Let's use temporary for "viewing" immediately.
@@ -260,10 +261,11 @@ class HolidayBulkUploadHelper {
         }
       }
     } catch (e) {
-      if (context.mounted)
+      if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Template Error: $e")));
+      }
     }
   }
 }

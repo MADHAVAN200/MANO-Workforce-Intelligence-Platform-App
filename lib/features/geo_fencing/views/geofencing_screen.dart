@@ -10,10 +10,10 @@ import '../services/location_service.dart';
 
 class GeofencingScreen extends StatefulWidget {
   final LocationService locationService;
-  const GeofencingScreen({Key? key, required this.locationService}) : super(key: key);
+  const GeofencingScreen({super.key, required this.locationService});
 
   @override
-  _GeofencingScreenState createState() => _GeofencingScreenState();
+  State<GeofencingScreen> createState() => _GeofencingScreenState();
 }
 
 class _GeofencingScreenState extends State<GeofencingScreen> {
@@ -67,7 +67,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
         });
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -78,7 +78,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
       debugPrint("Fetched ${users.length} users");
       // Debug first user structure
       if (users.isNotEmpty) {
-        print("User 0: ${users.first}");
+        debugPrint("User 0: ${users.first}");
       }
       if (mounted) {
         setState(() {
@@ -87,7 +87,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
         });
       }
     } catch (e) {
-      print("Failed to fetch users: $e");
+      debugPrint("Failed to fetch users: $e");
       if (mounted) setState(() => _isLoadingUsers = false);
     }
   }
@@ -412,7 +412,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
                   options: MapOptions(
                     initialCenter: centerLatLng,
                     initialZoom: 15.0,
-                    onTap: (_, __) {
+                    onTap: (_, _) {
                       setState(() {
                         _isMapThemeMenuOpen = false;
                       });
@@ -1055,12 +1055,11 @@ class _MobileStaffManagementSheet extends StatefulWidget {
   final VoidCallback onAssignmentChanged;
 
   const _MobileStaffManagementSheet({
-    Key? key,
     required this.location,
     required this.locationService,
     required this.initialUsers,
     required this.onAssignmentChanged,
-  }) : super(key: key);
+  });
 
   @override
   __MobileStaffManagementSheetState createState() => __MobileStaffManagementSheetState();
@@ -1085,7 +1084,7 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
         });
       }
     } catch (e) {
-      print("Error reloading users: $e");
+      debugPrint("Error reloading users: $e");
     }
   }
 
@@ -1213,7 +1212,7 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                           itemCount: assignedUsers.length,
-                          itemBuilder: (context, index) {
+                          itemBuilder: (ctx, index) {
                             final user = assignedUsers[index];
                             final name = user['user_name'] ?? 'Unknown';
                             final role = user['desg_name'] ?? 'Staff';
@@ -1287,7 +1286,7 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
                                         _refreshUsers();
                                       } catch (e) {
                                         _refreshUsers();
-                                        if (mounted) {
+                                        if (context.mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(content: Text("Failed to remove staff: $e")),
                                           );
@@ -1315,16 +1314,16 @@ class AssignStaffPopupContent extends StatefulWidget {
   final VoidCallback? onBack;
 
   const AssignStaffPopupContent({
-    Key? key,
+    super.key,
     required this.location,
     required this.locationService,
     required this.initialUsers,
     required this.onAssignmentChanged,
     this.onBack,
-  }) : super(key: key);
+  });
 
   @override
-  _AssignStaffPopupContentState createState() => _AssignStaffPopupContentState();
+  State<AssignStaffPopupContent> createState() => _AssignStaffPopupContentState();
 }
 
 class _AssignStaffPopupContentState extends State<AssignStaffPopupContent> {
