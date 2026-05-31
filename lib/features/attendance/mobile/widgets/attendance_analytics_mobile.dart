@@ -107,7 +107,6 @@ class _AttendanceAnalyticsMobileState extends State<AttendanceAnalyticsMobile> {
     final totalDays = _records.length;
     final onTimeCount = _records.where((r) => r.status.toUpperCase() == 'PRESENT').length;
     final lateCount = _records.where((r) => r.status.toUpperCase() == 'LATE').length;
-    final absentCount = _records.where((r) => r.status.toUpperCase() == 'ABSENT').length;
     
     final presentCount = onTimeCount + lateCount;
     final presentPercent = totalDays > 0 ? (presentCount / totalDays * 100).toStringAsFixed(0) : '0';
@@ -285,7 +284,7 @@ class _AttendanceAnalyticsMobileState extends State<AttendanceAnalyticsMobile> {
                               Container(
                                 width: (constraints.maxWidth - 24) / 14,
                                 height: constraints.maxHeight * 0.65 * heightFactor,
-                                decoration: BoxDecoration(color: const Color(0xFF5B60F6).withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+                                decoration: BoxDecoration(color: const Color(0xFF5B60F6).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
                               ),
                               const SizedBox(height: 8),
                               Text(labels[i], style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey)),
@@ -347,7 +346,7 @@ class _LineChartWidget extends StatelessWidget {
             barWidth: 2,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: true, color: const Color(0xFF5B60F6).withOpacity(0.1)),
+            belowBarData: BarAreaData(show: true, color: const Color(0xFF5B60F6).withValues(alpha: 0.1)),
           ),
         ],
       ),

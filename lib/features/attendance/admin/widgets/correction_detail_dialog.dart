@@ -61,8 +61,8 @@ class _CorrectionDetailDialogState extends State<CorrectionDetailDialog> {
   // Override State
   bool _isOverride = false;
   CorrectionMethod? _overrideMethod;
-  TextEditingController _overrideInController = TextEditingController();
-  TextEditingController _overrideOutController = TextEditingController();
+  final TextEditingController _overrideInController = TextEditingController();
+  final TextEditingController _overrideOutController = TextEditingController();
 
   @override
   void initState() {
@@ -167,8 +167,11 @@ class _CorrectionDetailDialogState extends State<CorrectionDetailDialog> {
     if (time != null) {
       setState(() {
         final formatted = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-        if (isTimeIn) _overrideInController.text = formatted;
-        else _overrideOutController.text = formatted;
+        if (isTimeIn) {
+          _overrideInController.text = formatted;
+        } else {
+          _overrideOutController.text = formatted;
+        }
       });
     }
   }
@@ -392,7 +395,7 @@ class _CorrectionDetailDialogState extends State<CorrectionDetailDialog> {
                                       child: CorrectionDetailCard(
                                         label: 'Method',
                                         value: req.methodLabel.replaceAll('_', ' ').toUpperCase(),
-                                        backgroundColor: isDark ? const Color(0xFF4F46E5).withOpacity(0.1) : const Color(0xFFEEF2FF),
+                                        backgroundColor: isDark ? const Color(0xFF4F46E5).withValues(alpha: 0.1) : const Color(0xFFEEF2FF),
                                         textColor: const Color(0xFF4F46E5),
                                       ),
                                     ),
@@ -404,7 +407,7 @@ class _CorrectionDetailDialogState extends State<CorrectionDetailDialog> {
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: isDark ? Colors.white.withOpacity(0.03) : const Color(0xFFF9FAFB),
+                                    color: isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFF9FAFB),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE5E7EB)),
                                   ),
@@ -490,7 +493,7 @@ class _CorrectionDetailDialogState extends State<CorrectionDetailDialog> {
                                    width: double.infinity,
                                    padding: const EdgeInsets.all(16),
                                    decoration: BoxDecoration(
-                                     color: isDark ? Colors.white.withOpacity(0.03) : const Color(0xFFF9FAFB),
+                                     color: isDark ? Colors.white.withValues(alpha: 0.03) : const Color(0xFFF9FAFB),
                                      borderRadius: BorderRadius.circular(12),
                                      border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE5E7EB)),
                                    ),
@@ -605,9 +608,9 @@ class _CorrectionDetailDialogState extends State<CorrectionDetailDialog> {
       return Container(
         height: 40,
         decoration: BoxDecoration(
-          color: isPrimary ? color : color.withOpacity(0.1),
+          color: isPrimary ? color : color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: isPrimary ? null : Border.all(color: color.withOpacity(0.2)),
+          border: isPrimary ? null : Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Material(
           color: Colors.transparent,

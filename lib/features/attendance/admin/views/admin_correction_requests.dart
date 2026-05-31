@@ -1,4 +1,4 @@
-
+﻿
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -219,7 +219,7 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
           border: Border.all(
             color: isActive
                 ? activeColor
-                : (isDark ? Colors.white24 : Colors.grey.withOpacity(0.3)),
+                : (isDark ? Colors.white24 : Colors.grey.withValues(alpha: 0.3)),
           ),
         ),
         child: Text(
@@ -248,13 +248,13 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
           color: isDark ? const Color(0xFF161B22) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isDark ? Colors.white10 : Colors.black.withOpacity(0.07),
+            color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.07),
           ),
           boxShadow: isDark
               ? []
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   )
@@ -353,7 +353,7 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 14, color: color),
@@ -370,7 +370,7 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
 
     return CircleAvatar(
       radius: 22,
-      backgroundColor: primary.withOpacity(0.12),
+      backgroundColor: primary.withValues(alpha: 0.12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(22),
         child: avatarUrl != null && avatarUrl.isNotEmpty
@@ -379,8 +379,8 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
                 fit: BoxFit.cover,
                 width: 44,
                 height: 44,
-                placeholder: (_, __) => _avatarFallback(req.userName, isDark),
-                errorWidget: (_, __, ___) => _avatarFallback(req.userName, isDark),
+                placeholder: (_, _) => _avatarFallback(req.userName, isDark),
+                errorWidget: (_, _, _) => _avatarFallback(req.userName, isDark),
               )
             : _avatarFallback(req.userName, isDark),
       ),
@@ -425,9 +425,9 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

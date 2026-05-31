@@ -73,7 +73,9 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
       return null;
     }
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
   }
 
   Future<void> _handleAttendanceAction(bool isTimeIn) async {
@@ -310,7 +312,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isActive ? color.withOpacity(0.15) : Colors.grey.withOpacity(0.1),
+                  color: isActive ? color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -444,14 +446,14 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
                     color: isSelected
                         ? const Color(0xFF6366F1)
                         : (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white.withOpacity(0.05)
+                            ? Colors.white.withValues(alpha: 0.05)
                             : Colors.black12),
                     width: 1.5,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF4F46E5).withOpacity(0.3),
+                            color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           )
@@ -566,7 +568,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
               color: isDark ? const Color(0xFF1E1E38) : const Color(0xFFEEF2FF),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: const Color(0xFF4F46E5).withOpacity(0.3),
+                color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -647,7 +649,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
             Column(
               children: [
                 Container(width: 12, height: 12, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
-                Expanded(child: Container(width: 2, color: Colors.grey.withOpacity(0.3), margin: const EdgeInsets.symmetric(vertical: 4))),
+                Expanded(child: Container(width: 2, color: Colors.grey.withValues(alpha: 0.3), margin: const EdgeInsets.symmetric(vertical: 4))),
                 Container(width: 12, height: 12, decoration: BoxDecoration(color: record.timeOut != null ? Colors.red : Colors.grey, shape: BoxShape.circle)),
               ],
             ),
@@ -712,7 +714,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
           ),
           child: const Icon(Icons.person, size: 24, color: Colors.white),
         );
@@ -727,13 +729,13 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
           ),
           child: CachedNetworkImage(
             imageUrl: imageUrl, 
             fit: BoxFit.cover,
-            errorWidget: (_,__,___) => const Icon(Icons.person, color: Colors.white),
-            placeholder: (_,__) => const Center(child: SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))),
+            errorWidget: (_,_,_) => const Icon(Icons.person, color: Colors.white),
+            placeholder: (_,_) => const Center(child: SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))),
           ),
         ),
       );

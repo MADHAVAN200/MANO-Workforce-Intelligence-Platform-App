@@ -178,7 +178,7 @@ class _AttendanceHistoryMobileState extends State<AttendanceHistoryMobile> {
           style: GoogleFonts.poppins(
             fontSize: 14, 
             fontWeight: FontWeight.bold, 
-            color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7) ?? Colors.grey[600]
+            color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7) ?? Colors.grey[600]
           )
         ),
         const SizedBox(height: 16),
@@ -231,7 +231,7 @@ class _AttendanceHistoryMobileState extends State<AttendanceHistoryMobile> {
                   height: 44,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF5B60F6).withOpacity(0.1),
+                    color: const Color(0xFF5B60F6).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text('$day', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF5B60F6))),
@@ -263,7 +263,7 @@ class _AttendanceHistoryMobileState extends State<AttendanceHistoryMobile> {
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: statusColor?.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+                        decoration: BoxDecoration(color: statusColor?.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
                         child: Text(status, style: GoogleFonts.poppins(fontSize: 9, fontWeight: FontWeight.bold, color: statusText)),
                       ),
                     ],

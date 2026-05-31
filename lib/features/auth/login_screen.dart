@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter/foundation.dart';
 
 import 'word_captcha.dart'; // Import WordCaptcha
 import 'mobile/views/login_mobile_portrait.dart';
@@ -54,8 +53,10 @@ class LoginScreenState extends State<LoginScreen> {
       if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
         debugPrint("Location permission granted. Getting current position...");
         final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 5),
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 5),
+          ),
         );
         debugPrint("Location successfully force-started: ${position.latitude}, ${position.longitude}");
       } else {

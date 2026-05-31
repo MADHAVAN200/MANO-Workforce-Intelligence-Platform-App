@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
-import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -15,6 +13,12 @@ class AttendanceService {
   final Dio _dio;
 
   AttendanceService(this._dio);
+
+  String _basenameWithoutExtension(String path) {
+    final base = path.split('/').last.split('\\').last;
+    final idx = base.lastIndexOf('.');
+    return idx == -1 ? base : base.substring(0, idx);
+  }
 
   // 1. Get My Records
   Future<List<AttendanceRecord>> getMyRecords({String? fromDate, String? toDate, String? userId, int? limit}) async {
@@ -65,7 +69,7 @@ class AttendanceService {
   }) async {
     try {
       final fixedFile = await _fixOrientationAndCompress(imageFile);
-      final fileName = p.basenameWithoutExtension(imageFile.path) + '.jpg';
+      final fileName = '${_basenameWithoutExtension(imageFile.path)}.jpg';
 
       FormData formData = FormData.fromMap({
         "latitude": latitude.toStringAsFixed(4),
@@ -99,7 +103,7 @@ class AttendanceService {
   }) async {
     try {
       final fixedFile = await _fixOrientationAndCompress(imageFile);
-      final fileName = p.basenameWithoutExtension(imageFile.path) + '.jpg';
+      final fileName = '${_basenameWithoutExtension(imageFile.path)}.jpg';
 
       FormData formData = FormData.fromMap({
         "latitude": latitude.toStringAsFixed(4),
@@ -130,13 +134,10 @@ class AttendanceService {
     try {
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
         final originalSize = await imageFile.length();
-        debugPrint('_fixOrientationAndCompress: input=${originalSize} bytes path=${imageFile.path}');
+        debugPrint('_fixOrientationAndCompress: input=$originalSize bytes path=${imageFile.path}');
 
         final tmpDir = await getTemporaryDirectory();
-        final outPath = p.join(
-          tmpDir.path,
-          '${p.basenameWithoutExtension(imageFile.path)}_fixed.jpg',
-        );
+        final outPath = '${tmpDir.path}${Platform.pathSeparator}${_basenameWithoutExtension(imageFile.path)}_fixed.jpg';
 
         final result = await FlutterImageCompress.compressAndGetFile(
           imageFile.path,
@@ -152,7 +153,7 @@ class AttendanceService {
           final compressedSize = await outFile.length();
           debugPrint(
             '_fixOrientationAndCompress: done — '
-            '${originalSize} bytes → ${compressedSize} bytes '
+            '$originalSize bytes → $compressedSize bytes '
             '(${(compressedSize / 1024).toStringAsFixed(0)} KB)',
           );
           return outFile;
