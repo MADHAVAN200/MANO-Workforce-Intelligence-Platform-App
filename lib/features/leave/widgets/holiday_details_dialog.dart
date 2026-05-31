@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../shared/widgets/glass_container.dart';
@@ -270,7 +270,7 @@ class HolidayDetailsBottomSheet extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: isDark ? const Color(0xFF818CF8) : const Color(0xFF4F46E5),
                           side: BorderSide(
-                            color: isDark ? const Color(0xFF818CF8).withOpacity(0.5) : const Color(0xFF4F46E5).withOpacity(0.5),
+                            color: isDark ? const Color(0xFF818CF8).withValues(alpha: 0.5) : const Color(0xFF4F46E5).withValues(alpha: 0.5),
                           ),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -328,7 +328,7 @@ class HolidayDetailsBottomSheet extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9),
+            color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(

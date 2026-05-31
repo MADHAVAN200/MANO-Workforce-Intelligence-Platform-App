@@ -56,7 +56,7 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
     final textColor = isDark ? Colors.white : Colors.black87;
     final hintColor = isDark ? Colors.white54 : Colors.black54;
     final sheetBg = isDark ? const Color(0xFF161B22) : Colors.white;
-    final fieldBg = isDark ? const Color(0xFF0D1117).withOpacity(0.6) : Colors.grey[100]!;
+    final fieldBg = isDark ? const Color(0xFF0D1117).withValues(alpha: 0.6) : Colors.grey[100]!;
     final borderColor = isDark ? Colors.white10 : Colors.grey.shade300;
 
     return Padding(
@@ -66,7 +66,7 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
           color: sheetBg,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05),
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05),
             width: 1,
           ),
         ),
@@ -117,7 +117,7 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[100],
+                          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[100],
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
@@ -206,7 +206,7 @@ class HolidayFormDialogState extends State<HolidayFormDialog> {
                           fontSize: 12, fontWeight: FontWeight.w600, color: hintColor)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _type,
+                    initialValue: _type,
                     dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
                     style: GoogleFonts.poppins(color: textColor),
                     items: ["Public", "Optional", "Observance"]

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_application/features/leave/widgets/admin_leave_requests.dart';
 import 'package:flutter_application/features/leave/widgets/admin_leave_history.dart';
@@ -30,7 +30,7 @@ class _AdminLeaveViewState extends State<AdminLeaveView> {
           border: Border.all(
             color: isActive
                 ? activeColor
-                : (isDark ? Colors.white24 : Colors.grey.withOpacity(0.3)),
+                : (isDark ? Colors.white24 : Colors.grey.withValues(alpha: 0.3)),
           ),
         ),
         child: Text(

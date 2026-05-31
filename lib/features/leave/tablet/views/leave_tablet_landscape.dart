@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -123,10 +122,11 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
       } else {
         msg += ": $e";
       }
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg), duration: const Duration(seconds: 5)),
         );
+      }
     } finally {
       if (mounted) setState(() => _isLoadingLeaves = false);
     }
@@ -143,10 +143,11 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
         _fetchLeaves();
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Withdraw Failed: $e")));
+      }
     }
   }
 
@@ -210,7 +211,6 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
   }
 
   Widget _buildTabs(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -232,7 +232,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -376,7 +376,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF6366F1).withOpacity(0.1),
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -421,7 +421,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                                     vertical: 3,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.purple.withOpacity(0.1),
+                                    color: Colors.purple.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -462,7 +462,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
               color: cardColor,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: isDark ? Colors.white.withOpacity(0.02) : borderColor,
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : borderColor,
               ),
             ),
             child: LeaveForm(
@@ -514,7 +514,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
               color: cardColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isDark ? Colors.white.withOpacity(0.02) : borderColor,
+                color: isDark ? Colors.white.withValues(alpha: 0.02) : borderColor,
               ),
             ),
             child: Column(
@@ -535,7 +535,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5B60F6).withOpacity(0.1),
+                        color: const Color(0xFF5B60F6).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -562,7 +562,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                               ),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withValues(alpha: 0.3),
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -598,7 +598,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                               ),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withValues(alpha: 0.3),
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -678,7 +678,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
+                              color: statusColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -693,7 +693,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Divider(height: 1, color: Colors.grey.withOpacity(0.1)),
+                      Divider(height: 1, color: Colors.grey.withValues(alpha: 0.1)),
                       const SizedBox(height: 4),
                       Row(
                         children: [

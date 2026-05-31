@@ -130,10 +130,11 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
           e.response!.data is Map) {
         msg = e.response!.data['message'] ?? msg;
       }
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(msg)));
+      }
     }
   }
 
@@ -148,10 +149,11 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
         _fetchLeaves();
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Withdraw Failed: $e")));
+      }
     }
   }
 
@@ -203,7 +205,7 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
                     ),
                     const SizedBox(height: 24),
                     DropdownButtonFormField<String>(
-                      value: _selectedType,
+                      initialValue: _selectedType,
                       items: ['Casual Leave', 'Sick Leave', 'Other']
                           .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                           .toList(),
@@ -374,7 +376,7 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -430,15 +432,17 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
 
   Widget _buildHolidaysList(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (_isLoadingHolidays)
+    if (_isLoadingHolidays) {
       return const Center(child: CircularProgressIndicator());
-    if (_holidays.isEmpty)
+    }
+    if (_holidays.isEmpty) {
       return Center(
         child: Text(
           "No holidays found",
           style: GoogleFonts.poppins(color: Colors.grey),
         ),
       );
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -461,7 +465,7 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withOpacity(0.1),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -518,8 +522,9 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
   }
 
   Widget _buildLeaveList(BuildContext context) {
-    if (_isLoadingLeaves)
+    if (_isLoadingLeaves) {
       return const Center(child: CircularProgressIndicator());
+    }
     if (_leavesError != null) {
       return Center(
         child: Padding(
@@ -532,13 +537,14 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
         ),
       );
     }
-    if (_leaves.isEmpty)
+    if (_leaves.isEmpty) {
       return Center(
         child: Text(
           "No leave requests found",
           style: GoogleFonts.poppins(color: Colors.grey),
         ),
       );
+    }
 
     return Column(
       children: [
@@ -607,10 +613,10 @@ class _LeaveTabletPortraitState extends State<LeaveTabletPortrait>
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
+                              color: statusColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: statusColor.withOpacity(0.2),
+                                color: statusColor.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Text(

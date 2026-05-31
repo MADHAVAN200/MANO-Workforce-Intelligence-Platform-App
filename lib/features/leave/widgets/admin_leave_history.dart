@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application/features/leave/providers/leave_provider.dart';
-import 'package:flutter_application/features/leave/models/leave_request_model.dart';
 import 'package:flutter_application/features/leave/widgets/leave_history_item.dart';
 import 'package:flutter_application/features/leave/widgets/leave_details_dialog.dart';
 
@@ -100,7 +99,7 @@ class _AdminLeaveHistoryState extends State<AdminLeaveHistory> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.history_toggle_off, size: 48, color: Colors.grey.withOpacity(0.5)),
+                      Icon(Icons.history_toggle_off, size: 48, color: Colors.grey.withValues(alpha: 0.5)),
                       const SizedBox(height: 16),
                       Text("No history found", style: TextStyle(color: Colors.grey[600])),
                     ],

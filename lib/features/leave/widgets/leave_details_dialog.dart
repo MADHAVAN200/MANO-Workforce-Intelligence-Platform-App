@@ -7,7 +7,6 @@ import 'package:open_filex/open_filex.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_application/features/leave/models/leave_request_model.dart';
 import 'package:flutter_application/features/leave/providers/leave_provider.dart';
-import 'package:flutter_application/shared/widgets/glass_container.dart';
 import 'package:flutter_application/shared/constants/api_constants.dart';
 import 'package:flutter_application/shared/widgets/toast_helper.dart';
 
@@ -176,7 +175,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
             : BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 5),
           )
@@ -287,7 +286,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0)),
+                  border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0)),
                 ),
                 child: Row(
                   children: [
@@ -310,7 +309,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
                 ),
               ),
             ),
-          )).toList(),
+          )),
         ],
 
         // Audit Trail (If not pending and has review info)
@@ -396,9 +395,9 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: statusColor.withOpacity(0.2)),
+                border: Border.all(color: statusColor.withValues(alpha: 0.2)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -455,7 +454,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0)),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,19 +475,18 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
   }
 
   Widget _buildDurationBox(BuildContext context, int days, Color highlightColor) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: highlightColor.withOpacity(0.1),
+        color: highlightColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: highlightColor.withOpacity(0.2)),
+        border: Border.all(color: highlightColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Duration", style: GoogleFonts.poppins(fontSize: 11, color: highlightColor.withOpacity(0.8))),
+          Text("Duration", style: GoogleFonts.poppins(fontSize: 11, color: highlightColor.withValues(alpha: 0.8))),
           const SizedBox(height: 2),
           Text(
             "$days Days",
@@ -511,7 +509,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0)),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,7 +548,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0)),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,7 +681,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0)),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -712,7 +710,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFE2E8F0)),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
