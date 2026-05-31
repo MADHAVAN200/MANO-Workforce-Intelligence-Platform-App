@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/holiday_model.dart';
-import '../../../../shared/widgets/glass_container.dart';
 
 class HolidayDetailDialog extends StatelessWidget {
   final Holiday holiday;

@@ -138,9 +138,9 @@ class _EmployeesViewState extends State<EmployeesView> {
     showDialog(
       context: context, 
       barrierDismissible: false, 
-      builder: (_) => WillPopScope(
-        onWillPop: () async => false,
-        child: const Center(child: CircularProgressIndicator()),
+      builder: (_) => const PopScope(
+        canPop: false,
+        child: Center(child: CircularProgressIndicator()),
       ),
     );
 
@@ -184,8 +184,10 @@ class _EmployeesViewState extends State<EmployeesView> {
       setState(() {
         _isDrawerOpen = false;
       });
+      if (!mounted) return;
       context.showToast('Employee moved to trash', isSuccess: true);
     } catch (e) {
+      if (!mounted) return;
       context.showToast('Failed to delete: $e', isError: true);
     }
   }
@@ -212,8 +214,10 @@ class _EmployeesViewState extends State<EmployeesView> {
       setState(() {
         _isDrawerOpen = false;
       });
+      if (!mounted) return;
       context.showToast('Employee ${action}d successfully', isSuccess: true);
     } catch (e) {
+      if (!mounted) return;
       context.showToast('Failed to update status: $e', isError: true);
     }
   }
@@ -237,8 +241,10 @@ class _EmployeesViewState extends State<EmployeesView> {
       setState(() {
         _isDrawerOpen = false;
       });
+      if (!mounted) return;
       context.showToast('Employee restored from trash', isSuccess: true);
     } catch (e) {
+      if (!mounted) return;
       context.showToast('Failed to restore employee: $e', isError: true);
     }
   }
@@ -262,8 +268,10 @@ class _EmployeesViewState extends State<EmployeesView> {
       setState(() {
         _isDrawerOpen = false;
       });
+      if (!mounted) return;
       context.showToast('Employee permanently deleted', isSuccess: true);
     } catch (e) {
+      if (!mounted) return;
       context.showToast('Failed to permanently delete: $e', isError: true);
     }
   }
@@ -313,9 +321,9 @@ class _EmployeesViewState extends State<EmployeesView> {
         showDialog(
           context: context, 
           barrierDismissible: false, 
-          builder: (_) => WillPopScope(
-            onWillPop: () async => false,
-            child: const Center(child: CircularProgressIndicator()),
+          builder: (_) => const PopScope(
+            canPop: false,
+            child: Center(child: CircularProgressIndicator()),
           ),
         );
         
@@ -497,7 +505,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    status == 'Deleted' ? 'Trash' : status,
+                    label,
                     style: GoogleFonts.poppins(
                       fontSize: 13,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
@@ -571,7 +579,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                         decoration: InputDecoration(
                           hintText: 'Search employees...',
                           hintStyle: GoogleFonts.poppins(
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                             fontSize: 14,
                           ),
                           border: InputBorder.none,
@@ -652,11 +660,11 @@ class _EmployeesViewState extends State<EmployeesView> {
           color: isPrimary ? primaryColor : (isDark ? const Color(0xFF161B22) : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: isPrimary ? null : Border.all(
-            color: isDark ? const Color(0xFF30363D) : primaryColor.withOpacity(0.1)
+            color: isDark ? const Color(0xFF30363D) : primaryColor.withValues(alpha: 0.1)
           ),
           boxShadow: isPrimary ? [
             BoxShadow(
-              color: primaryColor.withOpacity(0.3),
+              color: primaryColor.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             )
@@ -705,7 +713,7 @@ class _EmployeesViewState extends State<EmployeesView> {
         child: SizedBox(
           width: double.infinity,
           child: DataTable(
-            headingRowColor: MaterialStateProperty.all(Colors.transparent),
+            headingRowColor: WidgetStateProperty.all(Colors.transparent),
             columnSpacing: 16, 
             horizontalMargin: 16, 
             dataRowMaxHeight: 58,
@@ -745,7 +753,7 @@ class _EmployeesViewState extends State<EmployeesView> {
           fontWeight: FontWeight.w600,
           fontSize: 11,
           letterSpacing: 0.5,
-          color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+          color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
         ),
       ),
     );
@@ -797,7 +805,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                   ),
                   child: CircleAvatar(
                     radius: 16,
-                    backgroundColor: isDark ? const Color(0xFF0D1117) : Theme.of(context).primaryColor.withOpacity(0.1),
+                    backgroundColor: isDark ? const Color(0xFF0D1117) : Theme.of(context).primaryColor.withValues(alpha: 0.1),
                     child: data.profileImage != null && data.profileImage!.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(16),
@@ -874,7 +882,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                         margin: const EdgeInsets.only(right: 4),
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.blue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -952,7 +960,7 @@ class _EmployeesViewState extends State<EmployeesView> {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
             ),
           ),
         AnimatedPositioned(
@@ -970,7 +978,7 @@ class _EmployeesViewState extends State<EmployeesView> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(-4, 0),
                 )
@@ -1025,7 +1033,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: primaryColor.withOpacity(0.2),
+                                    color: primaryColor.withValues(alpha: 0.2),
                                     blurRadius: 16,
                                     offset: const Offset(0, 4),
                                   )
@@ -1033,7 +1041,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                               ),
                               child: CircleAvatar(
                                 radius: 54,
-                                backgroundColor: isDark ? const Color(0xFF161B22) : primaryColor.withOpacity(0.05),
+                                backgroundColor: isDark ? const Color(0xFF161B22) : primaryColor.withValues(alpha: 0.05),
                                 child: employee.profileImage != null && employee.profileImage!.isNotEmpty
                                     ? ClipRRect(
                                         borderRadius: BorderRadius.circular(54),
@@ -1101,10 +1109,10 @@ class _EmployeesViewState extends State<EmployeesView> {
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
                               color: employee.status == 'Active'
-                                  ? Colors.green.withOpacity(0.1)
+                                  ? Colors.green.withValues(alpha: 0.1)
                                   : employee.status == 'Inactive'
-                                      ? Colors.amber.withOpacity(0.1)
-                                      : Colors.red.withOpacity(0.1),
+                                      ? Colors.amber.withValues(alpha: 0.1)
+                                      : Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -1171,10 +1179,10 @@ class _EmployeesViewState extends State<EmployeesView> {
                                       return Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: loc.isActive ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                                          color: loc.isActive ? Colors.blue.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(16),
                                           border: Border.all(
-                                            color: loc.isActive ? Colors.blue.withOpacity(0.3) : Colors.grey.withOpacity(0.3),
+                                            color: loc.isActive ? Colors.blue.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3),
                                           ),
                                         ),
                                         child: Row(
@@ -1252,7 +1260,7 @@ class _EmployeesViewState extends State<EmployeesView> {
                                       label: const Text('Edit Profile'),
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: primaryColor,
-                                        side: BorderSide(color: primaryColor.withOpacity(0.5)),
+                                        side: BorderSide(color: primaryColor.withValues(alpha: 0.5)),
                                         padding: const EdgeInsets.symmetric(vertical: 14),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),

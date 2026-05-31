@@ -95,10 +95,11 @@ class _FeedbackTabletLandscapeState extends State<FeedbackTabletLandscape>
         setState(() => _attachedFiles = []);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Submit Failed: $e")));
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +51,7 @@ class EmployeeDetailSheet extends StatelessWidget {
   static void showFullscreenAvatar(BuildContext context, String imageUrl, String name) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       builder: (context) => Stack(
         children: [
           Center(
@@ -170,7 +170,7 @@ class EmployeeDetailSheet extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: 44,
-                backgroundColor: isDark ? const Color(0xFF0D1117) : Theme.of(context).primaryColor.withOpacity(0.1),
+                backgroundColor: isDark ? const Color(0xFF0D1117) : Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 child: employee.profileImage != null && employee.profileImage!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(44),
@@ -215,10 +215,10 @@ class EmployeeDetailSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
             decoration: BoxDecoration(
               color: employee.status == 'Active'
-                  ? Colors.green.withOpacity(0.1)
+                  ? Colors.green.withValues(alpha: 0.1)
                   : employee.status == 'Inactive'
-                      ? Colors.amber.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
+                      ? Colors.amber.withValues(alpha: 0.1)
+                      : Colors.red.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -288,10 +288,10 @@ class EmployeeDetailSheet extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: loc.isActive ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                          color: loc.isActive ? Colors.blue.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: loc.isActive ? Colors.blue.withOpacity(0.3) : Colors.grey.withOpacity(0.3),
+                            color: loc.isActive ? Colors.blue.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -374,7 +374,7 @@ class EmployeeDetailSheet extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: isDark ? const Color(0xFF58A6FF) : Theme.of(context).primaryColor,
                         side: BorderSide(
-                          color: isDark ? const Color(0xFF30363D) : Theme.of(context).primaryColor.withOpacity(0.5),
+                          color: isDark ? const Color(0xFF30363D) : Theme.of(context).primaryColor.withValues(alpha: 0.5),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

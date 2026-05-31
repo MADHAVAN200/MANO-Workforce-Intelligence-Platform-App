@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../models/employee_model.dart';
@@ -81,7 +81,7 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      print("Error loading dropdowns: $e");
+      debugPrint("Error loading dropdowns: $e");
     }
   }
 
@@ -357,7 +357,7 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
             color: isDark ? const Color(0xFF0D1117) : Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey[300]!,
+              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey[300]!,
             ),
           ),
           child: TextFormField(
@@ -405,7 +405,7 @@ class _AddEmployeeViewState extends State<AddEmployeeView> {
             color: isDark ? const Color(0xFF0D1117) : Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey[300]!,
+              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey[300]!,
             ),
           ),
           child: DropdownButtonHideUnderline(

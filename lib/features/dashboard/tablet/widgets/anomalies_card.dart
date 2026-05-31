@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../shared/widgets/glass_container.dart';
 
@@ -40,9 +40,9 @@ class AnomaliesCard extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withOpacity(0.05),
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.1)),
+                  border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.1)),
                 ),
                 child: Row(
                   children: [
@@ -60,7 +60,7 @@ class AnomaliesCard extends StatelessWidget {
                         anomalies[index],
                         style: GoogleFonts.poppins(
                           fontSize: 13,
-                          color: textColor?.withOpacity(0.8),
+                          color: textColor?.withValues(alpha: 0.8),
                         ),
                       ),
                     ),
