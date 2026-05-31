@@ -116,7 +116,6 @@ class _AttendanceAnalyticsTabState extends State<AttendanceAnalyticsTab> {
     final totalDays = _records.length;
     final onTimeCount = _records.where((r) => r.status.toUpperCase() == 'PRESENT').length;
     final lateCount = _records.where((r) => r.status.toUpperCase() == 'LATE').length;
-    final absentCount = _records.where((r) => r.status.toUpperCase() == 'ABSENT').length;
     
     final presentCount = onTimeCount + lateCount;
     final presentPercent = totalDays > 0 ? (presentCount / totalDays * 100).toStringAsFixed(0) : '0';

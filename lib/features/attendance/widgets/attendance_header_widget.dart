@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -87,7 +86,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
       }
 
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
       final url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}';
@@ -142,10 +141,10 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0x33232644) : Colors.white.withOpacity(0.12),
+          color: isDark ? const Color(0x33232644) : Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.08) : Colors.white.withOpacity(0.12),
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.12),
             width: 1,
           ),
         ),
@@ -166,7 +165,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                 style: GoogleFonts.poppins(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white.withOpacity(0.9) : const Color(0xFF1E293B),
+                  color: isDark ? Colors.white.withValues(alpha: 0.9) : const Color(0xFF1E293B),
                 ),
               ),
             ),
@@ -212,11 +211,11 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
     final timeStr = DateFormat('hh:mm:ss a').format(_currentTime);
 
     final cardBgColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.white.withOpacity(0.12);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.white.withValues(alpha: 0.12);
     final cardBorderColor = isDark
-        ? Colors.white.withOpacity(0.1)
-        : Colors.white.withOpacity(0.18);
+        ? Colors.white.withValues(alpha: 0.1)
+        : Colors.white.withValues(alpha: 0.18);
 
     Widget tabBarWidget = AttendanceTabBar(maxWidth: 480);
 
@@ -267,7 +266,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -290,7 +289,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF232644) : Colors.white.withOpacity(0.15),
+                                color: isDark ? const Color(0xFF232644) : Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
@@ -310,7 +309,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                                     style: GoogleFonts.poppins(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w800,
-                                      color: Colors.white.withOpacity(0.5),
+                                      color: Colors.white.withValues(alpha: 0.5),
                                       letterSpacing: 1.2,
                                     ),
                                   ),
@@ -340,7 +339,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                                   style: GoogleFonts.poppins(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w800,
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: Colors.white.withValues(alpha: 0.5),
                                     letterSpacing: 1.2,
                                   ),
                                 ),
@@ -406,7 +405,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -427,7 +426,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF232644) : Colors.white.withOpacity(0.15),
+                                color: isDark ? const Color(0xFF232644) : Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Icon(
@@ -447,7 +446,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                                     style: GoogleFonts.poppins(
                                       fontSize: 8,
                                       fontWeight: FontWeight.w800,
-                                      color: Colors.white.withOpacity(0.5),
+                                      color: Colors.white.withValues(alpha: 0.5),
                                       letterSpacing: 1.0,
                                     ),
                                   ),
@@ -481,7 +480,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                               style: GoogleFonts.poppins(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 letterSpacing: 1.0,
                               ),
                             ),
@@ -547,7 +546,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                   style: GoogleFonts.poppins(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -568,7 +567,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF232644) : Colors.white.withOpacity(0.15),
+                                color: isDark ? const Color(0xFF232644) : Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: const Icon(
@@ -588,7 +587,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                                     style: GoogleFonts.poppins(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w800,
-                                      color: Colors.white.withOpacity(0.5),
+                                      color: Colors.white.withValues(alpha: 0.5),
                                       letterSpacing: 1.2,
                                     ),
                                   ),
@@ -622,7 +621,7 @@ class _AttendanceHeaderWidgetState extends State<AttendanceHeaderWidget> {
                               style: GoogleFonts.poppins(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 letterSpacing: 1.2,
                               ),
                             ),

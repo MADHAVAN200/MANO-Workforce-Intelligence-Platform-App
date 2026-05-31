@@ -42,7 +42,7 @@ class _CorrectionRequestFormState extends State<CorrectionRequestForm> {
   List<Map<String, TimeOfDay>> _sessions = [];
   
   // Attachments
-  List<PlatformFile> _selectedFiles = [];
+  final List<PlatformFile> _selectedFiles = [];
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -83,7 +83,9 @@ class _CorrectionRequestFormState extends State<CorrectionRequestForm> {
     
     if (permission == LocationPermission.deniedForever) return null;
 
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
   }
 
   Future<void> _submit() async {
@@ -165,11 +167,17 @@ class _CorrectionRequestFormState extends State<CorrectionRequestForm> {
     if (picked != null) {
       setState(() {
         if (sessionIndex != null) {
-          if (isTimeIn) _sessions[sessionIndex]['in'] = picked;
-          else _sessions[sessionIndex]['out'] = picked;
+          if (isTimeIn) {
+            _sessions[sessionIndex]['in'] = picked;
+          } else {
+            _sessions[sessionIndex]['out'] = picked;
+          }
         } else {
-          if (isTimeIn) _timeIn = picked;
-          else _timeOut = picked;
+          if (isTimeIn) {
+            _timeIn = picked;
+          } else {
+            _timeOut = picked;
+          }
         }
       });
     }
