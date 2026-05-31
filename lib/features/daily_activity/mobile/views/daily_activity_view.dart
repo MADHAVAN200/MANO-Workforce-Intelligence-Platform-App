@@ -109,8 +109,9 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
       await _fetchDayData();
       await _fetchMetadata();
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         context.showToast("Error loading initial data: ${_getErrorMessage(e)}", isError: true);
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -290,15 +291,17 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
             proposedData: proposed,
           );
 
-          if (mounted)
+          if (mounted) {
             context.showToast(
               "Past date correction request submitted successfully!",
               isSuccess: true,
             );
+          }
           _fetchDayData();
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             context.showToast("Failed to submit request: ${_getErrorMessage(e)}", isError: true);
+          }
         } finally {
           setState(() => _isLoading = false);
         }
@@ -324,17 +327,19 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
         );
 
         await _darService.saveActivity(act);
-        if (mounted)
+        if (mounted) {
           context.showToast(
             isEdit
                 ? "Task updated successfully!"
                 : "Task created successfully!",
             isSuccess: true,
           );
+        }
         _fetchDayData();
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           context.showToast("Failed to save task: ${_getErrorMessage(e)}", isError: true);
+        }
       } finally {
         setState(() => _isLoading = false);
       }
@@ -383,18 +388,20 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
             proposedData: proposed,
           );
 
-          if (mounted)
+          if (mounted) {
             context.showToast(
               "Past date deletion request submitted successfully!",
               isSuccess: true,
             );
+          }
           _fetchDayData();
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             context.showToast(
               "Failed to submit deletion request: ${_getErrorMessage(e)}",
               isError: true,
             );
+          }
         } finally {
           setState(() => _isLoading = false);
         }
@@ -405,13 +412,15 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
         final id = int.tryParse(task.id.replaceFirst('act-', ''));
         if (id != null) {
           await _darService.deleteActivity(id);
-          if (mounted)
+          if (mounted) {
             context.showToast("Task deleted successfully!", isSuccess: true);
+          }
           _fetchDayData();
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           context.showToast("Failed to delete task: ${_getErrorMessage(e)}", isError: true);
+        }
       } finally {
         setState(() => _isLoading = false);
       }
@@ -475,11 +484,12 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
               onPressed: () {
                 final reason = reasonController.text.trim();
                 if (reason.isEmpty) {
-                  if (mounted)
+                  if (mounted) {
                     context.showToast(
                       "Please provide a reason.",
                       isWarning: true,
                     );
+                  }
                   return;
                 }
                 Navigator.of(ctx).pop();
@@ -561,17 +571,19 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
               );
 
               await _darService.saveEvent(evt);
-              if (mounted)
+              if (mounted) {
                 context.showToast(
                   isEdit
                       ? "Event updated successfully!"
                       : "Event scheduled successfully!",
                   isSuccess: true,
                 );
+              }
               _fetchDayData();
             } catch (e) {
-              if (mounted)
+              if (mounted) {
                 context.showToast("Failed to save event: ${_getErrorMessage(e)}", isError: true);
+              }
             } finally {
               setState(() => _isLoading = false);
             }
@@ -586,19 +598,21 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                     );
                     if (id != null) {
                       await _darService.deleteEvent(id);
-                      if (mounted)
+                      if (mounted) {
                         context.showToast(
                           "Event deleted successfully!",
                           isSuccess: true,
                         );
+                      }
                       _fetchDayData();
                     }
                   } catch (e) {
-                    if (mounted)
+                    if (mounted) {
                       context.showToast(
                         "Failed to delete event: ${_getErrorMessage(e)}",
                         isError: true,
                       );
+                    }
                   } finally {
                     setState(() => _isLoading = false);
                   }

@@ -96,13 +96,16 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
       await _fetchTimelineData();
 
       setState(() {
-        if (cats.isNotEmpty) _categories = cats;
+        if (cats.isNotEmpty) {
+          _categories = cats;
+        }
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      if (mounted)
+      if (mounted) {
         context.showToast("Error loading initial data: ${_getErrorMessage(e)}", isError: true);
+      }
     }
   }
 
@@ -188,17 +191,6 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     });
   }
 
-  void _changeDateRange(int offsetDays) {
-    setState(() {
-      final current = DateTime.parse(_startDate);
-      _startDate = DateFormat(
-        'yyyy-MM-dd',
-      ).format(current.add(Duration(days: offsetDays)));
-      _selectedDate = _startDate;
-      _rangeEndDate = null;
-    });
-    _fetchTimelineData();
-  }
 
   bool get _isPastDate {
     final now = DateTime.now();
@@ -304,15 +296,17 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
             proposedData: proposed,
           );
 
-          if (mounted)
+          if (mounted) {
             context.showToast(
               "Past date correction request submitted successfully!",
               isSuccess: true,
             );
+          }
           _fetchTimelineData();
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             context.showToast("Failed to submit request: ${_getErrorMessage(e)}", isError: true);
+          }
         } finally {
           setState(() => _isLoading = false);
         }
@@ -338,17 +332,19 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
         );
 
         await _darService.saveActivity(act);
-        if (mounted)
+        if (mounted) {
           context.showToast(
             isEdit
                 ? "Task updated successfully!"
                 : "Task created successfully!",
             isSuccess: true,
           );
+        }
         _fetchTimelineData();
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           context.showToast("Failed to save task: ${_getErrorMessage(e)}", isError: true);
+        }
       } finally {
         setState(() => _isLoading = false);
       }
@@ -397,18 +393,20 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
             proposedData: proposed,
           );
 
-          if (mounted)
+          if (mounted) {
             context.showToast(
               "Past date deletion request submitted successfully!",
               isSuccess: true,
             );
+          }
           _fetchTimelineData();
         } catch (e) {
-          if (mounted)
+          if (mounted) {
             context.showToast(
               "Failed to submit deletion request: ${_getErrorMessage(e)}",
               isError: true,
             );
+          }
         } finally {
           setState(() => _isLoading = false);
         }
@@ -419,13 +417,15 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
         final id = int.tryParse(task.id.replaceFirst('act-', ''));
         if (id != null) {
           await _darService.deleteActivity(id);
-          if (mounted)
+          if (mounted) {
             context.showToast("Task deleted successfully!", isSuccess: true);
+          }
           _fetchTimelineData();
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           context.showToast("Failed to delete task: ${_getErrorMessage(e)}", isError: true);
+        }
       } finally {
         setState(() => _isLoading = false);
       }
@@ -489,11 +489,12 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
               onPressed: () {
                 final reason = reasonController.text.trim();
                 if (reason.isEmpty) {
-                  if (mounted)
+                  if (mounted) {
                     context.showToast(
                       "Please provide a reason.",
                       isWarning: true,
                     );
+                  }
                   return;
                 }
                 Navigator.of(ctx).pop();
@@ -548,17 +549,19 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
               );
 
               await _darService.saveEvent(evt);
-              if (mounted)
+              if (mounted) {
                 context.showToast(
                   isEdit
                       ? "Event updated successfully"
                       : "Event created successfully",
                   isSuccess: true,
                 );
+              }
               _fetchTimelineData();
             } catch (e) {
-              if (mounted)
+              if (mounted) {
                 context.showToast("Failed to save event: ${_getErrorMessage(e)}", isError: true);
+              }
             } finally {
               setState(() => _isLoading = false);
             }
@@ -573,19 +576,21 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                     );
                     if (id != null) {
                       await _darService.deleteEvent(id);
-                      if (mounted)
+                      if (mounted) {
                         context.showToast(
                           "Event deleted successfully",
                           isSuccess: true,
                         );
+                      }
                       _fetchTimelineData();
                     }
                   } catch (e) {
-                    if (mounted)
+                    if (mounted) {
                       context.showToast(
                         "Failed to delete event: ${_getErrorMessage(e)}",
                         isError: true,
                       );
+                    }
                   } finally {
                     setState(() => _isLoading = false);
                   }

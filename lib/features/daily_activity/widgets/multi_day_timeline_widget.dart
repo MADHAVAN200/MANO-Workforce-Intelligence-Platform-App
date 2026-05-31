@@ -275,11 +275,11 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                   Color rowBg = isDark ? const Color(0xFF161B22) : Colors.white;
                   if (isHoliday) {
                     rowBg = isDark
-                        ? const Color(0xFF10B981).withOpacity(0.1)
+                        ? const Color(0xFF10B981).withValues(alpha: 0.1)
                         : const Color(0xFFF0FDFA);
                   } else if (isAbsent) {
                     rowBg = isDark
-                        ? Colors.red.withOpacity(0.1)
+                        ? Colors.red.withValues(alpha: 0.1)
                         : Colors.red[50]!;
                   }
 
@@ -336,7 +336,7 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                       BoxShadow(
                                         color: const Color(
                                           0xFF6366F1,
-                                        ).withOpacity(0.3),
+                                        ).withValues(alpha: 0.3),
                                         blurRadius: 4,
                                         offset: const Offset(0, 1),
                                       ),
@@ -424,8 +424,8 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                           color: isDark
                                               ? const Color(
                                                   0xFF21262D,
-                                                ).withOpacity(0.5)
-                                              : Colors.grey[200]!.withOpacity(
+                                                ).withValues(alpha: 0.5)
+                                              : Colors.grey[200]!.withValues(alpha: 
                                                   0.5,
                                                 ),
                                         ),
@@ -480,12 +480,12 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                 : Colors.white;
                             if (isHoliday) {
                               rowBg = isDark
-                                  ? const Color(0xFF10B981).withOpacity(0.08)
-                                  : const Color(0xFFF0FDFA).withOpacity(0.5);
+                                  ? const Color(0xFF10B981).withValues(alpha: 0.08)
+                                  : const Color(0xFFF0FDFA).withValues(alpha: 0.5);
                             } else if (isAbsent) {
                               rowBg = isDark
-                                  ? Colors.red.withOpacity(0.08)
-                                  : Colors.red[50]!.withOpacity(0.5);
+                                  ? Colors.red.withValues(alpha: 0.08)
+                                  : Colors.red[50]!.withValues(alpha: 0.5);
                             }
 
                             return Container(
@@ -514,8 +514,8 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                         color: isDark
                                             ? const Color(
                                                 0xFF21262D,
-                                              ).withOpacity(0.3)
-                                            : Colors.grey[200]!.withOpacity(
+                                              ).withValues(alpha: 0.3)
+                                            : Colors.grey[200]!.withValues(alpha: 
                                                 0.3,
                                               ),
                                       ),
@@ -533,10 +533,10 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                           color: isDark
                                               ? const Color(
                                                   0xFF10B981,
-                                                ).withOpacity(0.06)
+                                                ).withValues(alpha: 0.06)
                                               : const Color(
                                                   0xFFCCFBF1,
-                                                ).withOpacity(0.4),
+                                                ).withValues(alpha: 0.4),
                                           letterSpacing: 2,
                                         ),
                                       ),
@@ -551,8 +551,8 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                           fontSize: 36,
                                           fontWeight: FontWeight.w900,
                                           color: isDark
-                                              ? Colors.red.withOpacity(0.06)
-                                              : Colors.red[100]!.withOpacity(
+                                              ? Colors.red.withValues(alpha: 0.06)
+                                              : Colors.red[100]!.withValues(alpha: 
                                                   0.4,
                                                 ),
                                           letterSpacing: 3,
@@ -711,13 +711,13 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                         blockBg = isDark
                                             ? const Color(
                                                 0xFF8B5CF6,
-                                              ).withOpacity(0.15)
+                                              ).withValues(alpha: 0.15)
                                             : const Color(
                                                 0xFF8B5CF6,
-                                              ).withOpacity(0.08);
+                                              ).withValues(alpha: 0.08);
                                         borderCol = const Color(
                                           0xFF8B5CF6,
-                                        ).withOpacity(0.3);
+                                        ).withValues(alpha: 0.3);
                                         textCol = isDark
                                             ? const Color(0xFFA78BFA)
                                             : const Color(0xFF6D28D9);
@@ -726,30 +726,29 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                         blockBg = isDark
                                             ? const Color(
                                                 0xFF3B82F6,
-                                              ).withOpacity(0.15)
+                                              ).withValues(alpha: 0.15)
                                             : const Color(
                                                 0xFF3B82F6,
-                                              ).withOpacity(0.08);
+                                              ).withValues(alpha: 0.08);
                                         borderCol = const Color(
                                           0xFF3B82F6,
-                                        ).withOpacity(0.3);
+                                        ).withValues(alpha: 0.3);
                                         textCol = isDark
                                             ? const Color(0xFF60A5FA)
                                             : const Color(0xFF1D4ED8);
                                         break;
                                       case DarItemType.task:
-                                      default:
                                         if (task.status == 'PLANNED') {
                                           blockBg = isDark
                                               ? const Color(
                                                   0xFF10B981,
-                                                ).withOpacity(0.05)
+                                                ).withValues(alpha: 0.05)
                                               : const Color(
                                                   0xFF10B981,
-                                                ).withOpacity(0.03);
+                                                ).withValues(alpha: 0.03);
                                           borderCol = const Color(
                                             0xFF10B981,
-                                          ).withOpacity(0.2);
+                                          ).withValues(alpha: 0.2);
                                           textCol = isDark
                                               ? const Color(0xFF34D399)
                                               : const Color(0xFF047857);
@@ -757,13 +756,13 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                           blockBg = isDark
                                               ? const Color(
                                                   0xFF10B981,
-                                                ).withOpacity(0.15)
+                                                ).withValues(alpha: 0.15)
                                               : const Color(
                                                   0xFF10B981,
-                                                ).withOpacity(0.08);
+                                                ).withValues(alpha: 0.08);
                                           borderCol = const Color(
                                             0xFF10B981,
-                                          ).withOpacity(0.3);
+                                          ).withValues(alpha: 0.3);
                                           textCol = isDark
                                               ? const Color(0xFF34D399)
                                               : const Color(0xFF047857);
@@ -798,9 +797,9 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                                 ? _PlannedPatternPainter(
                                                     color: isDark
                                                         ? Colors.grey[800]!
-                                                              .withOpacity(0.3)
+                                                              .withValues(alpha: 0.3)
                                                         : Colors.grey[300]!
-                                                              .withOpacity(0.3),
+                                                              .withValues(alpha: 0.3),
                                                   )
                                                 : null,
                                             child: Column(
@@ -834,7 +833,7 @@ class _MultiDayTimelineWidgetState extends State<MultiDayTimelineWidget> {
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 8,
                                                       color: textCol
-                                                          .withOpacity(0.8),
+                                                          .withValues(alpha: 0.8),
                                                       fontWeight:
                                                           FontWeight.w500,
                                                     ),

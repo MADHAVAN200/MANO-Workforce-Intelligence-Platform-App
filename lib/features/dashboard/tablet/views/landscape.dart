@@ -73,8 +73,6 @@ class TabletLandscape extends StatelessWidget {
                         return const DailyActivityScreen();
                       case PageType.geoFencing:
                         return const GeoFencingView();
-                      default:
-                        return Center(child: Text('Page: ${currentPage.title}'));
                     }
                   }
                 ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../shared/layout/main_layout.dart';
 import 'tablet/views/portrait.dart';
 import 'mobile/views/landscape.dart';

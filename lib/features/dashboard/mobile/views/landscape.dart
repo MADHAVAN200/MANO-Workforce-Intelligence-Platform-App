@@ -7,7 +7,6 @@ import '../../../../shared/models/dashboard_model.dart';
 import '../../../../shared/widgets/app_sidebar.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../shared/navigation/navigation_controller.dart';
-import '../../dashboard.dart';
 import '../../tablet/widgets/action_card.dart';
 import '../../tablet/widgets/activity_feed.dart';
 import '../../tablet/widgets/stat_card.dart';
