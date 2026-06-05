@@ -10,9 +10,12 @@ import '../../features/geo_fencing/tablet/views/geo_fencing_view.dart';
 import '../../features/feedback/tablet/views/feedback_view.dart'; // ADDED
 import '../../features/daily_activity/daily_activity_screen.dart'; // ADDED
 import '../../features/profile/tablet/views/profile_view.dart';
+import '../../features/collaboration/collaboration_screen.dart'; // ADDED
 import '../navigation/navigation_controller.dart';
 import '../widgets/sidebars/sidebar_tablet_landscape.dart';
 import '../widgets/custom_app_bar.dart';
+
+import 'package:flutter_application/shared/widgets/chatbot_fab.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({super.key});
@@ -45,6 +48,8 @@ class MainLayout extends StatelessWidget {
                       title: currentPage.title,
                     ),
                     body: _buildPageContent(currentPage),
+                    floatingActionButton: ChatbotFab(currentPageType: currentPage),
+                    floatingActionButtonLocation: ChatbotFabLocation(currentPage),
                   );
                 },
               ),
@@ -77,6 +82,8 @@ class MainLayout extends StatelessWidget {
         return const DailyActivityScreen(); // ADDED
       case PageType.feedback:
         return const FeedbackView(); // ADDED
+      case PageType.collaboration:
+        return const CollaborationScreen(); // ADDED
       case PageType.profile:
         return const ProfileView();
     }

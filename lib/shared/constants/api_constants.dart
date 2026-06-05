@@ -63,6 +63,7 @@ class ApiConstants {
   static const String policyConfig = '/policies/config';
   static const String policyShifts = '/policies/shifts'; // GET, POST, PUT /:id, DELETE /:id
   static const String policyAutomation = '/policies/automation'; // GET, POST
+  static const String myShift = '/employee/my-shift'; // GET - employee's assigned shift policy
 
   // Leave Management
   static const String leavesMyHistory = '/leaves/my-history';
@@ -75,6 +76,7 @@ class ApiConstants {
   static const String notifications = '/notifications';
   static const String notificationMarkRead = '/notifications/:id/read'; // PUT
   static const String notificationsReadAll = '/notifications/read-all'; // PUT
+  static const String notificationRegisterFCM = '/notifications/register-token';
 
   // Feedback & Bug Reports
   static const String feedback = '/feedback'; // POST, GET (Admin)
@@ -96,6 +98,9 @@ class ApiConstants {
   static const String darEventsDelete = '/dar/events/delete'; // append /:id
   static const String darSettingsList = '/dar/settings/list';
   static const String darRequestsCreate = '/dar/requests/create';
+
+  // Chatbot
+  static const String chatbotAskInternal = '/website-chatbot/ask-internal';
 
   // Keys
   static String get recaptchaSiteKey => dotenv.env['RECAPTCHA_SITE_KEY'] ?? '';

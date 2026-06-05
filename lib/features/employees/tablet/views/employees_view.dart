@@ -15,6 +15,7 @@ import '../../widgets/bulk_upload_report_dialog.dart';
 import '../../widgets/glass_confirmation_dialog.dart';
 import '../../widgets/employee_detail_sheet.dart';
 import '../../../../shared/widgets/toast_helper.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class EmployeesView extends StatefulWidget {
   const EmployeesView({super.key});
@@ -393,29 +394,33 @@ class _EmployeesViewState extends State<EmployeesView> {
 
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-          child: Column(
-            children: [
-              _buildFilterSection(context),
-              const SizedBox(height: 16),
-
-              _isLoading 
-                  ? const Center(child: CircularProgressIndicator())
-                  : _buildEmployeesTable(context),
-              
-              if (!_isLoading) ...[
+    return LoadingScreen(
+      isLoading: _isLoading,
+      message: "Loading employees...",
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+            child: Column(
+              children: [
+                _buildFilterSection(context),
                 const SizedBox(height: 16),
-                _buildPagination(context),
+
+                _employees.isEmpty && _isLoading
+                    ? const SizedBox.shrink()
+                    : _buildEmployeesTable(context),
+                
+                if (!_isLoading || _employees.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildPagination(context),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-        if (isLandscape)
-          _buildRightDrawer(context),
-      ],
+          if (isLandscape)
+            _buildRightDrawer(context),
+        ],
+      ),
     );
   }
 

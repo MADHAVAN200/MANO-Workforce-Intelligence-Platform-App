@@ -14,6 +14,7 @@ import '../services/holiday_service.dart';
 import '../models/holiday_model.dart';
 // Import the new widget
 import '../widgets/holiday_form_dialog.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class HolidayManagementScreen extends StatefulWidget {
   final HolidayService holidayService;
@@ -154,35 +155,32 @@ class _HolidayManagementScreenState extends State<HolidayManagementScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Background handling manually if not handled by parent layout
-    // But usually this screen is nested. We'll assume the background is already consistent
-    // (Dark gradient or Light grey). If it's pure transparent, the list might be hard to read
-    // without a container, but the design shows a container.
-
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            // 1. Header (Search + Actions)
-            _buildHeader(context, isDark),
-            const SizedBox(height: 20),
+      body: LoadingScreen(
+        isLoading: _isLoading,
+        message: "Loading holidays...",
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              // 1. Header (Search + Actions)
+              _buildHeader(context, isDark),
+              const SizedBox(height: 20),
 
-            // 2. Main Content (Table)
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _filteredHolidays.isEmpty
-                  ? Center(
-                      child: Text(
-                        "No holidays found",
-                        style: GoogleFonts.poppins(color: Colors.grey),
-                      ),
-                    )
-                  : _buildHolidayTable(context, isDark),
-            ),
-          ],
+              // 2. Main Content (Table)
+              Expanded(
+                child: _filteredHolidays.isEmpty
+                    ? Center(
+                        child: Text(
+                          "No holidays found",
+                          style: GoogleFonts.poppins(color: Colors.grey),
+                        ),
+                      )
+                    : _buildHolidayTable(context, isDark),
+              ),
+            ],
+          ),
         ),
       ),
     );

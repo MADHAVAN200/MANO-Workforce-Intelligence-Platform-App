@@ -23,6 +23,8 @@ class Shift {
     required this.policyRules,
   });
 
+  int get correctionDeadline => policyRules.correctionDeadline;
+
   factory Shift.defaultShift() {
     return Shift(
       name: '',
@@ -39,6 +41,7 @@ class Shift {
         overtime: Overtime(enabled: false, threshold: 8.0),
         entryRequirements: EntryRequirements(selfie: true, geofence: true),
         exitRequirements: ExitRequirements(selfie: false, geofence: true),
+        correctionDeadline: 2,
       ),
     );
   }
@@ -95,6 +98,7 @@ class PolicyRules {
   final Overtime overtime;
   final EntryRequirements entryRequirements;
   final ExitRequirements exitRequirements;
+  final int correctionDeadline;
 
   PolicyRules({
     required this.shiftTiming,
@@ -102,6 +106,7 @@ class PolicyRules {
     required this.overtime,
     required this.entryRequirements,
     required this.exitRequirements,
+    required this.correctionDeadline,
   });
 
   factory PolicyRules.fromJson(Map<String, dynamic> json) {
@@ -111,6 +116,9 @@ class PolicyRules {
       overtime: Overtime.fromJson(json['overtime'] ?? {}),
       entryRequirements: EntryRequirements.fromJson(json['entry_requirements'] ?? {}),
       exitRequirements: ExitRequirements.fromJson(json['exit_requirements'] ?? {}),
+      correctionDeadline: json['correction_deadline'] is int 
+          ? json['correction_deadline'] 
+          : (int.tryParse(json['correction_deadline']?.toString() ?? '') ?? 2),
     );
   }
 
@@ -120,6 +128,7 @@ class PolicyRules {
     'overtime': overtime.toJson(),
     'entry_requirements': entryRequirements.toJson(),
     'exit_requirements': exitRequirements.toJson(),
+    'correction_deadline': correctionDeadline,
   };
 }
 

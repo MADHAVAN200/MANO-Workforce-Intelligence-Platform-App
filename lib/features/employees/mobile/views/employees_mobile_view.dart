@@ -15,6 +15,7 @@ import '../../widgets/bulk_upload_report_dialog.dart';
 import '../../widgets/glass_confirmation_dialog.dart';
 import '../../widgets/employee_detail_sheet.dart';
 import '../../../../shared/widgets/toast_helper.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class EmployeesMobileView extends StatefulWidget {
   const EmployeesMobileView({super.key});
@@ -426,11 +427,11 @@ class _EmployeesMobileViewState extends State<EmployeesMobileView> {
         _buildStatusTabs(context),
         const SizedBox(height: 8),
         Expanded(
-          child: _isLoading 
-              ? const Center(child: CircularProgressIndicator())
-              : _filteredEmployees.isEmpty 
+          child: _employees.isEmpty && _isLoading
+              ? const SizedBox.shrink()
+              : (_filteredEmployees.isEmpty 
                   ? const Center(child: Text('No employees found'))
-                  : _buildEmployeeList(context),
+                  : _buildEmployeeList(context)),
         ),
       ],
     );
@@ -443,28 +444,32 @@ class _EmployeesMobileViewState extends State<EmployeesMobileView> {
               backgroundColor: Theme.of(context).primaryColor,
               child: const Icon(Icons.add, color: Colors.white),
             ),
-      body: isLandscape
-          ? Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: mainListContent,
-                ),
-                VerticalDivider(width: 1, color: dividerColor),
-                Expanded(
-                  flex: 4,
-                  child: _selectedEmployeeForPane == null
-                      ? Center(
-                          child: Text(
-                            'Select an employee to view details',
-                            style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-                          ),
-                        )
-                      : _buildDetailPane(context, _selectedEmployeeForPane!),
-                ),
-              ],
-            )
-          : mainListContent,
+      body: LoadingScreen(
+        isLoading: _isLoading,
+        message: "Loading employees...",
+        child: isLandscape
+            ? Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: mainListContent,
+                  ),
+                  VerticalDivider(width: 1, color: dividerColor),
+                  Expanded(
+                    flex: 4,
+                    child: _selectedEmployeeForPane == null
+                        ? Center(
+                            child: Text(
+                              'Select an employee to view details',
+                              style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                            ),
+                          )
+                        : _buildDetailPane(context, _selectedEmployeeForPane!),
+                  ),
+                ],
+              )
+            : mainListContent,
+      ),
     );
   }
 
@@ -735,7 +740,12 @@ class _EmployeesMobileViewState extends State<EmployeesMobileView> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: GlassContainer(
-              child: childContent,
+              child: Material(
+                color: Colors.transparent,
+                clipBehavior: Clip.antiAlias,
+                borderRadius: BorderRadius.circular(16),
+                child: childContent,
+              ),
             ),
           );
         } else {

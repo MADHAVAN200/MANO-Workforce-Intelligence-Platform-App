@@ -5,8 +5,19 @@ import 'package:latlong2/latlong.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/toast_helper.dart';
 import '../../../../shared/widgets/glass_success_dialog.dart';
+import '../../../../shared/constants/api_constants.dart';
 import '../models/location_model.dart';
 import '../services/location_service.dart';
+import '../../../../shared/widgets/loading_screen.dart';
+
+String? _resolveAvatarUrl(dynamic profileImage) {
+  if (profileImage == null || profileImage.toString().isEmpty) return null;
+  final url = profileImage.toString();
+  if (url.startsWith('http')) return url;
+  // Remove leading slash if present to avoid double slashes
+  final cleanUrl = url.startsWith('/') ? url : '/$url';
+  return '${ApiConstants.baseUrl}$cleanUrl';
+}
 
 class GeofencingScreen extends StatefulWidget {
   final LocationService locationService;
@@ -249,13 +260,17 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          if (orientation == Orientation.landscape) {
-            return _buildDesktopLayout();
-          }
-          return _buildMobileLayout();
-        },
+      body: LoadingScreen(
+        isLoading: _isLoading || _isLoadingUsers,
+        message: "Loading locations...",
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            if (orientation == Orientation.landscape) {
+              return _buildDesktopLayout();
+            }
+            return _buildMobileLayout();
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateDialog,
@@ -653,7 +668,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
   }
 
   Widget _buildLocationList({bool isMobile = false}) {
-     if (_isLoading) return const Center(child: CircularProgressIndicator());
+     if (_isLoading) return const SizedBox.shrink();
      
      return ListView.separated(
        padding: const EdgeInsets.all(12),
@@ -761,7 +776,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
     if (targetLocation == null) {
       return const Center(child: Text("Select a location", style: TextStyle(color: Colors.grey)));
     }
-    if (_isLoadingUsers) return const Center(child: CircularProgressIndicator());
+    if (_isLoadingUsers) return const SizedBox.shrink();
 
     // Filter to only assigned users
     final assignedUsers = _users.where((user) {
@@ -794,6 +809,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
         final name = user['user_name'] ?? 'Unknown'; 
         final role = user['desg_name'] ?? 'Staff';
         final int userId = user['user_id'] ?? 0;
+        final profileImage = _resolveAvatarUrl(user['profile_image'] ?? user['profile_image_url'] ?? user['avatar_url']);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -802,7 +818,12 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: Colors.indigo[100],
-                child: Text(name.isNotEmpty ? name[0] : '?', style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12)),
+                backgroundImage: (profileImage != null && profileImage.isNotEmpty)
+                    ? NetworkImage(profileImage)
+                    : null,
+                child: (profileImage == null || profileImage.isEmpty)
+                    ? Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12))
+                    : null,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -859,7 +880,7 @@ class _GeofencingScreenState extends State<GeofencingScreen> {
                 ? const Color(0xFF161B22)
                 : Colors.white,
             borderRadius: 24,
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.zero,
             child: AssignStaffPopupContent(
               location: loc,
               locationService: widget.locationService,
@@ -1108,22 +1129,19 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: _isAssignMode
-          ? Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: AssignStaffPopupContent(
-                location: widget.location,
-                locationService: widget.locationService,
-                initialUsers: _users,
-                onAssignmentChanged: () {
-                  widget.onAssignmentChanged();
-                  _refreshUsers();
-                },
-                onBack: () {
-                  setState(() {
-                    _isAssignMode = false;
-                  });
-                },
-              ),
+          ? AssignStaffPopupContent(
+              location: widget.location,
+              locationService: widget.locationService,
+              initialUsers: _users,
+              onAssignmentChanged: () {
+                widget.onAssignmentChanged();
+                _refreshUsers();
+              },
+              onBack: () {
+                setState(() {
+                  _isAssignMode = false;
+                });
+              },
             )
           : Column(
               children: [
@@ -1182,31 +1200,31 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
                   child: assignedUsers.isEmpty
                       ? Center(
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.people_outline, size: 48, color: Colors.grey.withValues(alpha: 0.5)),
-                              const SizedBox(height: 12),
-                              Text(
-                                "No staff assigned to this location",
-                                style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    _isAssignMode = true;
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.indigo,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  elevation: 0,
-                                ),
-                                icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
-                                label: const Text("Assign Staff"),
-                              )
-                            ],
+                             mainAxisAlignment: MainAxisAlignment.center,
+                             children: [
+                               Icon(Icons.people_outline, size: 48, color: Colors.grey.withValues(alpha: 0.5)),
+                               const SizedBox(height: 12),
+                               Text(
+                                 "No staff assigned to this location",
+                                 style: GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                               ),
+                               const SizedBox(height: 16),
+                               ElevatedButton.icon(
+                                 onPressed: () {
+                                   setState(() {
+                                     _isAssignMode = true;
+                                   });
+                                 },
+                                 style: ElevatedButton.styleFrom(
+                                   backgroundColor: Colors.indigo,
+                                   foregroundColor: Colors.white,
+                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                   elevation: 0,
+                                 ),
+                                 icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
+                                 label: const Text("Assign Staff"),
+                               )
+                             ],
                           ),
                         )
                       : ListView.builder(
@@ -1217,6 +1235,7 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
                             final name = user['user_name'] ?? 'Unknown';
                             final role = user['desg_name'] ?? 'Staff';
                             final int userId = user['user_id'] ?? 0;
+                            final profileImage = _resolveAvatarUrl(user['profile_image'] ?? user['profile_image_url'] ?? user['avatar_url']);
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 10),
@@ -1233,14 +1252,19 @@ class __MobileStaffManagementSheetState extends State<_MobileStaffManagementShee
                                   CircleAvatar(
                                     radius: 18,
                                     backgroundColor: Colors.indigo[100],
-                                    child: Text(
-                                      name.isNotEmpty ? name[0] : '?',
-                                      style: const TextStyle(
-                                        color: Colors.indigo,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                    backgroundImage: (profileImage != null && profileImage.isNotEmpty)
+                                        ? NetworkImage(profileImage)
+                                        : null,
+                                    child: (profileImage == null || profileImage.isEmpty)
+                                        ? Text(
+                                            name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                            style: const TextStyle(
+                                              color: Colors.indigo,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          )
+                                        : null,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -1457,76 +1481,82 @@ class _AssignStaffPopupContentState extends State<AssignStaffPopupContent> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                if (widget.onBack != null)
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: widget.onBack,
-                  ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Assign Staff",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: Row(
+                children: [
+                  if (widget.onBack != null)
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: widget.onBack,
+                    ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Assign Staff",
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
                         ),
-                      ),
-                      Text(
-                        "Location: ${widget.location.name}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: subtitleColor,
+                        Text(
+                          "Location: ${widget.location.name}",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: subtitleColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                if (widget.onBack == null)
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-              ],
+                  if (widget.onBack == null)
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0D1117) : Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: isDark ? Colors.white10 : Colors.grey[300]!),
-              ),
-              child: TextField(
-                controller: _searchCtrl,
-                style: TextStyle(color: textColor),
-                onChanged: (val) {
-                  setState(() {
-                    _searchQuery = val;
-                  });
-                },
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
-                          onPressed: () {
-                            _searchCtrl.clear();
-                            setState(() {
-                              _searchQuery = "";
-                            });
-                          },
-                        )
-                      : null,
-                  hintText: "Search employees...",
-                  hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0D1117) : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: isDark ? Colors.white10 : Colors.grey[300]!),
+                ),
+                child: TextField(
+                  controller: _searchCtrl,
+                  style: TextStyle(color: textColor),
+                  onChanged: (val) {
+                    setState(() {
+                      _searchQuery = val;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() {
+                                _searchQuery = "";
+                              });
+                            },
+                          )
+                        : null,
+                    hintText: "Search employees...",
+                    hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
                 ),
               ),
             ),
@@ -1544,11 +1574,13 @@ class _AssignStaffPopupContentState extends State<AssignStaffPopupContent> {
                     : ListView.builder(
                         itemCount: filteredUsers.length,
                         shrinkWrap: true,
+                        padding: const EdgeInsets.only(top: 8, bottom: 24),
                         itemBuilder: (context, index) {
                           final user = filteredUsers[index];
                           final name = user['user_name'] ?? 'Unknown';
                           final role = user['desg_name'] ?? 'Staff';
                           final int userId = user['user_id'] ?? 0;
+                          final profileImage = _resolveAvatarUrl(user['profile_image'] ?? user['profile_image_url'] ?? user['avatar_url']);
                           
                           final List<dynamic>? userLocs = user['work_locations'];
                           bool isAssigned = false;
@@ -1558,7 +1590,7 @@ class _AssignStaffPopupContentState extends State<AssignStaffPopupContent> {
                           }
 
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
+                            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: isDark
@@ -1578,14 +1610,19 @@ class _AssignStaffPopupContentState extends State<AssignStaffPopupContent> {
                                   backgroundColor: isDark
                                       ? Colors.indigo.withValues(alpha: 0.2)
                                       : Colors.indigo[100],
-                                  child: Text(
-                                    name.isNotEmpty ? name[0] : '?',
-                                    style: const TextStyle(
-                                      color: Colors.indigo,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
+                                  backgroundImage: (profileImage != null && profileImage.isNotEmpty)
+                                      ? NetworkImage(profileImage)
+                                      : null,
+                                  child: (profileImage == null || profileImage.isEmpty)
+                                      ? Text(
+                                          name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                          style: const TextStyle(
+                                            color: Colors.indigo,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        )
+                                      : null,
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
