@@ -6,6 +6,7 @@ import '../../../employees/models/employee_model.dart';
 import './dar_admin_controller.dart';
 import './dar_admin_sheet.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 /// Mobile-portrait layout for the admin DAR overview.
 /// Uses a compact single-column list (not a grid) with a slim 2-row filter bar.
@@ -21,31 +22,33 @@ class DarAdminMobileView extends StatelessWidget {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         final filtered = ctrl.filteredEmployees;
 
-        return Column(
-          children: [
-            _FilterBar(ctrl: ctrl, isDark: isDark),
-            Expanded(
-              child: ctrl.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : filtered.isEmpty
-                      ? _buildEmpty(isDark)
-                      : RefreshIndicator(
-                          onRefresh: ctrl.fetchAll,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.fromLTRB(
-                                _kPad, 8, _kPad, 80),
-                            itemCount: filtered.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 6),
-                            itemBuilder: (_, i) => _EmployeeListTile(
-                              emp: filtered[i],
-                              ctrl: ctrl,
-                              isDark: isDark,
-                            ),
+        return LoadingScreen(
+          isLoading: ctrl.isLoading,
+          message: "Loading activities...",
+          child: Column(
+            children: [
+              _FilterBar(ctrl: ctrl, isDark: isDark),
+              Expanded(
+                child: filtered.isEmpty
+                    ? (ctrl.isLoading ? const SizedBox.shrink() : _buildEmpty(isDark))
+                    : RefreshIndicator(
+                        onRefresh: ctrl.fetchAll,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(
+                              _kPad, 8, _kPad, 80),
+                          itemCount: filtered.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 6),
+                          itemBuilder: (_, i) => _EmployeeListTile(
+                            emp: filtered[i],
+                            ctrl: ctrl,
+                            isDark: isDark,
                           ),
                         ),
-            ),
-          ],
+                      ),
+              ),
+            ],
+          ),
         );
       },
     );

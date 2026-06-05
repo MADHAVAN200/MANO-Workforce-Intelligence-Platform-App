@@ -6,6 +6,7 @@ import '../../../employees/models/employee_model.dart';
 import './dar_admin_controller.dart';
 import './dar_admin_sheet.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 /// Tablet-landscape layout for the admin DAR overview.
 /// 260 px left sidebar (all filters + overview stats) + 4-column employee grid.
@@ -19,51 +20,53 @@ class DarAdminTabletLandscapeView extends StatelessWidget {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         final filtered = ctrl.filteredEmployees;
 
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Left filter sidebar ──────────────────────────────────────
-            SizedBox(
-              width: 260,
-              child: _Sidebar(ctrl: ctrl, isDark: isDark),
-            ),
+        return LoadingScreen(
+          isLoading: ctrl.isLoading,
+          message: "Loading activities...",
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Left filter sidebar ──────────────────────────────────────
+              SizedBox(
+                width: 260,
+                child: _Sidebar(ctrl: ctrl, isDark: isDark),
+              ),
 
-            // Divider
-            Container(
-              width: 1,
-              color: isDark
-                  ? const Color(0xFF30363D)
-                  : Colors.grey[200],
-            ),
+              // Divider
+              Container(
+                width: 1,
+                color: isDark
+                    ? const Color(0xFF30363D)
+                    : Colors.grey[200],
+              ),
 
-            // ── Right employee grid ──────────────────────────────────────
-            Expanded(
-              child: ctrl.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : filtered.isEmpty
-                      ? _buildEmpty(isDark)
-                      : RefreshIndicator(
-                          onRefresh: ctrl.fetchAll,
-                          child: GridView.builder(
-                            padding: const EdgeInsets.fromLTRB(
-                                16, 24, 16, 80),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 1.3,
-                            ),
-                            itemCount: filtered.length,
-                            itemBuilder: (_, i) => _EmployeeCard(
-                              emp: filtered[i],
-                              ctrl: ctrl,
-                              isDark: isDark,
-                            ),
+              // ── Right employee grid ──────────────────────────────────────
+              Expanded(
+                child: filtered.isEmpty
+                    ? (ctrl.isLoading ? const SizedBox.shrink() : _buildEmpty(isDark))
+                    : RefreshIndicator(
+                        onRefresh: ctrl.fetchAll,
+                        child: GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(
+                              16, 24, 16, 80),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1.3,
+                          ),
+                          itemCount: filtered.length,
+                          itemBuilder: (_, i) => _EmployeeCard(
+                            emp: filtered[i],
+                            ctrl: ctrl,
+                            isDark: isDark,
                           ),
                         ),
-            ),
-          ],
+                      ),
+              ),
+            ],
+          ),
         );
       },
     );

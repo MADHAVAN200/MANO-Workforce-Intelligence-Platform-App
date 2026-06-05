@@ -10,6 +10,7 @@ import 'tablet/views/login_tablet_landscape.dart';
 import '../../shared/services/auth_service.dart';
 import '../../shared/widgets/toast_helper.dart';
 import '../../shared/navigation/navigation_controller.dart';
+import '../../shared/widgets/loading_screen.dart';
 import '../../main.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -159,19 +160,29 @@ class LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 600) {
-            return LoginMobilePortrait(controller: this);
-          }
-          return OrientationBuilder(
-            builder: (_, orientation) {
-              return orientation == Orientation.portrait
-                  ? LoginTabletPortrait(controller: this)
-                  : LoginTabletLandscape(controller: this);
+      body: Stack(
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 600) {
+                return LoginMobilePortrait(controller: this);
+              }
+              return OrientationBuilder(
+                builder: (_, orientation) {
+                  return orientation == Orientation.portrait
+                      ? LoginTabletPortrait(controller: this)
+                      : LoginTabletLandscape(controller: this);
+                },
+              );
             },
-          );
-        },
+          ),
+          if (isLoading)
+            Positioned.fill(
+              child: const LoadingScreen(
+                message: "Establishing secure session...",
+              ),
+            ),
+        ],
       ),
     );
   }

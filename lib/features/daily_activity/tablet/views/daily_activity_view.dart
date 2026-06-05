@@ -15,6 +15,7 @@ import '../../widgets/multi_day_timeline_widget.dart';
 import '../../widgets/mini_calendar_widget.dart';
 import '../../widgets/event_meeting_dialog.dart';
 import '../../widgets/task_edit_dialog.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class TabletDailyActivityView extends StatefulWidget {
   final bool isLandscape;
@@ -228,14 +229,20 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
     );
   }
 
+
+
   Future<void> _handleSaveTask(
     Map<String, dynamic> payload,
     DarItem? initialItem,
   ) async {
+    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     if (_isPastDate) {
       _showPastDateJustification((reason) async {
         setState(() => _isLoading = true);
         try {
+
+
           // Original list
           final original = _tasks
               .where((t) => t.date == _selectedDate && t.type == DarItemType.task)
@@ -263,7 +270,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                 'start_time': payload['start_time'],
                 'end_time': payload['end_time'],
                 'activity_type': payload['activity_type'],
-                'status': 'COMPLETED',
+                'status': _selectedDate.compareTo(todayStr) > 0 ? 'PLANNED' : 'COMPLETED',
               });
               appliedEdit = true;
             } else {
@@ -285,7 +292,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
               'start_time': payload['start_time'],
               'end_time': payload['end_time'],
               'activity_type': payload['activity_type'],
-              'status': 'COMPLETED',
+              'status': _selectedDate.compareTo(todayStr) > 0 ? 'PLANNED' : 'COMPLETED',
             });
           }
 
@@ -302,7 +309,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
               isSuccess: true,
             );
           }
-          _fetchTimelineData();
+          await _fetchTimelineData();
         } catch (e) {
           if (mounted) {
             context.showToast("Failed to submit request: ${_getErrorMessage(e)}", isError: true);
@@ -315,10 +322,16 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
       // Today or future date: direct API call
       setState(() => _isLoading = true);
       try {
+        final targetDate = payload['activity_date'] ?? _selectedDate;
+        
+
+
         final isEdit = initialItem != null;
         final id = isEdit
             ? int.tryParse(initialItem.id.replaceFirst('act-', ''))
             : null;
+
+        final status = targetDate.compareTo(todayStr) > 0 ? 'PLANNED' : 'COMPLETED';
 
         final act = DarActivity(
           activityId: id,
@@ -326,9 +339,9 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
           description: payload['description'],
           startTime: payload['start_time'],
           endTime: payload['end_time'],
-          activityDate: payload['activity_date'],
+          activityDate: targetDate,
           activityType: payload['activity_type'],
-          status: 'COMPLETED',
+          status: status,
         );
 
         await _darService.saveActivity(act);
@@ -340,7 +353,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
             isSuccess: true,
           );
         }
-        _fetchTimelineData();
+        await _fetchTimelineData();
       } catch (e) {
         if (mounted) {
           context.showToast("Failed to save task: ${_getErrorMessage(e)}", isError: true);
@@ -619,7 +632,10 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Row(
+      body: LoadingScreen(
+        isLoading: _isLoading,
+        message: "Loading activities...",
+        child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Left Area: Timeline Header + Timeline Container (70% width)
@@ -636,7 +652,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
                   // Horizontal Stack Timeline scrollable area
                   Expanded(
                     child: _isLoading && _tasks.isEmpty
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const SizedBox.shrink()
                         : Builder(
                             builder: (context) {
                               final daysToShow = _rangeEndDate != null
@@ -776,6 +792,7 @@ class _TabletDailyActivityViewState extends State<TabletDailyActivityView> {
           ),
         ],
       ),
+     ),
     );
   }
 }

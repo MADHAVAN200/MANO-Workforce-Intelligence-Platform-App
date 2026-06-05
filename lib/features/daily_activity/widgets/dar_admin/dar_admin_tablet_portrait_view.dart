@@ -6,6 +6,7 @@ import '../../../employees/models/employee_model.dart';
 import './dar_admin_controller.dart';
 import './dar_admin_sheet.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 /// Tablet-portrait layout for the admin DAR overview.
 /// Full filter panel on top, 3-column employee grid below.
@@ -19,36 +20,38 @@ class DarAdminTabletPortraitView extends StatelessWidget {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         final filtered = ctrl.filteredEmployees;
 
-        return Column(
-          children: [
-            _TabletFilterPanel(ctrl: ctrl, isDark: isDark),
-            Expanded(
-              child: ctrl.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : filtered.isEmpty
-                      ? _buildEmpty(isDark)
-                      : RefreshIndicator(
-                          onRefresh: ctrl.fetchAll,
-                          child: GridView.builder(
-                            padding: const EdgeInsets.fromLTRB(
-                                16, 10, 16, 80),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              childAspectRatio: 1.35,
-                            ),
-                            itemCount: filtered.length,
-                            itemBuilder: (_, i) => _EmployeeCard(
-                              emp: filtered[i],
-                              ctrl: ctrl,
-                              isDark: isDark,
-                            ),
+        return LoadingScreen(
+          isLoading: ctrl.isLoading,
+          message: "Loading activities...",
+          child: Column(
+            children: [
+              _TabletFilterPanel(ctrl: ctrl, isDark: isDark),
+              Expanded(
+                child: filtered.isEmpty
+                    ? (ctrl.isLoading ? const SizedBox.shrink() : _buildEmpty(isDark))
+                    : RefreshIndicator(
+                        onRefresh: ctrl.fetchAll,
+                        child: GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(
+                              16, 10, 16, 80),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1.35,
+                          ),
+                          itemCount: filtered.length,
+                          itemBuilder: (_, i) => _EmployeeCard(
+                            emp: filtered[i],
+                            ctrl: ctrl,
+                            isDark: isDark,
                           ),
                         ),
-            ),
-          ],
+                      ),
+              ),
+            ],
+          ),
         );
       },
     );

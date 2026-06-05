@@ -15,6 +15,7 @@ import '../../widgets/event_meeting_dialog.dart';
 import '../../widgets/task_edit_dialog.dart';
 import '../../widgets/mini_calendar_widget.dart';
 import '../../widgets/multi_day_timeline_widget.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class MobileDailyActivityView extends StatefulWidget {
   const MobileDailyActivityView({super.key});
@@ -219,16 +220,22 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
     return sel.isBefore(today);
   }
 
+
+
   // Handle single task save / update / delete. If past date, requires full-day request.
   Future<void> _handleSaveTask(
     Map<String, dynamic> payload,
     DarItem? initialItem,
   ) async {
+    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     if (_isPastDate) {
       // For past dates, we simulate applying the edit to the full-day task list and send correction request
       _showPastDateJustification((reason) async {
         setState(() => _isLoading = true);
         try {
+
+
           // Original list
           final original = _dayItems
               .where((t) => t.type == DarItemType.task)
@@ -257,7 +264,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                 'start_time': payload['start_time'],
                 'end_time': payload['end_time'],
                 'activity_type': payload['activity_type'],
-                'status': 'COMPLETED',
+                'status': _selectedDate.compareTo(todayStr) > 0 ? 'PLANNED' : 'COMPLETED',
               });
               appliedEdit = true;
             } else {
@@ -280,7 +287,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
               'start_time': payload['start_time'],
               'end_time': payload['end_time'],
               'activity_type': payload['activity_type'],
-              'status': 'COMPLETED',
+              'status': _selectedDate.compareTo(todayStr) > 0 ? 'PLANNED' : 'COMPLETED',
             });
           }
 
@@ -297,6 +304,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
               isSuccess: true,
             );
           }
+          await _fetchMetadata();
           _fetchDayData();
         } catch (e) {
           if (mounted) {
@@ -310,10 +318,16 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
       // Current / future date - direct API call
       setState(() => _isLoading = true);
       try {
+        final targetDate = payload['activity_date'] ?? _selectedDate;
+        
+
+
         final isEdit = initialItem != null;
         final id = isEdit
             ? int.tryParse(initialItem.id.replaceFirst('act-', ''))
             : null;
+
+        final status = targetDate.compareTo(todayStr) > 0 ? 'PLANNED' : 'COMPLETED';
 
         final act = DarActivity(
           activityId: id,
@@ -321,9 +335,9 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
           description: payload['description'],
           startTime: payload['start_time'],
           endTime: payload['end_time'],
-          activityDate: payload['activity_date'],
+          activityDate: targetDate,
           activityType: payload['activity_type'],
-          status: 'COMPLETED',
+          status: status,
         );
 
         await _darService.saveActivity(act);
@@ -335,6 +349,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
             isSuccess: true,
           );
         }
+        await _fetchMetadata();
         _fetchDayData();
       } catch (e) {
         if (mounted) {
@@ -879,8 +894,11 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
         backgroundColor: const Color(0xFF6366F1),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: LoadingScreen(
+        isLoading: _isLoading,
+        message: "Loading activities...",
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header title strip
           Padding(
@@ -1097,7 +1115,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                   SizedBox(
                     height: timelineHeight,
                     child: _isLoading && _dayItems.isEmpty
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const SizedBox.shrink()
                         : MultiDayTimelineWidget(
                             tasks: _dayItems,
                             startDate: _selectedDate,
@@ -1164,11 +1182,8 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
                   ),
                   const SizedBox(height: 8),
 
-                  if (_isLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
+                  if (_isLoading && _dayItems.isEmpty)
+                    const SizedBox.shrink()
                   else ...[
                     // Special Banners (Holidays, Absent days)
                     if (isHoliday)
@@ -1282,6 +1297,7 @@ class _MobileDailyActivityViewState extends State<MobileDailyActivityView> {
             ),
           ),
         ],
+       ),
       ),
     );
   }

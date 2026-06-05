@@ -133,6 +133,27 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
     }
   }
 
+  void _adjustTime({required bool isStart, required bool increment}) {
+    final timeStr = isStart ? _startTime : _endTime;
+    final parts = timeStr.split(':');
+    final hour = int.tryParse(parts[0]) ?? 9;
+    final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+    
+    final dateTime = DateTime(2026, 1, 1, hour, minute);
+    final adjusted = increment 
+        ? dateTime.add(const Duration(minutes: 30)) 
+        : dateTime.subtract(const Duration(minutes: 30));
+        
+    final formatted = "${adjusted.hour.toString().padLeft(2, '0')}:${adjusted.minute.toString().padLeft(2, '0')}";
+    setState(() {
+      if (isStart) {
+        _startTime = formatted;
+      } else {
+        _endTime = formatted;
+      }
+    });
+  }
+
   Future<void> _selectTime(bool isStart) async {
     final timeStr = isStart ? _startTime : _endTime;
     final parts = timeStr.split(':');
@@ -281,69 +302,167 @@ class _TaskEditDialogState extends State<TaskEditDialog> {
           ),
           const SizedBox(height: 20),
 
-          // Date & Time pickers
-          Row(
-            children: [
-              const Icon(Icons.access_time_outlined, color: Colors.grey, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 8,
+          // Custom Beautiful Time Card Picker
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF161B22) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: dividerColor),
+            ),
+            child: Column(
+              children: [
+                // Date Selection
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Date picker trigger
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today_outlined, color: primaryColor, size: 18),
+                        const SizedBox(width: 10),
+                        Text(
+                          "Date",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
                     InkWell(
                       onTap: _selectDate,
-                      borderRadius: BorderRadius.circular(4),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0D1117) : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: dividerColor),
+                        ),
                         child: Text(
                           formattedDate,
                           style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: isDark ? Colors.grey[300] : Colors.grey[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Start time trigger
-                    InkWell(
-                      onTap: () => _selectTime(true),
-                      borderRadius: BorderRadius.circular(4),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        child: Text(
-                          _startTime,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                            fontSize: 12.5,
                             fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Text("–", style: TextStyle(color: Colors.grey[400])),
-                    // End time trigger
-                    InkWell(
-                      onTap: () => _selectTime(false),
-                      borderRadius: BorderRadius.circular(4),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        child: Text(
-                          _endTime,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color: isDark ? Colors.grey[300] : Colors.grey[700],
-                            fontWeight: FontWeight.bold,
+                            color: primaryColor,
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
-              )
-            ],
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1),
+                ),
+                // Start Time Adjustment Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.play_circle_outline, color: Color(0xFF10B981), size: 18),
+                        const SizedBox(width: 10),
+                        Text(
+                          "Start Time",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline, color: isDark ? Colors.grey[400] : Colors.grey[600], size: 20),
+                          onPressed: () => _adjustTime(isStart: true, increment: false),
+                        ),
+                        InkWell(
+                          onTap: () => _selectTime(true),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF0D1117) : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: dividerColor),
+                            ),
+                            child: Text(
+                              _startTime,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.grey[800],
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add_circle_outline, color: primaryColor, size: 20),
+                          onPressed: () => _adjustTime(isStart: true, increment: true),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // End Time Adjustment Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.cancel_outlined, color: Colors.redAccent, size: 18),
+                        const SizedBox(width: 10),
+                        Text(
+                          "End Time",
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_circle_outline, color: isDark ? Colors.grey[400] : Colors.grey[600], size: 20),
+                          onPressed: () => _adjustTime(isStart: false, increment: false),
+                        ),
+                        InkWell(
+                          onTap: () => _selectTime(false),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF0D1117) : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: dividerColor),
+                            ),
+                            child: Text(
+                              _endTime,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.grey[800],
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add_circle_outline, color: primaryColor, size: 20),
+                          onPressed: () => _adjustTime(isStart: false, increment: true),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
 
