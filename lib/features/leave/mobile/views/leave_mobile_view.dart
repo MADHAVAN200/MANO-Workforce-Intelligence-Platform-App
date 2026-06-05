@@ -19,6 +19,7 @@ import 'package:flutter_application/features/leave/widgets/admin_leave_view.dart
 import 'package:flutter_application/features/holidays/widgets/holiday_form_dialog.dart'; // Import Form Dialog
 import '../../../../shared/widgets/custom_dialog.dart';
 import '../../../../features/holidays/models/holiday_model.dart'; // Import Holiday Model
+import '../../../../shared/widgets/loading_screen.dart';
 
 class LeaveMobileView extends StatefulWidget {
   const LeaveMobileView({super.key});
@@ -681,101 +682,105 @@ class _LeaveMobileViewState extends State<LeaveMobileView>
   }
 
   Widget _buildHolidaysList(BuildContext context) {
-    if (_isLoadingHolidays) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    Widget content;
     if (_holidays.isEmpty) {
-      return Center(
+      content = Center(
         child: Text(
           "No holidays found",
           style: GoogleFonts.poppins(color: Colors.grey),
         ),
       );
+    } else {
+      content = ListView.builder(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 80),
+        itemCount: _holidays.length,
+        itemBuilder: (context, index) {
+          final holiday = _holidays[index];
+          final dt = DateTime.parse(holiday.date);
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
+          return InkWell(
+            onTap: () => HolidayDetailsDialog.showMobile(
+              context,
+              holiday: holiday,
+              isAdmin: _isAdmin,
+              onEdit: () => _showEditDialog(holiday),
+              onDelete: () => _showDeleteConfirm(holiday.id),
+            ),
+            child: GlassContainer(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF30363D)
+                          : Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          DateFormat('d').format(dt),
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark
+                                ? const Color(0xFF818CF8)
+                                : Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('MMM').format(dt).toUpperCase(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: isDark
+                                ? const Color(0xFF818CF8)
+                                : Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          holiday.name,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('EEEE').format(dt),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 80),
-      itemCount: _holidays.length,
-      itemBuilder: (context, index) {
-        final holiday = _holidays[index];
-        final dt = DateTime.parse(holiday.date);
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-
-        return InkWell(
-          onTap: () => HolidayDetailsDialog.showMobile(
-            context,
-            holiday: holiday,
-            isAdmin: _isAdmin,
-            onEdit: () => _showEditDialog(holiday),
-            onDelete: () => _showDeleteConfirm(holiday.id),
-          ),
-          child: GlassContainer(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF30363D)
-                        : Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('d').format(dt),
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDark
-                              ? const Color(0xFF818CF8)
-                              : Theme.of(context).primaryColor,
-                        ),
-                      ),
-                      Text(
-                        DateFormat('MMM').format(dt).toUpperCase(),
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: isDark
-                              ? const Color(0xFF818CF8)
-                              : Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        holiday.name,
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        DateFormat('EEEE').format(dt),
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+    return LoadingScreen(
+      isLoading: _isLoadingHolidays,
+      message: "Loading holidays...",
+      child: content,
     );
   }
 
@@ -893,10 +898,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView>
   Widget _buildLeaveList(BuildContext context) {
     return Consumer<LeaveProvider>(
       builder: (context, provider, _) {
-        if (provider.isLoadingMyLeaves) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
+        Widget content;
         if (provider.myLeavesError != null) {
           final raw = provider.myLeavesError!.toLowerCase();
           final isConnectionIssue =
@@ -907,7 +909,7 @@ class _LeaveMobileViewState extends State<LeaveMobileView>
           final message = isConnectionIssue
               ? "Unable to load leave history. Please check your internet connection and try again."
               : "Unable to load leave history right now. Please try again.";
-          return Center(
+          content = Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
@@ -935,33 +937,37 @@ class _LeaveMobileViewState extends State<LeaveMobileView>
               ),
             ),
           );
-        }
-
-        if (provider.myLeaves.isEmpty) {
-          return Center(
+        } else if (provider.myLeaves.isEmpty) {
+          content = Center(
             child: Text(
               "No leave requests found",
               style: GoogleFonts.poppins(color: Colors.grey),
             ),
           );
+        } else {
+          content = RefreshIndicator(
+            onRefresh: () => provider.fetchMyLeaves(forceRefresh: true),
+            child: ListView.builder(
+              padding: const EdgeInsets.only(
+                top: 8,
+                bottom: 80,
+              ), // bottom padding for FAB
+              itemCount: provider.myLeaves.length,
+              itemBuilder: (context, index) {
+                final request = provider.myLeaves[index];
+                return LeaveHistoryItem(
+                  request: request,
+                  onDelete: () => _withdrawRequest(request.id),
+                );
+              },
+            ),
+          );
         }
 
-        return RefreshIndicator(
-          onRefresh: () => provider.fetchMyLeaves(forceRefresh: true),
-          child: ListView.builder(
-            padding: const EdgeInsets.only(
-              top: 8,
-              bottom: 80,
-            ), // bottom padding for FAB
-            itemCount: provider.myLeaves.length,
-            itemBuilder: (context, index) {
-              final request = provider.myLeaves[index];
-              return LeaveHistoryItem(
-                request: request,
-                onDelete: () => _withdrawRequest(request.id),
-              );
-            },
-          ),
+        return LoadingScreen(
+          isLoading: provider.isLoadingMyLeaves,
+          message: "Loading leaves...",
+          child: content,
         );
       },
     );

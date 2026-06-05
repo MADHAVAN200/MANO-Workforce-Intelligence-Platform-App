@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/constants/api_constants.dart';
+import '../../../../shared/services/auth_service.dart';
 import '../models/leave_request_model.dart';
 import './leave_details_dialog.dart';
 
@@ -30,14 +32,32 @@ class LeaveHistoryItem extends StatelessWidget {
     }
   }
 
+  Widget _avatarFallback(String name, bool isDark) {
+    return Center(
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : const Color(0xFF4F46E5),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final statusColor = _getStatusColor(request.status);
 
-    String? avatarUrl = request.userAvatar;
-    if (avatarUrl != null && avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
-      avatarUrl = avatarUrl.startsWith('/') ? '${ApiConstants.baseUrl}$avatarUrl' : '${ApiConstants.baseUrl}/$avatarUrl';
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final String displayName = request.userName ?? authService.user?.name ?? 'User';
+    String? rawAvatarUrl = request.userAvatar ?? (request.userName == null ? authService.user?.profileImage : null);
+    String? avatarUrl;
+    if (rawAvatarUrl != null && rawAvatarUrl.isNotEmpty) {
+      avatarUrl = rawAvatarUrl.startsWith('http')
+          ? rawAvatarUrl
+          : (rawAvatarUrl.startsWith('/') ? '${ApiConstants.baseUrl}$rawAvatarUrl' : '${ApiConstants.baseUrl}/$rawAvatarUrl');
     }
 
     return InkWell(
@@ -67,43 +87,41 @@ class LeaveHistoryItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (request.userName != null) ...[
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor: isDark ? const Color(0xFF30363D) : const Color(0xFFE2E8F0),
-                    backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
-                        ? CachedNetworkImageProvider(avatarUrl)
-                        : null,
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundColor: isDark ? const Color(0xFF30363D) : const Color(0xFFE2E8F0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
                     child: avatarUrl != null && avatarUrl.isNotEmpty
-                        ? null
-                        : Text(
-                            request.userName!.isNotEmpty ? request.userName![0].toUpperCase() : '?',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF4F46E5),
-                            ),
-                          ),
+                        ? CachedNetworkImage(
+                            imageUrl: avatarUrl,
+                            fit: BoxFit.cover,
+                            width: 28,
+                            height: 28,
+                            placeholder: (_, _) => _avatarFallback(displayName, isDark),
+                            errorWidget: (_, _, _) => _avatarFallback(displayName, isDark),
+                          )
+                        : _avatarFallback(displayName, isDark),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      request.userName!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF30363D),
-                      ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    displayName,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF30363D),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0)),
-              const SizedBox(height: 12),
-            ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0)),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

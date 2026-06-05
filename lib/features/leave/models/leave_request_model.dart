@@ -137,7 +137,7 @@ class LeaveRequest {
       userName: json['user_name'],
       userEmail: json['email'],
       userPhone: json['phone_no'],
-      userAvatar: json['profile_image'] ?? json['profile_pic'] ?? json['avatar_url'],
+      userAvatar: json['profile_image'] ?? json['profile_image_url'] ?? json['profile_pic'] ?? json['avatar_url'],
       attachments: (json['attachments'] as List<dynamic>?)
               ?.map((e) => LeaveAttachment.fromJson(e))
               .toList() ??

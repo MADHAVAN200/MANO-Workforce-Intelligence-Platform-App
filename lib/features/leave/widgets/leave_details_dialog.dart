@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_application/features/leave/models/leave_request_model.dart';
 import 'package:flutter_application/features/leave/providers/leave_provider.dart';
 import 'package:flutter_application/shared/constants/api_constants.dart';
+import 'package:flutter_application/shared/services/auth_service.dart';
 import 'package:flutter_application/shared/widgets/toast_helper.dart';
 
 class LeaveDetailsDialog extends StatefulWidget {
@@ -333,9 +334,14 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
 
   Widget _buildHeader(BuildContext context, Color statusColor, String appliedDate) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    String? avatarUrl = widget.request.userAvatar;
-    if (avatarUrl != null && avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
-      avatarUrl = avatarUrl.startsWith('/') ? '${ApiConstants.baseUrl}$avatarUrl' : '${ApiConstants.baseUrl}/$avatarUrl';
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final String displayName = widget.request.userName ?? authService.user?.name ?? 'User';
+    String? rawAvatarUrl = widget.request.userAvatar ?? (widget.request.userName == null ? authService.user?.profileImage : null);
+    String? avatarUrl;
+    if (rawAvatarUrl != null && rawAvatarUrl.isNotEmpty) {
+      avatarUrl = rawAvatarUrl.startsWith('http')
+          ? rawAvatarUrl
+          : (rawAvatarUrl.startsWith('/') ? '${ApiConstants.baseUrl}$rawAvatarUrl' : '${ApiConstants.baseUrl}/$rawAvatarUrl');
     }
 
     return Row(
@@ -355,7 +361,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
                 child: avatarUrl != null && avatarUrl.isNotEmpty
                     ? null
                     : Text(
-                        (widget.request.userName ?? 'User').isNotEmpty ? (widget.request.userName ?? 'User')[0].toUpperCase() : '?',
+                        displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -377,7 +383,7 @@ class _LeaveDetailsDialogState extends State<LeaveDetailsDialog> {
                       ),
                     ),
                     Text(
-                      "By ${widget.request.userName ?? 'User'}",
+                      "By $displayName",
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         color: isDark ? Colors.white70 : const Color(0xFF64748B),

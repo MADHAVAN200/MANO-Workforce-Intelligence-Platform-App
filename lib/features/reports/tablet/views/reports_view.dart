@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:open_filex/open_filex.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../services/report_service.dart';
@@ -100,7 +101,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
       );
       if (mounted) setState(() => _previewData = data);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Preview Failed: $e")));
+      if (mounted) context.showExceptionToast(e, fallback: "Preview Failed: Please try again.");
     } finally {
       if (mounted) setState(() => _isLoadingPreview = false);
     }
@@ -124,7 +125,7 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
         context.showToast("Report downloaded successfully!", isSuccess: true);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Export Failed: $e")));
+      if (mounted) context.showExceptionToast(e, fallback: "Export Failed: Please try again.");
     } finally {
       if (mounted) setState(() => _isDownloading = false);
     }
@@ -464,55 +465,54 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
   }
 
   Widget _buildDataPreview(BuildContext context) {
-    if (_isLoadingPreview) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    
-    if (_previewData == null || _previewData!['rows'] == null || (_previewData!['rows'] as List).isEmpty) {
-      return Center(
-         child: Text("No data available for selected filters", style: GoogleFonts.poppins(color: Colors.grey))
-      );
-    }
-    
-    final columns = _previewData!['columns'] as List;
-    final rows = _previewData!['rows'] as List;
+    final hasData = _previewData != null && _previewData!['rows'] != null && (_previewData!['rows'] as List).isNotEmpty;
+    final columns = hasData ? (_previewData!['columns'] as List) : [];
+    final rows = hasData ? (_previewData!['rows'] as List) : [];
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-      child: GlassContainer(
-        padding: EdgeInsets.zero,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                  child: DataTable(
-                    columnSpacing: 24,
-                    horizontalMargin: 24,
-                    headingRowColor: WidgetStateProperty.all(Colors.transparent),
-                    dataRowMaxHeight: 60,
-                    columns: columns.map((c) => _buildColumnHeader(context, c.toString())).toList(),
-                    rows: rows.map((row) {
-                         final cells = row as List;
-                         return DataRow(
-                           cells: cells.map((cell) => DataCell(
-                             Text(
-                               cell?.toString() ?? '-', 
-                               style: GoogleFonts.poppins(fontSize: 12, color: Theme.of(context).textTheme.bodyLarge?.color)
-                             )
-                           )).toList()
-                         );
-                    }).toList(),
-                  ),
+    return LoadingScreen(
+      isLoading: _isLoadingPreview,
+      message: "Fetching preview...",
+      child: !hasData
+          ? Center(
+              child: Text("No data available for selected filters", style: GoogleFonts.poppins(color: Colors.grey)),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+              child: GlassContainer(
+                padding: EdgeInsets.zero,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                          child: DataTable(
+                            columnSpacing: 24,
+                            horizontalMargin: 24,
+                            headingRowColor: WidgetStateProperty.all(Colors.transparent),
+                            dataRowMaxHeight: 60,
+                            columns: columns.map((c) => _buildColumnHeader(context, c.toString())).toList(),
+                            rows: rows.map((row) {
+                                 final cells = row as List;
+                                 return DataRow(
+                                   cells: cells.map((cell) => DataCell(
+                                     Text(
+                                       cell?.toString() ?? '-', 
+                                       style: GoogleFonts.poppins(fontSize: 12, color: Theme.of(context).textTheme.bodyLarge?.color)
+                                     )
+                                   )).toList()
+                                 );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                 ),
               ),
-            );
-          }
-        ),
-      ),
+            ),
     );
   }
 
@@ -531,58 +531,58 @@ class _ReportsViewState extends State<ReportsView> with SingleTickerProviderStat
   }
 
   Widget _buildExportHistory(BuildContext context) {
-    if (_isLoadingHistory) return const Center(child: CircularProgressIndicator());
-
-    if (_downloadHistory.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.history_toggle_off, size: 48, color: Colors.grey.withValues(alpha: 0.5)),
-            const SizedBox(height: 16),
-            Text("No reports downloaded yet", style: GoogleFonts.poppins(color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: _downloadHistory.map((e) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: GlassContainer(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (e.fileName.endsWith('pdf') ? Colors.red : Colors.indigo).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+    return LoadingScreen(
+      isLoading: _isLoadingHistory,
+      message: "Loading history...",
+      child: _downloadHistory.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.history_toggle_off, size: 48, color: Colors.grey.withValues(alpha: 0.5)),
+                  const SizedBox(height: 16),
+                  Text("No reports downloaded yet", style: GoogleFonts.poppins(color: Colors.grey)),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: _downloadHistory.map((e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: GlassContainer(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: (e.fileName.endsWith('pdf') ? Colors.red : Colors.indigo).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.table_chart, color: e.fileName.endsWith('pdf') ? Colors.red : Colors.indigo, size: 20),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(e.fileName, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                              Text('Exported on ${e.timestamp}', style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).textTheme.bodySmall?.color)),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.open_in_new, size: 20, color: Colors.grey), 
+                          onPressed: () => OpenFilex.open(e.path),
+                          tooltip: 'Open File',
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Icon(Icons.table_chart, color: e.fileName.endsWith('pdf') ? Colors.red : Colors.indigo, size: 20),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(e.fileName, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color)),
-                      Text('Exported on ${e.timestamp}', style: GoogleFonts.poppins(fontSize: 11, color: Theme.of(context).textTheme.bodySmall?.color)),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.open_in_new, size: 20, color: Colors.grey), 
-                  onPressed: () => OpenFilex.open(e.path),
-                  tooltip: 'Open File',
-                ),
-              ],
+                )).toList(),
+              ),
             ),
-          ),
-        )).toList(),
-      ),
     );
   }
 }

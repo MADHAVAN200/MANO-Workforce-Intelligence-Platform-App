@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:dio/dio.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/toast_helper.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../services/leave_service.dart';
 import '../../../holidays/services/holiday_service.dart';
 import '../../widgets/leave_calendar.dart';
-import '../../widgets/leave_form.dart';
 import '../../widgets/holiday_details_dialog.dart';
 import '../../widgets/leave_details_dialog.dart';
+import '../../widgets/leave_request_form.dart'; // Added
 import '../../models/leave_request_model.dart';
 import '../../widgets/admin_leave_view.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class LeaveTabletLandscape extends StatefulWidget {
   const LeaveTabletLandscape({super.key});
@@ -28,10 +28,10 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
   late LeaveService _leaveService;
   late HolidayService _holidayService;
 
-  bool _isLoadingLeaves = false;
   List<LeaveRequest> _leaves = [];
   String? _leavesError;
 
+  bool _isLoadingLeaves = false;
   bool _isLoadingHolidays = false;
   List<dynamic> _holidays = [];
 
@@ -95,41 +95,29 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
     }
   }
 
-  Future<void> _submitLeaveRequest(Map<String, dynamic> data) async {
-    setState(
-      () => _isLoadingLeaves = true,
-    ); // Use local loading state or pass to form if needed
-    try {
-      // API expects formatted dates? typically YYYY-MM-DD
-      // The form sends them as strings already split by 'T', checking..
-      // Form: 'start_date': _startDate.toIso8601String().split('T')[0] -> Correct
-
-      await _leaveService.submitLeaveRequest(data);
-      if (mounted) {
-        context.showToast("Leave requested successfully.", isSuccess: true);
-        _fetchLeaves(); // Refresh history
-        // Reset form? Form handles it or we re-build
-      }
-    } catch (e) {
-      String msg = "Submit Failed";
-      if (e is DioException) {
-        msg += " (${e.response?.statusCode ?? 'No Status'})"; // Add Status Code
-        if (e.response?.data != null && e.response!.data is Map) {
-          msg += ": ${e.response!.data['message'] ?? e.message}";
-        } else {
-          msg += ": ${e.message}";
-        }
-      } else {
-        msg += ": $e";
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), duration: const Duration(seconds: 5)),
+  void _showApplyLeaveDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 550),
+            child: LeaveRequestForm(
+              onSuccess: () {
+                Navigator.pop(context);
+                context.showToast("Leave requested successfully.", isSuccess: true);
+                _fetchLeaves();
+              },
+            ),
+          ),
         );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoadingLeaves = false);
-    }
+      },
+    );
   }
 
   Future<void> _withdrawRequest(int id) async {
@@ -171,9 +159,17 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
                     controller: _tabController,
                     children: [
                       // Tab 1: Holidays List
-                      _buildHolidaysView(context),
+                      LoadingScreen(
+                        isLoading: _isLoadingHolidays,
+                        message: "Loading holidays...",
+                        child: _buildHolidaysView(context),
+                      ),
                       // Tab 2: Leave Application
-                      _buildLeaveApplicationView(context),
+                      LoadingScreen(
+                        isLoading: _isLoadingLeaves,
+                        message: "Loading leaves...",
+                        child: _buildLeaveApplicationView(context),
+                      ),
                       if (_isAdmin) const AdminLeaveView(),
                     ],
                   ),
@@ -350,7 +346,7 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
           child: _holidays.isEmpty
               ? Center(
                   child: _isLoadingHolidays
-                      ? const CircularProgressIndicator()
+                      ? const SizedBox.shrink()
                       : const Text("No holidays"),
                 )
               : ListView.separated(
@@ -466,23 +462,67 @@ class _LeaveTabletLandscapeState extends State<LeaveTabletLandscape>
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(24),
+              gradient: LinearGradient(
+                colors: isDark 
+                    ? [const Color(0xFF1E1B4B), const Color(0xFF311042)] 
+                    : [const Color(0xFFEEF2FF), const Color(0xFFFDF2F8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.02) : borderColor,
+                color: isDark 
+                    ? const Color(0xFF4338CA).withValues(alpha: 0.3) 
+                    : const Color(0xFF6366F1).withValues(alpha: 0.15),
               ),
             ),
-            child: LeaveForm(
-              onSubmit: _submitLeaveRequest,
-              isLoading: _isLoadingLeaves,
-              onDatesChanged: (start, end) {
-                setState(() {
-                  _selectedStartDate = start;
-                  _selectedEndDate = end;
-                });
-              },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Apply for Leave",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF1F2937),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Select your dates, type of leave, and submit your request for approval.",
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF4B5563),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: _showApplyLeaveDialog,
+                  icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                  label: Text(
+                    "Apply Leave", 
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600, 
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF5B60F6),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 2,
+                    shadowColor: const Color(0xFF5B60F6).withValues(alpha: 0.3),
+                  ),
+                ),
+              ],
             ),
           ),
 
