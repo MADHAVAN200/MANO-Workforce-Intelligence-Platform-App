@@ -13,6 +13,8 @@ import '../../../profile/tablet/views/profile_view.dart';
 import '../../../feedback/tablet/views/portrait.dart';
 import '../../../daily_activity/daily_activity_screen.dart'; // ADDED
 import '../../../geo_fencing/tablet/views/geo_fencing_view.dart';
+import '../../../../features/collaboration/collaboration_screen.dart'; // ADDED
+import 'package:flutter_application/shared/widgets/chatbot_fab.dart';
 
 class TabletPortrait extends StatelessWidget {
   const TabletPortrait({super.key});
@@ -77,6 +79,8 @@ class TabletPortrait extends StatelessWidget {
                            return const GeoFencingView();
                         case PageType.feedback:
                            return const FeedbackTabletPortrait();
+                        case PageType.collaboration:
+                           return const CollaborationScreen(); // ADDED
                         case PageType.profile:
                            return const ProfileView();
                       }
@@ -87,6 +91,13 @@ class TabletPortrait extends StatelessWidget {
             ),
           ],
         ),
+        floatingActionButton: ValueListenableBuilder<PageType>(
+          valueListenable: navigationNotifier,
+          builder: (context, currentPage, _) {
+            return ChatbotFab(currentPageType: currentPage);
+          },
+        ),
+        floatingActionButtonLocation: DynamicChatbotFabLocation(navigationNotifier),
       ),
     );
   }

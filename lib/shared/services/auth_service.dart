@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../constants/api_constants.dart';
 import '../widgets/toast_helper.dart';
+import '../utils/error_helper.dart';
+import 'network_monitor.dart';
 
 import '../models/user_model.dart';
 import 'package:http_parser/http_parser.dart'; // For MediaType
@@ -17,6 +20,7 @@ import 'dart:convert'; // For jsonDecode
 import 'mail_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+const MethodChannel _settingsChannel = MethodChannel('co.mano.attendance/settings');
 
 class AuthService extends ChangeNotifier {
   final Dio _dio = Dio();
@@ -48,10 +52,20 @@ class AuthService extends ChangeNotifier {
         message,
         isWarning: isSlow,
         isError: !isSlow,
-        actionLabel: "SETTINGS",
-        onActionPressed: () async {
-          await openAppSettings();
-        },
+        actionLabel: isSlow ? null : "SETTINGS",
+        onActionPressed: isSlow
+            ? null
+            : () async {
+                if (Platform.isAndroid) {
+                  try {
+                    await _settingsChannel.invokeMethod('openNetworkSettings');
+                  } catch (e) {
+                    await openAppSettings();
+                  }
+                } else {
+                  await openAppSettings();
+                }
+              },
       );
     }
   }
@@ -80,6 +94,29 @@ class AuthService extends ChangeNotifier {
       _accessToken = null;
     }
 
+    // Initialize and start the singleton NetworkMonitor
+    final networkMonitor = NetworkMonitor();
+    await networkMonitor.init();
+
+    // Listen for offline/online transitions and show proper toasts
+    networkMonitor.addListener(() {
+      if (!networkMonitor.isOnline) {
+        _showNetworkToast(
+          "No internet connection. Please check your Wi-Fi or mobile data.",
+          isSlow: false,
+        );
+      } else {
+        // Network restored — show a brief success toast
+        final context = navigatorKey.currentContext;
+        if (context != null && context.mounted) {
+          context.showToast(
+            "Connection restored. Refreshing data…",
+            isSuccess: true,
+          );
+        }
+      }
+    });
+
     // Setup Interceptor for Access Token & Refresh Logic
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -91,17 +128,21 @@ class AuthService extends ChangeNotifier {
         },
         onError: (DioException e, handler) async {
           // Check for network connectivity or slow network issues
+          // NetworkMonitor handles "offline" toasts globally; only show here for
+          // timeout issues (slow network) or if NetworkMonitor hasn't fired yet.
           if (e.type == DioExceptionType.connectionTimeout ||
               e.type == DioExceptionType.sendTimeout ||
               e.type == DioExceptionType.receiveTimeout) {
             _showNetworkToast(
-              "Slow network connectivity detected. Please check your internet connection.",
+              "Slow or unstable connection. Please check your internet and try again.",
               isSlow: true,
             );
-          } else if (e.type == DioExceptionType.connectionError ||
-              e.error is SocketException) {
+          } else if ((e.type == DioExceptionType.connectionError ||
+                  e.error is SocketException) &&
+              NetworkMonitor().isOnline) {
+            // Only show if NetworkMonitor thinks we're online (avoids duplicate toasts)
             _showNetworkToast(
-              "No internet connection. Please turn on your mobile data or Wi-Fi.",
+              "No internet connection. Please check your Wi-Fi or mobile data.",
               isSlow: false,
             );
           }
@@ -135,7 +176,15 @@ class AuthService extends ChangeNotifier {
               await logout();
             }
           }
-          return handler.next(e);
+          final friendly = friendlyError(e);
+          final friendlyException = DioException(
+            requestOptions: e.requestOptions,
+            response: e.response,
+            type: e.type,
+            error: friendly,
+            message: friendly,
+          );
+          return handler.next(friendlyException);
         },
       ),
     );
@@ -199,7 +248,7 @@ class AuthService extends ChangeNotifier {
       return response.data;
     } catch (e) {
       debugPrint("Detailed Captcha Error: $e");
-      throw Exception('Failed to load captcha: $e');
+      throw Exception(friendlyError(e, fallback: 'Unable to load captcha. Please try again.'));
     }
   }
 

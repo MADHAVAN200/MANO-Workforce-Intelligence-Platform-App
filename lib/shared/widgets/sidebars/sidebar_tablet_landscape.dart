@@ -87,6 +87,7 @@ class _SidebarContent extends StatelessWidget {
                   child: Column(
                     children: [
                       ...PageType.values.where((p) {
+                         if (p == PageType.collaboration) return false;
                          final user = context.read<AuthService>().user;
                           if (user != null && user.isEmployee) {
                               final allowed = [
@@ -95,6 +96,7 @@ class _SidebarContent extends StatelessWidget {
                                 PageType.dailyActivity,
                                 PageType.leavesAndHolidays,
                                 PageType.feedback,
+                                PageType.collaboration,
                                 PageType.profile,
                               ];
                               if (!allowed.contains(p)) return false;
@@ -171,37 +173,37 @@ class _SidebarContent extends StatelessWidget {
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      decoration: BoxDecoration(
+      child: Material(
         color: isActive 
             ? (isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFF4338CA).withValues(alpha: 0.1))
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: ListTile(
-        dense: true,
-        visualDensity: const VisualDensity(vertical: -2),
-        horizontalTitleGap: 8,
-        minLeadingWidth: 20,
-        leading: Icon(
-          page.icon,
-          color: isActive 
-              ? (isDark ? Colors.white : const Color(0xFF4338CA))
-              : (isDark ? Colors.grey : Colors.black54),
-        ),
-        title: Text(
-          page.title,
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+        child: ListTile(
+          dense: true,
+          visualDensity: const VisualDensity(vertical: -2),
+          horizontalTitleGap: 8,
+          minLeadingWidth: 20,
+          leading: Icon(
+            page.icon,
             color: isActive 
                 ? (isDark ? Colors.white : const Color(0xFF4338CA))
-                : (isDark ? Colors.grey[400] : Colors.black87),
+                : (isDark ? Colors.grey : Colors.black54),
           ),
+          title: Text(
+            page.title,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              color: isActive 
+                  ? (isDark ? Colors.white : const Color(0xFF4338CA))
+                  : (isDark ? Colors.grey[400] : Colors.black87),
+            ),
+          ),
+          onTap: () {
+            navigateTo(page);
+            if (onLinkTap != null) onLinkTap!();
+          },
         ),
-        onTap: () {
-          navigateTo(page);
-          if (onLinkTap != null) onLinkTap!();
-        },
       ),
     );
   }

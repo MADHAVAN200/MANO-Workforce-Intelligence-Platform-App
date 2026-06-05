@@ -75,9 +75,10 @@ class _SidebarContent extends StatelessWidget {
                         ),
                       ),
                       
-                      // Menu Items (Excluding Feedback)
+                      // Menu Items (Excluding Feedback & Collaboration)
                       ...PageType.values.where((p) {
                         if (p == PageType.feedback) return false; // Handled separately at bottom
+                        if (p == PageType.collaboration) return false;
                         final user = context.read<AuthService>().user;
                         if (user != null && user.isEmployee) {
                             final allowed = [
@@ -86,6 +87,7 @@ class _SidebarContent extends StatelessWidget {
                               PageType.dailyActivity,
                               PageType.leavesAndHolidays,
                               PageType.feedback, // Kept in logic for permission check, but excluded from this loop
+                              PageType.collaboration, // ADDED
                               PageType.profile,
                             ];
                             if (!allowed.contains(p)) return false;
@@ -164,43 +166,43 @@ class _SidebarContent extends StatelessWidget {
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      decoration: BoxDecoration(
+      child: Material(
         color: isActive 
             ? (isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFF4338CA).withValues(alpha: 0.1))
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: ListTile(
-        horizontalTitleGap: 8,
-        minLeadingWidth: 20,
-        dense: true,
-        visualDensity: VisualDensity.compact,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-        leading: Icon(
-          page.icon,
-          size: 20,
-          color: isActive 
-              ? (isDark ? Colors.white : const Color(0xFF4338CA))
-              : (isDark ? Colors.grey : Colors.black54),
-        ),
-        title: Text(
-          page.title,
-          style: GoogleFonts.poppins(
-            fontSize: 12, // Slightly larger font for mobile touch
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+        child: ListTile(
+          horizontalTitleGap: 8,
+          minLeadingWidth: 20,
+          dense: true,
+          visualDensity: VisualDensity.compact,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          leading: Icon(
+            page.icon,
+            size: 20,
             color: isActive 
                 ? (isDark ? Colors.white : const Color(0xFF4338CA))
-                : (isDark ? Colors.grey[400] : Colors.black87),
+                : (isDark ? Colors.grey : Colors.black54),
           ),
+          title: Text(
+            page.title,
+            style: GoogleFonts.poppins(
+              fontSize: 12, // Slightly larger font for mobile touch
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              color: isActive 
+                  ? (isDark ? Colors.white : const Color(0xFF4338CA))
+                  : (isDark ? Colors.grey[400] : Colors.black87),
+            ),
+          ),
+          onTap: () {
+            navigateTo(page);
+            if (onLinkTap != null) {
+              onLinkTap!();
+            } else {
+              Navigator.pop(context); // Auto close
+            }
+          },
         ),
-        onTap: () {
-          navigateTo(page);
-          if (onLinkTap != null) {
-            onLinkTap!();
-          } else {
-            Navigator.pop(context); // Auto close
-          }
-        },
       ),
     );
   }

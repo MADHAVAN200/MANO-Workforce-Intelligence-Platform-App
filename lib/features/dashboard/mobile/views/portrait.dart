@@ -12,7 +12,9 @@ import '../../../geo_fencing/mobile/views/geo_fencing_view.dart';
 import '../../../policy_engine/tablet/views/policy_engine_view.dart';
 import '../../../leave/tablet/views/leave_view.dart';
 import '../../../daily_activity/daily_activity_screen.dart'; // ADDED
+import 'package:flutter_application/shared/widgets/chatbot_fab.dart';
 import '../../../feedback/mobile/views/feedback_mobile_view.dart';
+import '../../../../features/collaboration/collaboration_screen.dart'; // ADDED
 
 class MobilePortrait extends StatelessWidget {
   const MobilePortrait({super.key});
@@ -56,6 +58,13 @@ class MobilePortrait extends StatelessWidget {
             ),
           ],
         ),
+        floatingActionButton: ValueListenableBuilder<PageType>(
+          valueListenable: navigationNotifier,
+          builder: (context, currentPage, _) {
+            return ChatbotFab(currentPageType: currentPage);
+          },
+        ),
+        floatingActionButtonLocation: DynamicChatbotFabLocation(navigationNotifier),
       ),
     );
   }
@@ -97,6 +106,9 @@ class MobilePortrait extends StatelessWidget {
 
       case PageType.feedback:
         return const FeedbackMobileView();
+
+      case PageType.collaboration:
+        return const CollaborationScreen(); // ADDED
     }
   }
 }

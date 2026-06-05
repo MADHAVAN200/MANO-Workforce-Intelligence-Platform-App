@@ -14,6 +14,7 @@ import '../../../profile/tablet/views/profile_view.dart';
 import '../../../feedback/tablet/views/landscape.dart';
 import '../../../daily_activity/daily_activity_screen.dart';
 import '../../../geo_fencing/tablet/views/geo_fencing_view.dart';
+import '../../../../features/collaboration/collaboration_screen.dart'; // ADDED
 
 class TabletLandscape extends StatelessWidget {
   const TabletLandscape({super.key});
@@ -67,6 +68,8 @@ class TabletLandscape extends StatelessWidget {
                         return const PolicyEngineView();
                       case PageType.feedback:
                         return const FeedbackTabletLandscape();
+                      case PageType.collaboration:
+                        return const CollaborationScreen(); // ADDED
                       case PageType.profile:
                         return const ProfileView();
                       case PageType.dailyActivity:

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../shared/services/dashboard_provider.dart';
 import '../../../../shared/models/dashboard_model.dart';
 import '../../../../shared/navigation/navigation_controller.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 import '../widgets/action_card.dart';
 import '../widgets/activity_feed.dart';
 import '../widgets/stat_card.dart';
@@ -53,16 +54,15 @@ class _HrDashboardViewState extends State<HrDashboardView> {
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return LayoutBuilder(
+        return LoadingScreen(
+          isLoading: provider.isLoading,
+          message: "Fetching HR dashboard...",
+          child: LayoutBuilder(
           builder: (context, constraints) {
             final isLandscape = constraints.maxWidth >= 900;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+              padding: EdgeInsets.fromLTRB(16, isLandscape ? 24 : 4, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -81,10 +81,11 @@ class _HrDashboardViewState extends State<HrDashboardView> {
               ),
             );
           },
-        );
-      }
-    );
-  }
+        ),
+      );
+    }
+  );
+}
 
   Widget _buildKPISection(DashboardStats stats, DashboardTrends trends, bool isLandscape) {
     final kpis = [

@@ -83,6 +83,8 @@ class AppSidebar extends StatelessWidget {
               
               // Menu Items
               ...PageType.values.where((p) {
+                if (p == PageType.collaboration) return false;
+                
                 // 1. Role-based Filtering
                 final user = context.read<AuthService>().user;
                 if (user != null && user.isEmployee) {
@@ -93,6 +95,7 @@ class AppSidebar extends StatelessWidget {
                       PageType.dailyActivity,
                       PageType.leavesAndHolidays,   // UPDATED
                       PageType.feedback, // ADDED
+                      PageType.collaboration, // ADDED
                       PageType.profile,
                     ];
                    if (!allowed.contains(p)) return false;
@@ -119,35 +122,35 @@ class AppSidebar extends StatelessWidget {
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
+      child: Material(
         color: isActive 
             ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05)) // Neutral grey for light mode active
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: ListTile(
-        horizontalTitleGap: 8,
-        minLeadingWidth: 20,
-        leading: Icon(
-          page.icon,
-          color: isActive 
-              ? (isDark ? Colors.white : Colors.black) // Black for light mode active
-              : (isDark ? Colors.grey : Colors.black54),
-        ),
-        title: Text(
-          page.title,
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+        child: ListTile(
+          horizontalTitleGap: 8,
+          minLeadingWidth: 20,
+          leading: Icon(
+            page.icon,
             color: isActive 
                 ? (isDark ? Colors.white : Colors.black) // Black for light mode active
-                : (isDark ? Colors.grey[400] : Colors.black87),
+                : (isDark ? Colors.grey : Colors.black54),
           ),
+          title: Text(
+            page.title,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              color: isActive 
+                  ? (isDark ? Colors.white : Colors.black) // Black for light mode active
+                  : (isDark ? Colors.grey[400] : Colors.black87),
+            ),
+          ),
+          onTap: () {
+            navigateTo(page);
+            onLinkTap?.call();
+          },
         ),
-        onTap: () {
-          navigateTo(page);
-          onLinkTap?.call();
-        },
       ),
     );
   }

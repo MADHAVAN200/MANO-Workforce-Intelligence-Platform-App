@@ -11,6 +11,7 @@ enum PageType {
 
   policyEngine,
   geoFencing,
+  collaboration, // ADDED
   profile,
   feedback,  // ADDED - Moved to end
 }
@@ -29,6 +30,7 @@ extension PageTypeExtension on PageType {
 
       case PageType.policyEngine: return 'Shift Management';
       case PageType.geoFencing: return 'Geo-Fencing';
+      case PageType.collaboration: return 'Chat & Collaborate'; // ADDED
       case PageType.feedback: return 'Feedback & Support'; // ADDED
       case PageType.profile: return 'My Profile';
     }
@@ -46,6 +48,7 @@ extension PageTypeExtension on PageType {
 
       case PageType.policyEngine: return Icons.settings_suggest_outlined;
       case PageType.geoFencing: return Icons.location_on_outlined;
+      case PageType.collaboration: return Icons.forum_outlined; // ADDED
       case PageType.feedback: return Icons.feedback_outlined; // ADDED
       case PageType.profile: return Icons.person_outline;
     }

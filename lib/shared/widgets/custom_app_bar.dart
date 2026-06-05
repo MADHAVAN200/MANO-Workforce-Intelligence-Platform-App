@@ -23,6 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -44,15 +45,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             height: 56,
             padding: EdgeInsets.fromLTRB(
-              MediaQuery.of(context).size.width < 900 ? 8 : 24,
+              isMobile ? 4 : (MediaQuery.of(context).size.width < 900 ? 8 : 24),
               0,
-              24,
+              isMobile ? 8 : 24,
               0,
             ),
             child: Row(
               children: [
                 if (showDrawerButton)
                   IconButton(
+                    padding: isMobile ? const EdgeInsets.all(4) : const EdgeInsets.all(8),
+                    constraints: isMobile ? const BoxConstraints(minWidth: 32, minHeight: 32) : null,
                     icon: Icon(Icons.menu, color: Theme.of(context).iconTheme.color),
                     onPressed: () => Scaffold.of(context).openDrawer(),
                   ),
@@ -76,10 +79,32 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   builder: (context, mode, _) {
                     final isDark = mode == ThemeMode.dark; 
                     return IconButton(
+                      padding: isMobile ? const EdgeInsets.all(4) : const EdgeInsets.all(8),
+                      constraints: isMobile ? const BoxConstraints(minWidth: 32, minHeight: 32) : null,
                       icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
                       tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
                       onPressed: () {
                         toggleTheme();
+                      },
+                    );
+                  },
+                ),
+
+                // Chat & Collaboration Button
+                ValueListenableBuilder<PageType>(
+                  valueListenable: navigationNotifier,
+                  builder: (context, currentPage, _) {
+                    final isActive = currentPage == PageType.collaboration;
+                    return IconButton(
+                      padding: isMobile ? const EdgeInsets.all(4) : const EdgeInsets.all(8),
+                      constraints: isMobile ? const BoxConstraints(minWidth: 32, minHeight: 32) : null,
+                      icon: Icon(
+                        isActive ? Icons.forum : Icons.forum_outlined,
+                        color: isActive ? const Color(0xFF5B60F6) : null,
+                      ),
+                      tooltip: 'Chat & Collaborate',
+                      onPressed: () {
+                        navigationNotifier.value = PageType.collaboration;
                       },
                     );
                   },
@@ -91,6 +116,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     return Stack(
                       children: [
                         IconButton(
+                          padding: isMobile ? const EdgeInsets.all(4) : const EdgeInsets.all(8),
+                          constraints: isMobile ? const BoxConstraints(minWidth: 32, minHeight: 32) : null,
                           icon: const Icon(Icons.notifications_outlined),
                           tooltip: 'Notifications',
                           onPressed: () {
@@ -102,8 +129,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         if (notificationService.unreadCount > 0)
                           Positioned(
-                            right: 8,
-                            top: 8,
+                            right: isMobile ? 2 : 8,
+                            top: isMobile ? 2 : 8,
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(

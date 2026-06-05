@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../shared/services/auth_service.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 import 'admin_dashboard_view.dart';
 import 'employee_dashboard_view.dart';
 import 'hr_dashboard_view.dart';
@@ -15,7 +16,7 @@ class DashboardView extends StatelessWidget {
     final user = authService.user;
     
     if (user == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingScreen(message: "Loading Dashboard...");
     }
 
     if (user.isEmployee) {

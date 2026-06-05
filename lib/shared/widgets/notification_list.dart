@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'glass_container.dart';
 import '../services/notification_service.dart';
 import '../models/notification_model.dart';
+import '../utils/notification_helper.dart';
 import 'package:intl/intl.dart';
 
 class NotificationList extends StatefulWidget {
@@ -129,7 +130,7 @@ class _NotificationListState extends State<NotificationList> {
   Widget build(BuildContext context) {
     return Consumer<NotificationService>(
       builder: (context, service, child) {
-        final notifications = service.notifications;
+        final notifications = service.filteredNotifications;
         final isLoading = service.isLoading;
 
         final filteredNotifications = notifications.where((n) {
@@ -325,20 +326,65 @@ class _NotificationListState extends State<NotificationList> {
   }
 
   Color _getTypeColor(String type) {
-    switch (type) {
-      case 'warning': return Colors.orange;
-      case 'error': return Colors.red;
-      case 'success': return Colors.green;
-      default: return Colors.blue;
+    final cat = NotificationHelper.categoryForType(type);
+    switch (cat) {
+      case NotificationCategory.checkinReminder:
+      case NotificationCategory.checkoutReminder:
+        return Colors.teal;
+      case NotificationCategory.missedPunch:
+        return Colors.deepOrange;
+      case NotificationCategory.leaveStatus:
+        return Colors.purple;
+      case NotificationCategory.correctionStatus:
+        return Colors.indigo;
+      case NotificationCategory.darReminder:
+        return Colors.blue;
+      case NotificationCategory.announcement:
+        return Colors.amber.shade700;
+      case NotificationCategory.leaveRequest:
+        return Colors.green;
+      case NotificationCategory.correction:
+        return Colors.orange;
+      case NotificationCategory.pendingApprovals:
+        return Colors.red;
+      case NotificationCategory.teamAlert:
+        return Colors.cyan.shade700;
+      case NotificationCategory.systemAlert:
+        return Colors.blueGrey;
+      case NotificationCategory.general:
+        return Colors.blue;
     }
   }
 
   IconData _getTypeIcon(String type) {
-    switch (type) {
-      case 'warning': return Icons.warning_amber_rounded;
-      case 'error': return Icons.error_outline;
-      case 'success': return Icons.check_circle_outline;
-      default: return Icons.info_outline;
+    final cat = NotificationHelper.categoryForType(type);
+    switch (cat) {
+      case NotificationCategory.checkinReminder:
+        return Icons.login_rounded;
+      case NotificationCategory.checkoutReminder:
+        return Icons.logout_rounded;
+      case NotificationCategory.missedPunch:
+        return Icons.warning_amber_rounded;
+      case NotificationCategory.leaveStatus:
+        return Icons.beach_access_rounded;
+      case NotificationCategory.correctionStatus:
+        return Icons.edit_calendar_rounded;
+      case NotificationCategory.darReminder:
+        return Icons.assignment_rounded;
+      case NotificationCategory.announcement:
+        return Icons.campaign_rounded;
+      case NotificationCategory.leaveRequest:
+        return Icons.inbox_rounded;
+      case NotificationCategory.correction:
+        return Icons.rate_review_rounded;
+      case NotificationCategory.pendingApprovals:
+        return Icons.pending_actions_rounded;
+      case NotificationCategory.teamAlert:
+        return Icons.groups_rounded;
+      case NotificationCategory.systemAlert:
+        return Icons.admin_panel_settings_rounded;
+      case NotificationCategory.general:
+        return Icons.info_outline;
     }
   }
 }

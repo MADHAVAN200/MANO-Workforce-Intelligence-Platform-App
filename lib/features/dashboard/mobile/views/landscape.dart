@@ -13,6 +13,7 @@ import '../../tablet/widgets/stat_card.dart';
 import '../../tablet/widgets/trends_chart.dart';
 import '../../widgets/employee_dashboard_widgets.dart';
 import '../../../policy_engine/tablet/views/policy_engine_view.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 import '../../../employees/mobile/views/employees_mobile_view.dart';
 import '../../../attendance/mobile/views/my_attendance_view.dart';
@@ -22,6 +23,8 @@ import '../../../geo_fencing/mobile/views/geo_fencing_view.dart';
 import '../../../leave/tablet/views/leave_view.dart'; // Reusing tablet view
 import '../../../daily_activity/daily_activity_screen.dart'; // ADDED
 import '../../../feedback/mobile/views/feedback_mobile_view.dart'; // Reusing tablet view
+import '../../../collaboration/collaboration_screen.dart'; // ADDED
+import 'package:flutter_application/shared/widgets/chatbot_fab.dart';
 
 class MobileLandscape extends StatelessWidget {
   const MobileLandscape({super.key});
@@ -48,6 +51,8 @@ class MobileLandscape extends StatelessWidget {
                 showDrawerButton: true,
               ),
               body: _buildContent(context, currentPage),
+              floatingActionButton: ChatbotFab(currentPageType: currentPage),
+              floatingActionButtonLocation: ChatbotFabLocation(currentPage),
             );
           },
         ),
@@ -88,6 +93,8 @@ class MobileLandscape extends StatelessWidget {
          return const PolicyEngineView();
       case PageType.profile:
          return Center(child: Text('${page.title} (Landscape)'));
+      case PageType.collaboration:
+         return const CollaborationScreen(); // ADDED
     }
   }
 }
@@ -100,7 +107,7 @@ class MobileDashboardLandscapeDispatcher extends StatelessWidget {
     final user = context.watch<AuthService>().user;
     
     if (user == null) {
-       return const Center(child: CircularProgressIndicator());
+       return const LoadingScreen(message: "Authenticating...");
     }
 
     if (user.isEmployee) {
@@ -124,101 +131,105 @@ class MobileEmployeeDashboardLandscape extends StatelessWidget {
       builder: (context, provider, child) {
         final stats = provider.stats;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Hero
-              EmployeeHero(
-                userName: user?.name ?? 'Employee',
-                onAttendanceTap: () => navigateTo(PageType.myAttendance),
-                onHolidayTap: () => navigateTo(PageType.leavesAndHolidays), 
-                onLeaveTap: () => navigateTo(PageType.leavesAndHolidays),
-              ),
-              const SizedBox(height: 24),
-
-              // 2. Stats & Info in Row (Split screen)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Stats Grid (Left Half)
-                  Expanded(
-                    flex: 3,
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1.8,
-                      children: [
-                        EmployeeStatCard(
-                          label: 'Present Days',
-                          value: stats.presentToday.toString(),
-                          icon: Icons.check_circle_outline,
-                          iconColor: const Color(0xFF10B981),
-                        ),
-                        EmployeeStatCard(
-                          label: 'Absent Days',
-                          value: stats.absentToday.toString(),
-                          icon: Icons.cancel_outlined,
-                          iconColor: const Color(0xFFEF4444),
-                        ),
-                        EmployeeStatCard(
-                          label: 'Late Arrivals',
-                          value: stats.lateCheckins.toString(),
-                          icon: Icons.access_time,
-                          iconColor: const Color(0xFFF59E0B),
-                        ),
-                        const EmployeeStatCard(
-                          label: 'Leave Balance',
-                          value: '8', // Mock
-                          badgeText: 'Yearly',
-                          icon: Icons.coffee,
-                          iconColor: Color(0xFF3B82F6),
-                        ),
-                      ],
+        return LoadingScreen(
+          isLoading: provider.isLoading,
+          message: "Loading dashboard...",
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Hero
+                EmployeeHero(
+                  userName: user?.name ?? 'Employee',
+                  onAttendanceTap: () => navigateTo(PageType.myAttendance),
+                  onHolidayTap: () => navigateTo(PageType.leavesAndHolidays), 
+                  onLeaveTap: () => navigateTo(PageType.leavesAndHolidays),
+                ),
+                const SizedBox(height: 24),
+  
+                // 2. Stats & Info in Row (Split screen)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Stats Grid (Left Half)
+                    Expanded(
+                      flex: 3,
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.8,
+                        children: [
+                          EmployeeStatCard(
+                            label: 'Present Days',
+                            value: stats.presentToday.toString(),
+                            icon: Icons.check_circle_outline,
+                            iconColor: const Color(0xFF10B981),
+                          ),
+                          EmployeeStatCard(
+                            label: 'Absent Days',
+                            value: stats.absentToday.toString(),
+                            icon: Icons.cancel_outlined,
+                            iconColor: const Color(0xFFEF4444),
+                          ),
+                          EmployeeStatCard(
+                            label: 'Late Arrivals',
+                            value: stats.lateCheckins.toString(),
+                            icon: Icons.access_time,
+                            iconColor: const Color(0xFFF59E0B),
+                          ),
+                          const EmployeeStatCard(
+                            label: 'Leave Balance',
+                            value: '8', // Mock
+                            badgeText: 'Yearly',
+                            icon: Icons.coffee,
+                            iconColor: Color(0xFF3B82F6),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 24),
-                  
-                  // Info Cards (Right Half)
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      children: [
-                        EmployeeInfoCard(
-                          title: 'Work Location',
-                          icon: Icons.location_on_outlined,
-                          child: Text(
-                            'Standard locations. Ensure you are within the geofence.',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey,
-                              height: 1.5,
+                    const SizedBox(width: 24),
+                    
+                    // Info Cards (Right Half)
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          EmployeeInfoCard(
+                            title: 'Work Location',
+                            icon: Icons.location_on_outlined,
+                            child: Text(
+                              'Standard locations. Ensure you are within the geofence.',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                height: 1.5,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        EmployeeInfoCard(
-                          title: 'Reminders',
-                          icon: Icons.info_outline,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildBulletPoint(context, 'Mark before 09:30 AM.'),
-                              const SizedBox(height: 8),
-                              _buildBulletPoint(context, 'Leave 2 days prior.'),
-                            ],
+                          const SizedBox(height: 16),
+                          EmployeeInfoCard(
+                            title: 'Reminders',
+                            icon: Icons.info_outline,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildBulletPoint(context, 'Mark before 09:30 AM.'),
+                                const SizedBox(height: 8),
+                                _buildBulletPoint(context, 'Leave 2 days prior.'),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       }
@@ -293,11 +304,7 @@ class _MobileAdminDashboardLandscapeState extends State<MobileAdminDashboardLand
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
-         if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return SingleChildScrollView(
+        final content = SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,6 +318,12 @@ class _MobileAdminDashboardLandscapeState extends State<MobileAdminDashboardLand
               _buildAnalyticsSection(provider),
             ],
           ),
+        );
+
+        return LoadingScreen(
+          isLoading: provider.isLoading,
+          message: "Loading dashboard...",
+          child: content,
         );
       }
     );
@@ -480,11 +493,7 @@ class _MobileHrDashboardLandscapeState extends State<MobileHrDashboardLandscape>
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
-         if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return SingleChildScrollView(
+        final content = SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,6 +507,12 @@ class _MobileHrDashboardLandscapeState extends State<MobileHrDashboardLandscape>
               _buildAnalyticsSection(provider),
             ],
           ),
+        );
+
+        return LoadingScreen(
+          isLoading: provider.isLoading,
+          message: "Loading dashboard...",
+          child: content,
         );
       }
     );

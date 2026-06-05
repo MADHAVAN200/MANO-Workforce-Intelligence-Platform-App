@@ -10,6 +10,7 @@ import '../../tablet/widgets/activity_feed.dart';
 import '../../tablet/widgets/trends_chart.dart';
 import '../../../../shared/navigation/navigation_controller.dart';
 import 'employee_dashboard_mobile.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 
 class MobileDashboardContent extends StatelessWidget {
   const MobileDashboardContent({super.key});
@@ -19,7 +20,7 @@ class MobileDashboardContent extends StatelessWidget {
     final user = context.watch<AuthService>().user;
 
     if (user == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const LoadingScreen(message: "Authenticating...");
     }
 
     if (user.isEmployee) {
@@ -78,13 +79,9 @@ class _MobileAdminDashboardContentState
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
         final subTextColor = Theme.of(context).textTheme.bodySmall?.color;
 
-        return MediaQuery.removePadding(
+        final content = MediaQuery.removePadding(
           context: context,
           removeTop: true,
           child: CustomScrollView(
@@ -176,6 +173,12 @@ class _MobileAdminDashboardContentState
               ),
             ],
           ),
+        );
+
+        return LoadingScreen(
+          isLoading: provider.isLoading,
+          message: "Loading dashboard...",
+          child: content,
         );
       },
     );
@@ -299,13 +302,9 @@ class _MobileHrDashboardContentState extends State<MobileHrDashboardContent> {
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
       builder: (context, provider, child) {
-        if (provider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
         final subTextColor = Theme.of(context).textTheme.bodySmall?.color;
 
-        return MediaQuery.removePadding(
+        final content = MediaQuery.removePadding(
           context: context,
           removeTop: true,
           child: CustomScrollView(
@@ -393,6 +392,12 @@ class _MobileHrDashboardContentState extends State<MobileHrDashboardContent> {
               ),
             ],
           ),
+        );
+
+        return LoadingScreen(
+          isLoading: provider.isLoading,
+          message: "Loading dashboard...",
+          child: content,
         );
       },
     );
