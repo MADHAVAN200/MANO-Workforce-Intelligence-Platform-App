@@ -10,6 +10,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
+import '../../../../shared/widgets/loading_screen.dart';
+import '../../../../shared/constants/api_constants.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../../dashboard/tablet/widgets/stat_card.dart';
 import '../../../employees/services/employee_service.dart';
@@ -62,6 +64,49 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
 
   late EmployeeService _employeeService;
   late AttendanceService _attendanceService;
+
+  Widget _buildUserAvatar({
+    required Employee employee,
+    required double radius,
+    required Color fallbackColor,
+    double? fontSize,
+  }) {
+    String? avatarUrl = employee.profileImage;
+    if (avatarUrl != null && avatarUrl.isNotEmpty && !avatarUrl.startsWith('http')) {
+      avatarUrl = avatarUrl.startsWith('/') ? '${ApiConstants.baseUrl}$avatarUrl' : '${ApiConstants.baseUrl}/$avatarUrl';
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: fallbackColor.withValues(alpha: 0.15),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: avatarUrl != null && avatarUrl.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: avatarUrl,
+                fit: BoxFit.cover,
+                width: radius * 2,
+                height: radius * 2,
+                placeholder: (_, _) => _avatarFallback(employee.userName, fallbackColor, fontSize),
+                errorWidget: (_, _, _) => _avatarFallback(employee.userName, fallbackColor, fontSize),
+              )
+            : _avatarFallback(employee.userName, fallbackColor, fontSize),
+      ),
+    );
+  }
+
+  Widget _avatarFallback(String name, Color color, double? fontSize) {
+    return Center(
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: GoogleFonts.poppins(
+          fontSize: fontSize ?? 12,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -297,36 +342,36 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
   }
 
   Widget _buildLiveDashboard(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return LoadingScreen(
+      isLoading: _isLoading,
+      message: "Syncing live feeds...",
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        physics: const BouncingScrollPhysics(), 
+        children: [
+          const SizedBox(height: 12),
+          // Date Selector
+          _buildDateSelector(context),
+          const SizedBox(height: 12),
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      physics: const BouncingScrollPhysics(), 
-      children: [
-        const SizedBox(height: 12),
-        // Date Selector
-        _buildDateSelector(context),
-        const SizedBox(height: 12),
-
-        // 1. KPIs (2x2 Grid)
-        _buildKPIGrid(),
-        const SizedBox(height: 10),
-
-        // 2. Sub-Tabs Switcher (Overview, Analytics, Timeline, Map View)
-        _buildSubTabsSwitcher(context),
-        const SizedBox(height: 10),
-
-        // 3. Filters (Search & Dropdown) - Only show for Overview tab
-        if (_activeSubTab == 'Overview') ...[
-          _buildFilters(context),
+          // 1. KPIs (2x2 Grid)
+          _buildKPIGrid(),
           const SizedBox(height: 10),
-        ],
 
-        // 4. Dynamic sub-tab content
-        _buildSubTabContent(context),
-      ],
+          // 2. Sub-Tabs Switcher (Overview, Analytics, Timeline, Map View)
+          _buildSubTabsSwitcher(context),
+          const SizedBox(height: 10),
+
+          // 3. Filters (Search & Dropdown) - Only show for Overview tab
+          if (_activeSubTab == 'Overview') ...[
+            _buildFilters(context),
+            const SizedBox(height: 10),
+          ],
+
+          // 4. Dynamic sub-tab content
+          _buildSubTabContent(context),
+        ],
+      ),
     );
   }
 
@@ -677,13 +722,11 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
             // Row 1: Profile + Status
             Row(
               children: [
-                CircleAvatar(
+                _buildUserAvatar(
+                  employee: item.user,
                   radius: 16,
-                  backgroundColor: color.withValues(alpha: 0.1),
-                  child: Text(
-                    item.name.isNotEmpty ? item.name[0].toUpperCase() : '?', 
-                    style: GoogleFonts.poppins(color: color, fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
+                  fallbackColor: color,
+                  fontSize: 12,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1397,17 +1440,11 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  _buildUserAvatar(
+                    employee: item.user,
                     radius: 13,
-                    backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                    child: Text(
-                      item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
+                    fallbackColor: Theme.of(context).primaryColor,
+                    fontSize: 10,
                   ),
                   const SizedBox(width: 5),
                   Expanded(
@@ -1781,13 +1818,11 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
         children: [
           Row(
             children: [
-              CircleAvatar(
+              _buildUserAvatar(
+                employee: item.user,
                 radius: 16,
-                backgroundColor: color.withValues(alpha: 0.1),
-                child: Text(
-                  item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
-                  style: GoogleFonts.poppins(color: color, fontWeight: FontWeight.bold, fontSize: 10),
-                ),
+                fallbackColor: color,
+                fontSize: 10,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1973,13 +2008,11 @@ class _MobileLiveAttendanceContentState extends State<MobileLiveAttendanceConten
               // Profile Header
               Row(
                 children: [
-                  CircleAvatar(
+                  _buildUserAvatar(
+                    employee: item.user,
                     radius: 24,
-                    backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                    child: Text(
-                      item.name.isNotEmpty ? item.name[0].toUpperCase() : '?',
-                      style: GoogleFonts.poppins(color: Colors.blue, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    fallbackColor: Colors.blue,
+                    fontSize: 16,
                   ),
                   const SizedBox(width: 12),
                   Expanded(

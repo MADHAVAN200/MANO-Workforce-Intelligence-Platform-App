@@ -10,6 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 import '../../../../shared/services/auth_service.dart';
 import '../../../dashboard/tablet/widgets/stat_card.dart';
 import '../../../employees/services/employee_service.dart';
@@ -274,37 +275,37 @@ class _LiveAttendanceViewState extends State<LiveAttendanceView> with SingleTick
   }
 
   Widget _buildLiveDashboard(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 12),
-          // Date Selector
-          _buildDateSelector(context),
-          const SizedBox(height: 12),
-          
-          // 1. KPIs
-          _buildKPIGrid(),
-          const SizedBox(height: 16),
-
-          // 2. Sub-Tabs Switcher (Overview, Analytics, Timeline, Map View)
-          _buildSubTabsSwitcher(context),
-          const SizedBox(height: 8),
-
-          // 3. Filters (Search & Dropdown) - Only show for Overview/Analytics/Timeline, Map has custom overlays
-          if (_activeSubTab == 'Overview') ...[
-            _buildFilters(context),
+    return LoadingScreen(
+      isLoading: _isLoading,
+      message: "Syncing live feeds...",
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const SizedBox(height: 12),
-          ],
+            // Date Selector
+            _buildDateSelector(context),
+            const SizedBox(height: 12),
+            
+            // 1. KPIs
+            _buildKPIGrid(),
+            const SizedBox(height: 16),
 
-          // 4. Dynamic sub-tab content
-          _buildSubTabContent(context),
-        ],
+            // 2. Sub-Tabs Switcher (Overview, Analytics, Timeline, Map View)
+            _buildSubTabsSwitcher(context),
+            const SizedBox(height: 8),
+
+            // 3. Filters (Search & Dropdown) - Only show for Overview/Analytics/Timeline, Map has custom overlays
+            if (_activeSubTab == 'Overview') ...[
+              _buildFilters(context),
+              const SizedBox(height: 12),
+            ],
+
+            // 4. Dynamic sub-tab content
+            _buildSubTabContent(context),
+          ],
+        ),
       ),
     );
   }
