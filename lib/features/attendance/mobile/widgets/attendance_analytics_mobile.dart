@@ -124,7 +124,7 @@ class _AttendanceAnalyticsMobileState extends State<AttendanceAnalyticsMobile> {
     final avgHours = recordsWithHours > 0 ? (totalHours / recordsWithHours).toStringAsFixed(1) : '0.0';
 
     return ListView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       children: [
         MonthlyReportHeaderMobile(
           selectedMonth: _selectedMonth, 

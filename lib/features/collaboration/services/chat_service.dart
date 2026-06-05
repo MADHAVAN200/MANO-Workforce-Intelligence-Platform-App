@@ -1,11 +1,65 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/chat_models.dart';
+import '../../../shared/services/socket_service.dart';
 
-class ChatService {
+class ChatService extends ChangeNotifier {
   final Dio _dio;
+  int _totalUnreadCount = 0;
+  
+  dynamic _lastSocket;
+  SocketService? _socketService;
 
   ChatService(this._dio);
+
+  int get totalUnreadCount => _totalUnreadCount;
+
+  void initializeSocketListening(SocketService socketService) {
+    _socketService = socketService;
+    _socketService!.addListener(_onSocketServiceChanged);
+    _onSocketServiceChanged();
+  }
+
+  void _onSocketServiceChanged() {
+    if (_socketService == null) return;
+    final s = _socketService!.socket;
+    if (_lastSocket != s) {
+      if (_lastSocket != null) {
+        try {
+          _lastSocket.off('room_created', _onSocketRoomEvent);
+          _lastSocket.off('room_deleted', _onSocketRoomEvent);
+          _lastSocket.off('message_received', _onSocketRoomEvent);
+        } catch (_) {}
+      }
+      _lastSocket = s;
+      if (s != null) {
+        s.on('room_created', _onSocketRoomEvent);
+        s.on('room_deleted', _onSocketRoomEvent);
+        s.on('message_received', _onSocketRoomEvent);
+      }
+      // Since socket changed, fetch rooms list to update count
+      getRooms();
+    }
+  }
+
+  void _onSocketRoomEvent(dynamic data) {
+    getRooms();
+  }
+
+  @override
+  void dispose() {
+    if (_socketService != null) {
+      _socketService!.removeListener(_onSocketServiceChanged);
+    }
+    if (_lastSocket != null) {
+      try {
+        _lastSocket.off('room_created', _onSocketRoomEvent);
+        _lastSocket.off('room_deleted', _onSocketRoomEvent);
+        _lastSocket.off('message_received', _onSocketRoomEvent);
+      } catch (_) {}
+    }
+    super.dispose();
+  }
 
   // 1. Fetch Rooms list
   Future<List<ChatRoom>> getRooms() async {
@@ -13,7 +67,15 @@ class ChatService {
       final response = await _dio.get('/collaboration/rooms');
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];
-        return data.map((json) => ChatRoom.fromJson(json)).toList();
+        final rooms = data.map((json) => ChatRoom.fromJson(json)).toList();
+        
+        final count = rooms.fold<int>(0, (sum, room) => sum + room.unreadCount);
+        if (_totalUnreadCount != count) {
+          _totalUnreadCount = count;
+          Future.microtask(() => notifyListeners());
+        }
+        
+        return rooms;
       }
       return [];
     } catch (e) {
@@ -120,7 +182,9 @@ class ChatService {
       final response = await _dio.post('/collaboration/rooms', data: payload);
       if ((response.statusCode == 200 || response.statusCode == 201) && (response.data['success'] == true || response.data['ok'] == true)) {
         final roomData = response.data['data'] ?? response.data['room'] ?? response.data;
-        return ChatRoom.fromJson(roomData);
+        final room = ChatRoom.fromJson(roomData);
+        getRooms();
+        return room;
       }
       return null;
     } catch (e) {
@@ -152,7 +216,11 @@ class ChatService {
   Future<bool> markAsRead(int roomId) async {
     try {
       final response = await _dio.put('/collaboration/rooms/$roomId/read');
-      return response.statusCode == 200 && response.data['success'] == true;
+      final success = response.statusCode == 200 && response.data['success'] == true;
+      if (success) {
+        getRooms();
+      }
+      return success;
     } catch (e) {
       debugPrint("ChatService markAsRead error: $e");
       return false;

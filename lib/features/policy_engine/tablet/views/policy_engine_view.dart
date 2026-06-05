@@ -7,6 +7,7 @@ import '../../../../shared/widgets/loading_screen.dart';
 import '../../models/shift_model.dart';
 import '../../services/shift_service.dart';
 import '../../widgets/shift_detail_bottom_sheet.dart';
+import 'add_shift_dialog.dart';
 
 class PolicyEngineView extends StatefulWidget {
   const PolicyEngineView({super.key});
@@ -44,80 +45,200 @@ class _PolicyEngineViewState extends State<PolicyEngineView> {
     }
   }
 
+  void _showAddShiftDialog({Shift? existingShift}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddShiftDialog(
+        existingShift: existingShift,
+        onSubmit: (shift) async {
+          Navigator.pop(context);
+          setState(() => _isLoadingShifts = true);
+          try {
+            if (existingShift == null) {
+              await _shiftService.createShift(shift);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Shift created successfully")),
+                );
+              }
+            } else {
+              await _shiftService.updateShift(existingShift.id!, shift);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Shift updated successfully")),
+                );
+              }
+            }
+            _fetchShifts();
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Error saving shift: $e")),
+              );
+            }
+            setState(() => _isLoadingShifts = false);
+          }
+        },
+      ),
+    );
+  }
+
+  Future<void> _deleteShift(Shift shift) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Shift', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to delete "${shift.name}"? This action will unassign all staff currently on this shift.', style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Delete', style: GoogleFonts.poppins(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoadingShifts = true);
+      try {
+        await _shiftService.deleteShift(shift.id!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Shift deleted successfully")),
+          );
+        }
+        _fetchShifts();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error deleting shift: $e")),
+          );
+        }
+        setState(() => _isLoadingShifts = false);
+      }
+    }
+  }
+
 
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final horizontalPadding = isMobile ? 12.0 : 32.0;
+
     return LoadingScreen(
       isLoading: _isLoadingShifts,
       message: "Fetching policy rules...",
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header Section
-            _buildHelperHeader(context),
-            const SizedBox(height: 24),
-
-            // Shifts Grid
-            Expanded(
-              child: _shifts.isEmpty 
-                ? Center(child: Text("No shifts found", style: GoogleFonts.poppins(color: Colors.grey)))
-                : LayoutBuilder(
-                builder: (context, constraints) {
-                  // Determine if we should stack vertically or horizontally
-                  final isPortrait = constraints.maxWidth < 900; 
-
-                  // We'll wrap in Wrap or Grid or ListView depending on layout.
-                  // Reusing _buildShiftCard for each item.
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 32),
-                    child: Wrap(
-                      spacing: 24,
-                      runSpacing: 24,
-                      alignment: WrapAlignment.start,
-                      children: _shifts.map<Widget>((shift) {
-                         final itemWidth = isPortrait ? constraints.maxWidth : (constraints.maxWidth - 48) / 3;
-                         
-                         return SizedBox(
-                           width: itemWidth,
-                           child: _buildShiftCard(
-                              context,
-                              shift: shift,
-                           ),
-                         );
-                      }).toList(),
-                    ),
-                  );
-                },
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header Section (padded horizontally and top)
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              isMobile ? 16 : 24,
+              horizontalPadding,
+              0,
             ),
-          ],
-        ),
+            child: _buildHelperHeader(context),
+          ),
+          const SizedBox(height: 24),
+
+          // Shifts Grid (occupies full width, scrolling area matches screen bounds)
+          Expanded(
+            child: _shifts.isEmpty 
+              ? Center(child: Text("No shifts found", style: GoogleFonts.poppins(color: Colors.grey)))
+              : LayoutBuilder(
+              builder: (context, constraints) {
+                // Determine if we should stack vertically or horizontally
+                final isPortrait = constraints.maxWidth < 900; 
+                final usableWidth = constraints.maxWidth - (2 * horizontalPadding);
+
+                // We'll wrap in Wrap or Grid or ListView depending on layout.
+                // Reusing _buildShiftCard for each item.
+                return SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    0,
+                    horizontalPadding,
+                    isMobile ? 24 : 32,
+                  ),
+                  child: Wrap(
+                    spacing: isMobile ? 16 : 24,
+                    runSpacing: isMobile ? 16 : 24,
+                    alignment: WrapAlignment.start,
+                    children: _shifts.map<Widget>((shift) {
+                       final itemWidth = isPortrait ? usableWidth : (usableWidth - 48) / 3;
+                       
+                       return SizedBox(
+                         width: itemWidth,
+                         child: _buildShiftCard(
+                             context,
+                             shift: shift,
+                         ),
+                       );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildHelperHeader(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return GlassContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 16 : 24,
+        vertical: isMobile ? 16 : 20,
+      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Active Shifts',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Active Shifts',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => _showAddShiftDialog(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6366F1), // Indigo
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: Text(
+                        'Add Shift',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
                   'Manage work timings and grace periods',
                   style: GoogleFonts.poppins(
@@ -126,15 +247,58 @@ class _PolicyEngineViewState extends State<PolicyEngineView> {
                   ),
                 ),
               ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Active Shifts',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Manage work timings and grace periods',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => _showAddShiftDialog(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1), // Indigo
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    elevation: 0,
+                  ),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(
+                    'Add Shift',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-
-        ],
-      ),
     );
   }
 
   Widget _buildShiftCard(BuildContext context, {required Shift shift}) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
     final color = Colors.indigoAccent;
     final icon = Icons.access_time_filled;
     
@@ -148,10 +312,15 @@ class _PolicyEngineViewState extends State<PolicyEngineView> {
     
     
     return InkWell(
-      onTap: () => ShiftDetailBottomSheet.show(context, shift: shift),
+      onTap: () => ShiftDetailBottomSheet.show(
+        context,
+        shift: shift,
+        onEdit: () => _showAddShiftDialog(existingShift: shift),
+        onDelete: () => _deleteShift(shift),
+      ),
       borderRadius: BorderRadius.circular(20),
       child: GlassContainer(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(isMobile ? 16 : 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

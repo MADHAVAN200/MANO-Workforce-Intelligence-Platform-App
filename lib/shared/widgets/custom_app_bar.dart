@@ -10,6 +10,7 @@ import '../navigation/navigation_controller.dart';
 import '../../features/notifications/mobile/views/notifications_view.dart'; // Import Mobile View
 import '../services/notification_service.dart';
 import 'toast_helper.dart';
+import '../../features/collaboration/services/chat_service.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showDrawerButton;
@@ -91,20 +92,53 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
 
                 // Chat & Collaboration Button
-                ValueListenableBuilder<PageType>(
-                  valueListenable: navigationNotifier,
-                  builder: (context, currentPage, _) {
-                    final isActive = currentPage == PageType.collaboration;
-                    return IconButton(
-                      padding: isMobile ? const EdgeInsets.all(4) : const EdgeInsets.all(8),
-                      constraints: isMobile ? const BoxConstraints(minWidth: 32, minHeight: 32) : null,
-                      icon: Icon(
-                        isActive ? Icons.forum : Icons.forum_outlined,
-                        color: isActive ? const Color(0xFF5B60F6) : null,
-                      ),
-                      tooltip: 'Chat & Collaborate',
-                      onPressed: () {
-                        navigationNotifier.value = PageType.collaboration;
+                Consumer<ChatService>(
+                  builder: (context, chatService, _) {
+                    return ValueListenableBuilder<PageType>(
+                      valueListenable: navigationNotifier,
+                      builder: (context, currentPage, _) {
+                        final isActive = currentPage == PageType.collaboration;
+                        return Stack(
+                          children: [
+                            IconButton(
+                              padding: isMobile ? const EdgeInsets.all(4) : const EdgeInsets.all(8),
+                              constraints: isMobile ? const BoxConstraints(minWidth: 32, minHeight: 32) : null,
+                              icon: Icon(
+                                isActive ? Icons.forum : Icons.forum_outlined,
+                                color: isActive ? const Color(0xFF5B60F6) : null,
+                              ),
+                              tooltip: 'Chat & Collaborate',
+                              onPressed: () {
+                                navigationNotifier.value = PageType.collaboration;
+                              },
+                            ),
+                            if (chatService.totalUnreadCount > 0)
+                              Positioned(
+                                right: isMobile ? 2 : 8,
+                                top: isMobile ? 2 : 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    '${chatService.totalUnreadCount}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
                       },
                     );
                   },

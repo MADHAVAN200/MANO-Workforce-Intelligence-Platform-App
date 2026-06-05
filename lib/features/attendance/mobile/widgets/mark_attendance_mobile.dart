@@ -244,7 +244,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
         final missedDate = provider.missedPunchDate;
 
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           physics: const BouncingScrollPhysics(),
           children: [
             // 0. Missed Punch Warning Banner
@@ -417,11 +417,10 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
       onTap: isActive ? onTap : null,
       borderRadius: BorderRadius.circular(20),
       child: GlassContainer(
-        height: 84,
         width: double.infinity,
         borderRadius: 20,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Row(
             children: [
               Container(
@@ -442,6 +441,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       label, 
@@ -756,50 +756,109 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
 
   Widget _buildSessionCard(BuildContext context, AttendanceRecord record) {
     return GlassContainer(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       borderRadius: 24,
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Column(
-              children: [
-                Container(width: 12, height: 12, decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle)),
-                Expanded(child: Container(width: 2, color: Colors.grey.withValues(alpha: 0.3), margin: const EdgeInsets.symmetric(vertical: 4))),
-                Container(width: 12, height: 12, decoration: BoxDecoration(color: record.timeOut != null ? Colors.red : Colors.grey, shape: BoxShape.circle)),
-              ],
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row 1: Time In
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Indicator Dot + Line
+              Column(
                 children: [
-                  _buildTimeInfo(context, time: _formatTime(record.timeIn), location: record.timeInAddress ?? 'Unknown'),
-                  const SizedBox(height: 24),
-                  record.timeOut != null 
-                    ? _buildTimeInfo(context, time: _formatTime(record.timeOut), location: record.timeOutAddress ?? 'Unknown')
-                    : Text(
-                        'Currently Active', 
-                        style: GoogleFonts.poppins(
-                          fontSize: 13, 
-                          fontWeight: FontWeight.w600, 
-                          color: const Color(0xFF10B981)
-                        )
-                      ),
+                  Container(
+                    width: 12,
+                    height: 12,
+                    margin: const EdgeInsets.only(top: 4),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF10B981),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Container(
+                    width: 2,
+                    height: 36,
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildAvatar(context, record.timeInImage),
-                if (record.timeOut != null) _buildAvatar(context, record.timeOutImage),
-              ],
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              // Time & Address
+              Expanded(
+                child: _buildTimeInfo(
+                  context,
+                  time: 'TIME IN - ${_formatTime(record.timeIn)}',
+                  location: record.timeInAddress ?? 'Unknown Address',
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Avatar
+              _buildAvatar(context, record.timeInImage),
+            ],
+          ),
+          
+          // Row 2: Time Out / Active State
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Indicator Dot
+              Column(
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    margin: const EdgeInsets.only(top: 4),
+                    decoration: BoxDecoration(
+                      color: record.timeOut != null ? Colors.red : Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              // Time & Address / Currently Active
+              Expanded(
+                child: record.timeOut != null
+                    ? _buildTimeInfo(
+                        context,
+                        time: 'TIME OUT - ${_formatTime(record.timeOut)}',
+                        location: record.timeOutAddress ?? 'Unknown Address',
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'TIME OUT',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Currently Active',
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF10B981),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+              const SizedBox(width: 8),
+              // Avatar (Only if checked out)
+              if (record.timeOut != null)
+                _buildAvatar(context, record.timeOutImage)
+              else
+                const SizedBox(width: 40, height: 40),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -811,13 +870,20 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
         Text(
           time, 
           style: GoogleFonts.poppins(
-            fontSize: 14, 
+            fontSize: 13, 
             fontWeight: FontWeight.bold,
             color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87
           )
         ),
         const SizedBox(height: 4),
-        Text(location, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey, height: 1.3)),
+        Text(
+          location, 
+          style: GoogleFonts.poppins(
+            fontSize: 11, 
+            color: Colors.grey, 
+            height: 1.3
+          )
+        ),
       ],
     );
   }

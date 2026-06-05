@@ -56,8 +56,27 @@ class EmployeeService {
   Future<void> updateEmployee(int id, Map<String, dynamic> updates) async {
     try {
       await _dio.put('${ApiConstants.user}/$id', data: updates);
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map 
+          ? (e.response?.data['message'] ?? e.response?.data['error']) 
+          : null;
+      throw Exception(msg ?? e.message ?? 'Unknown server error');
     } catch (e) {
       throw Exception('Failed to update employee: ${e.toString()}');
+    }
+  }
+
+  // 4b. Update User Shift Assignment
+  Future<void> assignShiftToUser(int userId, int? shiftId) async {
+    try {
+      await _dio.put('/policies/users/$userId/shift', data: {'shift_id': shiftId});
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map 
+          ? (e.response?.data['message'] ?? e.response?.data['error']) 
+          : null;
+      throw Exception(msg ?? e.message ?? 'Unknown server error');
+    } catch (e) {
+      throw Exception('Failed to assign shift: ${e.toString()}');
     }
   }
 

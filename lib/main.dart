@@ -46,6 +46,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
+  Provider.debugCheckInvalidValueType = null;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
@@ -121,8 +122,12 @@ void main() async {
           update: (context, auth, previous) =>
               previous ?? ChatbotService(auth),
         ),
-        ProxyProvider<AuthService, ChatService>(
-          update: (_, auth, previous) => ChatService(auth.dio),
+        ChangeNotifierProvider<ChatService>(
+          create: (context) {
+            final chatService = ChatService(context.read<AuthService>().dio);
+            chatService.initializeSocketListening(context.read<SocketService>());
+            return chatService;
+          },
         ),
         Provider<PermissionService>.value(value: permissionService),
       ],
@@ -252,6 +257,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
       authService.checkAuthStatus();
       // Refresh notifications
       context.read<NotificationService>().fetchNotifications();
+      // Refresh chats
+      context.read<ChatService>().getRooms();
       // Refresh dashboard data
       context.read<DashboardProvider>().fetchDashboardData(forceRefresh: true);
       // Refresh attendance records & policy & correction counts
@@ -270,12 +277,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
     // Check auth status (Refresh -> Get User)
     await authService.checkAuthStatus();
 
-    // If authenticated, fetch notifications
+    // If authenticated, fetch notifications and chats
     if (authService.isAuthenticated && mounted) {
       Provider.of<NotificationService>(
         context,
         listen: false,
       ).fetchNotifications();
+      Provider.of<ChatService>(
+        context,
+        listen: false,
+      ).getRooms();
     }
 
     if (mounted) {

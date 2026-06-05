@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/attendance_provider.dart';
 import '../widgets/mark_attendance_mobile.dart';
-import '../../widgets/attendance_history_tab.dart';
-import '../../widgets/attendance_analytics_tab.dart';
+import '../widgets/attendance_history_mobile.dart';
+import '../widgets/attendance_analytics_mobile.dart';
 import 'package:flutter_application/features/attendance/admin/views/admin_correction_requests.dart';
 import '../../widgets/attendance_header_widget.dart';
 import '../../../../shared/widgets/loading_screen.dart';
@@ -86,7 +86,7 @@ class _MyAttendanceReportsTabState extends State<_MyAttendanceReportsTab> {
         children: [
           // Sub-tabs
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -104,11 +104,11 @@ class _MyAttendanceReportsTabState extends State<_MyAttendanceReportsTab> {
           
           Expanded(
             child: _selectedIndex == 0 
-              ? const AttendanceHistoryTab() 
+              ? const AttendanceHistoryMobile() 
               : _selectedIndex == 1
-                ? const AttendanceAnalyticsTab()
+                ? const AttendanceAnalyticsMobile()
                 : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: const AdminCorrectionRequests(isPersonalView: true),
                   ),
           ),

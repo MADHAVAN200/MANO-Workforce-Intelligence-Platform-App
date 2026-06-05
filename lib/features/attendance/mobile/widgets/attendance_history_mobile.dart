@@ -278,9 +278,9 @@ class _AttendanceHistoryMobileState extends State<AttendanceHistoryMobile> {
            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildTimeColumn(context, 'IN', displayIn),
-                _buildTimeColumn(context, 'OUT', displayOut),
-                _buildTimeColumn(context, 'HRS', hrs),
+                 _buildTimeColumn(context, 'IN', displayIn, imageUrl: record.timeInImage),
+                 _buildTimeColumn(context, 'OUT', displayOut, imageUrl: record.timeOutImage),
+                 _buildTimeColumn(context, 'HRS', hrs),
               ],
            )
         ],
