@@ -74,7 +74,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
       }
     } catch (e) {
       if (mounted) {
-         context.showToast("Could not update profile picture. Please try again.\nError: $e", isError: true);
+         context.showExceptionToast(e, fallback: "Could not update profile picture. Please try again.");
       }
     } finally {
       if (mounted) {
@@ -189,7 +189,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         }
       } catch (e) {
         if (mounted) {
-           context.showToast("Could not remove profile photo. Please try again.\nError: $e", isError: true);
+           context.showExceptionToast(e, fallback: "Could not remove profile photo. Please try again.");
         }
       } finally {
         if (mounted) setState(() => _isUploading = false);

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../shared/navigation/navigation_controller.dart';
@@ -241,6 +241,7 @@ class _MobileProfileContentState extends State<MobileProfileContent> {
       ),
     );
   }
+
 
   Widget _buildInfoItem(BuildContext context, {required IconData icon, required String label, required String value, double? valueFontSize}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

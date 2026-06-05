@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/services/auth_service.dart';
+import '../../../../shared/widgets/loading_screen.dart';
 import '../../models/shift_model.dart';
 import '../../services/shift_service.dart';
 import '../../widgets/shift_detail_bottom_sheet.dart';
@@ -47,51 +48,53 @@ class _PolicyEngineViewState extends State<PolicyEngineView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoadingShifts) return const Center(child: CircularProgressIndicator()); 
+    return LoadingScreen(
+      isLoading: _isLoadingShifts,
+      message: "Fetching policy rules...",
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Section
+            _buildHelperHeader(context),
+            const SizedBox(height: 24),
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Section
-          _buildHelperHeader(context),
-          const SizedBox(height: 24),
+            // Shifts Grid
+            Expanded(
+              child: _shifts.isEmpty 
+                ? Center(child: Text("No shifts found", style: GoogleFonts.poppins(color: Colors.grey)))
+                : LayoutBuilder(
+                builder: (context, constraints) {
+                  // Determine if we should stack vertically or horizontally
+                  final isPortrait = constraints.maxWidth < 900; 
 
-          // Shifts Grid
-          Expanded(
-            child: _shifts.isEmpty 
-              ? Center(child: Text("No shifts found", style: GoogleFonts.poppins(color: Colors.grey)))
-              : LayoutBuilder(
-              builder: (context, constraints) {
-                // Determine if we should stack vertically or horizontally
-                final isPortrait = constraints.maxWidth < 900; 
-
-                // We'll wrap in Wrap or Grid or ListView depending on layout.
-                // Reusing _buildShiftCard for each item.
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 32),
-                  child: Wrap(
-                    spacing: 24,
-                    runSpacing: 24,
-                    alignment: WrapAlignment.start,
-                    children: _shifts.map<Widget>((shift) {
-                       final itemWidth = isPortrait ? constraints.maxWidth : (constraints.maxWidth - 48) / 3;
-                       
-                       return SizedBox(
-                         width: itemWidth,
-                         child: _buildShiftCard(
-                            context,
-                            shift: shift,
-                         ),
-                       );
-                    }).toList(),
-                  ),
-                );
-              },
+                  // We'll wrap in Wrap or Grid or ListView depending on layout.
+                  // Reusing _buildShiftCard for each item.
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: 32),
+                    child: Wrap(
+                      spacing: 24,
+                      runSpacing: 24,
+                      alignment: WrapAlignment.start,
+                      children: _shifts.map<Widget>((shift) {
+                         final itemWidth = isPortrait ? constraints.maxWidth : (constraints.maxWidth - 48) / 3;
+                         
+                         return SizedBox(
+                           width: itemWidth,
+                           child: _buildShiftCard(
+                              context,
+                              shift: shift,
+                           ),
+                         );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -221,6 +224,14 @@ class _PolicyEngineViewState extends State<PolicyEngineView> {
             _buildDetailRow(context, 'Grace Period', gracePeriod, icon: Icons.warning_amber_rounded, iconColor: Colors.amber),
             const SizedBox(height: 12),
             _buildDetailRow(context, 'Overtime', overtime, icon: Icons.bolt, iconColor: const Color(0xFF5B60F6)),
+            const SizedBox(height: 12),
+            _buildDetailRow(
+              context,
+              'Correction Deadline',
+              '${shift.correctionDeadline} Day${shift.correctionDeadline == 1 ? '' : 's'}',
+              icon: Icons.edit_calendar_outlined,
+              iconColor: Colors.deepOrangeAccent,
+            ),
           ],
         ),
       ),

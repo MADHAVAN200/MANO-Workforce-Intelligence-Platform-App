@@ -16,6 +16,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
   final _nameCtrl = TextEditingController();
   final _graceCtrl = TextEditingController(text: "0");
   final _otThresholdCtrl = TextEditingController(text: "8.0");
+  final _correctionDeadlineCtrl = TextEditingController(text: "2");
   
   TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 18, minute: 0);
@@ -44,12 +45,14 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
       _checkInSelfie = s.entrySelfie;
       _checkOutGps = s.exitGeofence;
       _checkOutSelfie = s.exitSelfie;
+      _correctionDeadlineCtrl.text = s.correctionDeadline.toString();
     } else {
       // Defaults
        _checkInGps = true;
        _checkInSelfie = true;
        _checkOutGps = false; 
        _checkOutSelfie = false;
+       _correctionDeadlineCtrl.text = "2";
     }
   }
 
@@ -99,7 +102,8 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
       'exit_requirements': {
         'geofence': _checkOutGps,
         'selfie': _checkOutSelfie,
-      }
+      },
+      'correction_deadline': int.tryParse(_correctionDeadlineCtrl.text) ?? 2,
     };
 
     final s = Shift(
@@ -230,22 +234,58 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Grace Period
-                  _buildLabel('Grace Period (Minutes)', labelColor),
-                  _buildTextField(
-                    controller: _graceCtrl, 
-                    hint: '0', 
-                    suffix: 'mins',
-                    fillColor: inputColor, 
-                    borderColor: borderColor,
-                    textColor: textColor,
-                    hintColor: hintColor,
-                    isNumeric: true
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Time allowed after start time before marking as "Late".',
-                    style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[500]),
+                  // Grace Period & Correction Deadline Row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel('Grace Period', labelColor),
+                            _buildTextField(
+                              controller: _graceCtrl, 
+                              hint: '0', 
+                              suffix: 'mins',
+                              fillColor: inputColor, 
+                              borderColor: borderColor,
+                              textColor: textColor,
+                              hintColor: hintColor,
+                              isNumeric: true
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Allowed lateness buffer.',
+                              style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[500]),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel('Corr. Deadline', labelColor),
+                            _buildTextField(
+                              controller: _correctionDeadlineCtrl, 
+                              hint: '2', 
+                              suffix: 'days',
+                              fillColor: inputColor, 
+                              borderColor: borderColor,
+                              textColor: textColor,
+                              hintColor: hintColor,
+                              isNumeric: true
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Days to correct missed punches.',
+                              style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[500]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: isMobile ? 16 : 24),
 

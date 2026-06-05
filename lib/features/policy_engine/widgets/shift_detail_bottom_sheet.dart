@@ -137,8 +137,19 @@ class ShiftDetailBottomSheet extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _buildInfoItem(context, "Grace Period",
-                        "${shift.gracePeriodMins} Minutes", Icons.hourglass_empty),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(context, "Grace Period",
+                              "${shift.gracePeriodMins} Minutes", Icons.hourglass_empty),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildInfoItem(context, "Corr. Deadline",
+                              "${shift.correctionDeadline} Days", Icons.edit_calendar_outlined),
+                        ),
+                      ],
+                    ),
 
                     const SizedBox(height: 20),
 

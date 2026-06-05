@@ -144,6 +144,19 @@ class ShiftDetailDialog extends StatelessWidget {
                 ),
               ),
 
+              SizedBox(height: isMobile ? 16 : 24),
+
+              // Correction Policy
+              _buildSectionTitle("Correction Policy", textColor),
+              SizedBox(height: isMobile ? 8 : 12),
+              _buildInfoItem(
+                context,
+                "Missed Punch Deadline",
+                "${shift.correctionDeadline} Day${shift.correctionDeadline == 1 ? '' : 's'}",
+                Icons.edit_calendar_outlined,
+                iconColor: Colors.deepOrangeAccent,
+              ),
+
               SizedBox(height: isMobile ? 24 : 32),
               SizedBox(
                 width: double.infinity,

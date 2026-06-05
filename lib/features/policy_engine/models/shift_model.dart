@@ -14,6 +14,9 @@ class Shift {
   bool get entryGeofence => policyRules['entry_requirements']?['geofence'] ?? false;
   bool get exitSelfie => policyRules['exit_requirements']?['selfie'] ?? false;
   bool get exitGeofence => policyRules['exit_requirements']?['geofence'] ?? false;
+  int get correctionDeadline => policyRules['correction_deadline'] is int 
+      ? policyRules['correction_deadline'] 
+      : (int.tryParse(policyRules['correction_deadline']?.toString() ?? '') ?? 2);
 
   Shift({
     this.id,
