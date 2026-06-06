@@ -8,6 +8,7 @@ import '../constants/api_constants.dart';
 import '../models/notification_model.dart';
 import 'auth_service.dart';
 import 'socket_service.dart';
+import 'local_notification_service.dart';
 import '../widgets/toast_helper.dart';
 
 class NotificationService extends ChangeNotifier {
@@ -89,11 +90,11 @@ class NotificationService extends ChangeNotifier {
         provisional: false,
       );
 
-      // Suppress default foreground system notifications (off-app ones) on iOS when app is open
+      // Allow default foreground system notifications on iOS when app is open
       await messaging.setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: false,
-        sound: false,
+        alert: true,
+        badge: true,
+        sound: true,
       );
 
       _fcmPermissionStatus = settings.authorizationStatus.name;
@@ -145,15 +146,15 @@ class NotificationService extends ChangeNotifier {
         final title = message.notification?.title ?? message.data['title'] ?? 'MANO';
         final body = message.notification?.body ?? message.data['body'] ?? '';
 
-        // Show a heads-up banner via flutter_local_notifications (SKIPPED in foreground per user request)
-        // if (title.isNotEmpty || body.isNotEmpty) {
-        //   LocalNotificationService.showNotification(
-        //     title: title,
-        //     body: body,
-        //     data: message.data,
-        //     id: notifId ?? 0,
-        //   );
-        // }
+        // Show a heads-up banner via flutter_local_notifications (on Android to avoid duplicates with iOS native presentation)
+        if (Platform.isAndroid && (title.isNotEmpty || body.isNotEmpty)) {
+          LocalNotificationService.showNotification(
+            title: title,
+            body: body,
+            data: message.data,
+            id: notifId ?? 0,
+          );
+        }
 
         // Also show an in-app dropdown banner for immediate awareness (refer WhatsApp/Instagram style)
         final ctx = navigatorKey.currentContext;
@@ -392,13 +393,13 @@ class NotificationService extends ChangeNotifier {
       final title = newNotif.title;
       final body = newNotif.message;
 
-      // Show local notification banner via flutter_local_notifications (SKIPPED in foreground per user request)
-      // LocalNotificationService.showNotification(
-      //   title: title,
-      //   body: body,
-      //   id: newNotif.id,
-      //   data: json,
-      // );
+      // Show local notification banner via flutter_local_notifications
+      LocalNotificationService.showNotification(
+        title: title,
+        body: body,
+        id: newNotif.id,
+        data: json,
+      );
 
       // Show in-app dropdown banner (refer WhatsApp/Instagram style)
       final ctx = navigatorKey.currentContext;
