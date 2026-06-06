@@ -164,15 +164,15 @@ class NotificationService extends ChangeNotifier {
         final title = message.notification?.title ?? message.data['title'] ?? 'MANO';
         final body = message.notification?.body ?? message.data['body'] ?? '';
 
-        // Show a heads-up banner via flutter_local_notifications
-        if (title.isNotEmpty || body.isNotEmpty) {
-          LocalNotificationService.showNotification(
-            title: title,
-            body: body,
-            data: message.data,
-            id: notifId ?? 0,
-          );
-        }
+        // Show a heads-up banner via flutter_local_notifications (SKIPPED in foreground per user request)
+        // if (title.isNotEmpty || body.isNotEmpty) {
+        //   LocalNotificationService.showNotification(
+        //     title: title,
+        //     body: body,
+        //     data: message.data,
+        //     id: notifId ?? 0,
+        //   );
+        // }
 
         // Also show an in-app dropdown banner for immediate awareness (refer WhatsApp/Instagram style)
         final ctx = navigatorKey.currentContext;

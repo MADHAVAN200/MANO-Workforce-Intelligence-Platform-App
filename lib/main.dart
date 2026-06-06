@@ -65,11 +65,11 @@ void main() async {
     },
   );
 
-  // Configure Edge-to-Edge
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
   // Load environment variables
   await dotenv.load(fileName: ".env");
+
+  // Configure Edge-to-Edge
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   // Request Permissions on Launch
   final permissionService = PermissionService();
