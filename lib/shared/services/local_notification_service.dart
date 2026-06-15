@@ -1,6 +1,8 @@
 import 'dart:ui' show Color;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 /// Wraps [FlutterLocalNotificationsPlugin] to provide a single place for:
 ///
@@ -27,6 +29,9 @@ class LocalNotificationService {
     /// while the app is in the foreground or resumed from background.
     void Function(NotificationResponse)? onNotificationTap,
   }) async {
+    // Initialize timezone database
+    tz.initializeTimeZones();
+
     // ── Android settings ──────────────────────────────────────────────────
     const androidInit = AndroidInitializationSettings('@drawable/ic_notification');
 
@@ -124,6 +129,75 @@ class LocalNotificationService {
           payload: data?.toString());
     } catch (e) {
       debugPrint('LocalNotificationService: error showing notification: $e');
+    }
+  }
+
+  /// Schedules a local notification to show at a future time.
+  static Future<void> scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDateTime,
+    Map<String, dynamic>? data,
+  }) async {
+    await _createAndroidChannel();
+
+    final androidDetails = AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      icon: '@drawable/ic_notification',
+      largeIcon: const DrawableResourceAndroidBitmap('app_icon'),
+      color: const Color(0xFF5B60F6),
+      showWhen: true,
+    );
+
+    const darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    final localTime = tz.TZDateTime.from(scheduledDateTime, tz.local);
+
+    try {
+      // Cancel any existing scheduled notification with this ID first
+      await _plugin.cancel(id);
+
+      await _plugin.zonedSchedule(
+        id,
+        title,
+        body,
+        localTime,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: data?.toString(),
+      );
+      debugPrint('LocalNotificationService: Scheduled notification $id at $localTime');
+    } catch (e) {
+      debugPrint('LocalNotificationService: error scheduling notification: $e');
+    }
+  }
+
+  /// Cancels a scheduled local notification.
+  static Future<void> cancelNotification(int id) async {
+    try {
+      await _plugin.cancel(id);
+      debugPrint('LocalNotificationService: Cancelled notification $id');
+    } catch (e) {
+      debugPrint('LocalNotificationService: error cancelling notification: $e');
     }
   }
 

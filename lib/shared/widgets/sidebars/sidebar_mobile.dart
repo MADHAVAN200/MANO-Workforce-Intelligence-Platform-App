@@ -79,6 +79,7 @@ class _SidebarContent extends StatelessWidget {
                       ...PageType.values.where((p) {
                         if (p == PageType.feedback) return false; // Handled separately at bottom
                         if (p == PageType.collaboration) return false;
+                        if (p == PageType.profile) return false; // HIDE profile routing from sidebar in mobile portrait
                         final user = context.read<AuthService>().user;
                         if (user != null && user.isEmployee) {
                             final allowed = [

@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_application/features/attendance/providers/attendance_provider.dart';
+import 'package:flutter_application/shared/navigation/navigation_controller.dart';
 import '../services/auth_service.dart';
 import '../utils/error_helper.dart';
 
@@ -117,6 +120,46 @@ extension ToastExtension on BuildContext {
     );
 
     overlay.insert(entry);
+  }
+
+  void checkAndShowShiftStartBanner() {
+    if (!mounted) return;
+    final attendanceProvider = Provider.of<AttendanceProvider>(this, listen: false);
+    final todayRecords = attendanceProvider.records;
+    final latestRecord = todayRecords.isNotEmpty ? todayRecords.last : null;
+    final hasClockedIn = latestRecord != null && latestRecord.timeIn != null;
+
+    if (!hasClockedIn) {
+      final shift = attendanceProvider.shiftPolicy;
+      final startStr = shift?.startTime ?? '09:00';
+      try {
+        final parts = startStr.split(':');
+        if (parts.length >= 2) {
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
+
+          final now = DateTime.now();
+          final shiftStart = DateTime(now.year, now.month, now.day, hour, minute);
+
+          // Check if current time is within [shiftStart - 15 mins, shiftStart + 15 mins]
+          final windowStart = shiftStart.subtract(const Duration(minutes: 15));
+          final windowEnd = shiftStart.add(const Duration(minutes: 15));
+
+          if (now.isAfter(windowStart) && now.isBefore(windowEnd)) {
+            showInAppNotification(
+              title: 'Shift Starting Soon',
+              body: 'Your shift starts at $startStr. Please remember to clock in!',
+              type: 'warning',
+              onTap: () {
+                navigateTo(PageType.myAttendance);
+              },
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Error checking shift start banner: $e');
+      }
+    }
   }
 }
 

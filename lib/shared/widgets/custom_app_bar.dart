@@ -25,6 +25,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobilePortrait = isMobile && MediaQuery.of(context).orientation == Orientation.portrait;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -190,6 +191,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     );
                   },
                 ),
+
+                if (isMobilePortrait) ...[
+                  const SizedBox(width: 8),
+                  Builder(
+                    builder: (context) {
+                      final user = Provider.of<AuthService>(context).user;
+                      final name = user?.name ?? 'Guest';
+                      final initials = name.isNotEmpty ? name[0].toUpperCase() : '?';
+
+                      return InkWell(
+                        onTap: () {
+                          navigationNotifier.value = PageType.profile;
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                               shape: BoxShape.circle,
+                               border: Border.all(color: const Color(0xFF5B60F6).withValues(alpha: 0.2)),
+                            ),
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundColor: const Color(0xFF5B60F6).withValues(alpha: 0.1),
+                              backgroundImage: (user?.profileImage != null && user!.profileImage!.isNotEmpty)
+                                  ? NetworkImage(user.profileImage!)
+                                  : null,
+                              child: (user?.profileImage == null || user!.profileImage!.isEmpty)
+                                  ? Text(initials, style: GoogleFonts.poppins(color: const Color(0xFF5B60F6), fontWeight: FontWeight.bold, fontSize: 12))
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  ),
+                ],
 
                 if (MediaQuery.of(context).size.width > 600) ...[
                   const SizedBox(width: 16),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application/shared/services/local_notification_service.dart';
 import '../../../shared/services/auth_service.dart';
 import '../../../shared/models/shift_model.dart';
 import '../models/attendance_record.dart';
@@ -149,6 +150,10 @@ class AttendanceProvider with ChangeNotifier {
     // 1. Return from Cache if available and not forcing refresh
     if (!forceRefresh && _recordsCache.containsKey(cacheKey)) {
       _currentRecords = _recordsCache[cacheKey]!;
+      if (dateStr == DateFormat('yyyy-MM-dd').format(DateTime.now())) {
+        _scheduleShiftEndNotification();
+        _scheduleShiftStartNotification();
+      }
       notifyListeners();
       return;
     }
@@ -168,6 +173,10 @@ class AttendanceProvider with ChangeNotifier {
       // Update Cache
       _recordsCache[cacheKey] = data;
       _currentRecords = data;
+      if (dateStr == DateFormat('yyyy-MM-dd').format(DateTime.now())) {
+        _scheduleShiftEndNotification();
+        _scheduleShiftStartNotification();
+      }
       
     } catch (e) {
       _error = e.toString();
@@ -255,6 +264,96 @@ class AttendanceProvider with ChangeNotifier {
     _pendingCorrectionCount = 0;
     _missedPunchDate = null;
     _shiftPolicy = null;
+    LocalNotificationService.cancelNotification(1001);
+    LocalNotificationService.cancelNotification(1002);
     notifyListeners();
+  }
+
+  void _scheduleShiftEndNotification() {
+    final todayRecords = _currentRecords;
+    final latestRecord = todayRecords.isNotEmpty ? todayRecords.last : null;
+    
+    // Check if clocked in (timeIn is present and timeOut is null)
+    final isClockedIn = latestRecord != null && latestRecord.timeIn != null && latestRecord.timeOut == null;
+    
+    const notificationId = 1001;
+    
+    if (isClockedIn) {
+      final endStr = _shiftPolicy?.endTime ?? '18:00';
+      try {
+        final parts = endStr.split(':');
+        if (parts.length >= 2) {
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
+          
+          final now = DateTime.now();
+          final shiftEnd = DateTime(now.year, now.month, now.day, hour, minute);
+          
+          // Schedule 15 minutes prior to shift end
+          final scheduledTime = shiftEnd.subtract(const Duration(minutes: 15));
+          
+          if (scheduledTime.isAfter(now)) {
+            LocalNotificationService.scheduleNotification(
+              id: notificationId,
+              title: 'Shift Ending Soon',
+              body: 'Your shift ends in 15 minutes at $endStr. Please remember to clock out!',
+              scheduledDateTime: scheduledTime,
+            );
+          } else {
+            // Already past the warning threshold, cancel any scheduled
+            LocalNotificationService.cancelNotification(notificationId);
+          }
+        }
+      } catch (e) {
+        debugPrint('AttendanceProvider: Error parsing shift end time for notification: $e');
+      }
+    } else {
+      // Not clocked in or already clocked out, cancel scheduled notification
+      LocalNotificationService.cancelNotification(notificationId);
+    }
+  }
+
+  void _scheduleShiftStartNotification() {
+    final todayRecords = _currentRecords;
+    final latestRecord = todayRecords.isNotEmpty ? todayRecords.last : null;
+    
+    // Check if clocked in (timeIn is present)
+    final hasClockedIn = latestRecord != null && latestRecord.timeIn != null;
+    
+    const notificationId = 1002;
+    
+    if (!hasClockedIn) {
+      final startStr = _shiftPolicy?.startTime ?? '09:00';
+      try {
+        final parts = startStr.split(':');
+        if (parts.length >= 2) {
+          final hour = int.parse(parts[0]);
+          final minute = int.parse(parts[1]);
+          
+          final now = DateTime.now();
+          final shiftStart = DateTime(now.year, now.month, now.day, hour, minute);
+          
+          // Schedule 15 minutes prior to shift start
+          final scheduledTime = shiftStart.subtract(const Duration(minutes: 15));
+          
+          if (scheduledTime.isAfter(now)) {
+            LocalNotificationService.scheduleNotification(
+              id: notificationId,
+              title: 'Shift Starting Soon',
+              body: 'Your shift starts in 15 minutes at $startStr. Please remember to clock in!',
+              scheduledDateTime: scheduledTime,
+            );
+          } else {
+            // Already past the warning threshold, cancel any scheduled
+            LocalNotificationService.cancelNotification(notificationId);
+          }
+        }
+      } catch (e) {
+        debugPrint('AttendanceProvider: Error parsing shift start time for notification: $e');
+      }
+    } else {
+      // Clocked in, cancel scheduled notification
+      LocalNotificationService.cancelNotification(notificationId);
+    }
   }
 }

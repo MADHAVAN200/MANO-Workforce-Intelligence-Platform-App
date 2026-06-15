@@ -41,6 +41,14 @@ class _ChatbotFabState extends State<ChatbotFab> {
 
   @override
   Widget build(BuildContext context) {
+    final chatbotService = context.watch<ChatbotService>();
+    if (!chatbotService.isChatbotEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ChatbotOverlayManager.destroyAll();
+      });
+      return const SizedBox.shrink();
+    }
+
     final authService = context.watch<AuthService>();
     if (!authService.isAuthenticated || authService.user == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

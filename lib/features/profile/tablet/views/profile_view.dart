@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../shared/navigation/navigation_controller.dart';
@@ -6,6 +6,7 @@ import '../../../../shared/services/auth_service.dart';
 import '../../../../main.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/toast_helper.dart';
+import '../../../../shared/services/chatbot_service.dart';
 
 import '../../widgets/profile_avatar.dart';
 import '../../../../shared/models/user_model.dart';
@@ -68,6 +69,12 @@ class _ProfileViewState extends State<ProfileView> {
             },
           ),
           const SizedBox(height: 24),
+
+          // Settings Card
+          _buildSettingsCard(context),
+          const SizedBox(height: 24),
+
+          // Logout Card
           _buildLogoutCard(context),
         ],
       ),
@@ -322,6 +329,89 @@ class _ProfileViewState extends State<ProfileView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsCard(BuildContext context) {
+    final chatbotService = Provider.of<ChatbotService>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GlassContainer(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'App Settings',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.titleLarge?.color,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Divider(height: 1, thickness: 1, color: Colors.white10),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF30363D) : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(Icons.smart_toy_outlined, size: 20, color: Colors.grey[400]),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mano Copilot (AI Chatbot)',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Show chatbot assistant button',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey[500],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch.adaptive(
+                value: chatbotService.isChatbotEnabled,
+                activeTrackColor: const Color(0xFF5B60F6),
+                onChanged: (val) {
+                  chatbotService.setChatbotEnabled(val);
+                  context.showToast(
+                    val ? 'Chatbot enabled' : 'Chatbot disabled',
+                    isSuccess: true,
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

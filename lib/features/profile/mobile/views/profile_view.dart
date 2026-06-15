@@ -7,6 +7,7 @@ import '../../../../main.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/custom_dialog.dart';
 import '../../../../shared/widgets/toast_helper.dart';
+import '../../../../shared/services/chatbot_service.dart';
 
 import '../../widgets/profile_avatar.dart';
 import '../../../../shared/models/user_model.dart';
@@ -46,6 +47,10 @@ class _MobileProfileContentState extends State<MobileProfileContent> {
 
           // Employment Details Card
           _buildEmploymentDetailsCard(context, user),
+          const SizedBox(height: 16),
+
+          // Settings Card
+          _buildSettingsCard(context),
           const SizedBox(height: 16),
 
           // Logout Card
@@ -242,6 +247,89 @@ class _MobileProfileContentState extends State<MobileProfileContent> {
     );
   }
 
+  Widget _buildSettingsCard(BuildContext context) {
+    final chatbotService = Provider.of<ChatbotService>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GlassContainer(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'App Settings',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.titleLarge?.color,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, thickness: 1, color: Colors.white10),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(Icons.smart_toy_outlined, size: 20, color: Colors.grey[400]),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Mano Copilot (AI Chatbot)',
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Show chatbot assistant button',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch.adaptive(
+                value: chatbotService.isChatbotEnabled,
+                activeTrackColor: const Color(0xFF5B60F6),
+                onChanged: (val) {
+                  chatbotService.setChatbotEnabled(val);
+                  context.showToast(
+                    val ? 'Chatbot enabled' : 'Chatbot disabled',
+                    isSuccess: true,
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildInfoItem(BuildContext context, {required IconData icon, required String label, required String value, double? valueFontSize}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

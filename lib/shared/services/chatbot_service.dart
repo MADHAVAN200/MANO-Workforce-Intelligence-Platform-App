@@ -3,13 +3,41 @@ import 'package:dio/dio.dart';
 import 'package:flutter_application/shared/models/chatbot_message.dart';
 import 'package:flutter_application/shared/services/auth_service.dart';
 import 'package:flutter_application/shared/constants/api_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatbotService extends ChangeNotifier {
   final AuthService _authService;
   final List<ChatbotMessage> _messages = [];
   bool _isLoading = false;
+  bool _isChatbotEnabled = true;
 
-  ChatbotService(this._authService);
+  ChatbotService(this._authService) {
+    _loadChatbotPreference();
+  }
+
+  bool get isChatbotEnabled => _isChatbotEnabled;
+
+  Future<void> _loadChatbotPreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _isChatbotEnabled = prefs.getBool('chatbot_enabled') ?? true;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading chatbot preference: $e');
+    }
+  }
+
+  Future<void> setChatbotEnabled(bool enabled) async {
+    if (_isChatbotEnabled == enabled) return;
+    _isChatbotEnabled = enabled;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('chatbot_enabled', enabled);
+    } catch (e) {
+      debugPrint('Error saving chatbot preference: $e');
+    }
+  }
 
   Offset? _chatPosition;
   Offset? get chatPosition => _chatPosition;
