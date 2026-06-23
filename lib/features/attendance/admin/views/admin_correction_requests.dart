@@ -20,8 +20,16 @@ class AdminCorrectionRequests extends StatefulWidget {
   /// Admin view passes null to fetch all.
   final String? userId;
   final bool isPersonalView;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
-  const AdminCorrectionRequests({super.key, this.userId, this.isPersonalView = false});
+  const AdminCorrectionRequests({
+    super.key, 
+    this.userId, 
+    this.isPersonalView = false,
+    this.shrinkWrap = false,
+    this.physics,
+  });
 
   @override
   State<AdminCorrectionRequests> createState() => _AdminCorrectionRequestsState();
@@ -147,22 +155,36 @@ class _AdminCorrectionRequestsState extends State<AdminCorrectionRequests> {
         ),
 
         // Content
-        Expanded(
-          child: _requests.isEmpty && _isLoading
-              ? const SizedBox.shrink()
-              : _requests.isEmpty
-                  ? _buildEmptyState(isDark)
-                  : RefreshIndicator(
-                      onRefresh: _fetchRequests,
-                      child: ListView.builder(
+        widget.shrinkWrap
+            ? (_requests.isEmpty && _isLoading
+                ? const SizedBox.shrink()
+                : _requests.isEmpty
+                    ? _buildEmptyState(isDark)
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: widget.physics,
                         padding: EdgeInsets.zero,
                         itemCount: _requests.length,
                         itemBuilder: (context, index) {
                           return _buildRequestCard(_requests[index], isDark);
                         },
-                      ),
-                    ),
-        ),
+                      ))
+            : Expanded(
+                child: _requests.isEmpty && _isLoading
+                    ? const SizedBox.shrink()
+                    : _requests.isEmpty
+                        ? _buildEmptyState(isDark)
+                        : RefreshIndicator(
+                            onRefresh: _fetchRequests,
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: _requests.length,
+                              itemBuilder: (context, index) {
+                                return _buildRequestCard(_requests[index], isDark);
+                              },
+                            ),
+                          ),
+              ),
       ],
     ),
   );

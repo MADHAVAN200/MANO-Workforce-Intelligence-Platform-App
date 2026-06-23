@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_application/shared/widgets/orientation_guard.dart';
 import 'package:flutter_application/shared/widgets/loading_screen.dart';
 import 'package:flutter_application/shared/services/auth_service.dart';
 import 'package:flutter_application/shared/services/network_monitor.dart';
+import 'package:flutter_application/shared/services/in_app_update_service.dart';
 
 import 'package:flutter_application/shared/services/notification_service.dart';
 import 'package:flutter_application/shared/services/local_notification_service.dart';
@@ -23,6 +25,7 @@ import 'package:flutter_application/shared/services/permission_service.dart'; //
 import 'package:flutter_application/shared/services/chatbot_service.dart'; // Import ChatbotService
 import 'package:flutter_application/shared/services/socket_service.dart';
 import 'package:flutter_application/features/collaboration/services/chat_service.dart';
+
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -56,12 +59,19 @@ void main() async {
   // Register background handler BEFORE any other FCM setup
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // Initialise local notification channel + plugin (must happen in main isolate)
   await LocalNotificationService.initialize(
     onNotificationTap: (response) {
       // Foreground / resumed-from-background tap:
       // Navigate to notifications screen via the global navigator key.
-      NotificationService.handleNotificationNavigation();
+      Map<String, dynamic>? data;
+      if (response.payload != null) {
+        try {
+          data = jsonDecode(response.payload!) as Map<String, dynamic>;
+        } catch (e) {
+          debugPrint('Error parsing notification payload: $e');
+        }
+      }
+      NotificationService.handleNotificationNavigation(data);
     },
   );
 
@@ -244,6 +254,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         Provider.of<NotificationService>(context, listen: false);
+        // Check for app updates via Google Play Store
+        InAppUpdateService.checkForUpdates(context);
       }
     });
     _checkAuth();

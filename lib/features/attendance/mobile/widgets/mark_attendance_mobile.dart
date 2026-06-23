@@ -11,6 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
 import '../../../../shared/services/auth_service.dart';
+import '../../../../shared/services/network_monitor.dart';
 import '../../models/attendance_record.dart';
 import '../../services/attendance_service.dart';
 import 'late_arrival_dialog_mobile.dart';
@@ -30,6 +31,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
   late AttendanceService _attendanceService;
   final ImagePicker _picker = ImagePicker();
   DateTime _selectedDate = DateTime.now();
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -93,24 +95,56 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
   }
 
   Future<void> _handleAttendanceAction(bool isTimeIn) async {
-    final position = await _getCurrentLocation();
-    if (position == null) return;
+    if (_isProcessing) return;
 
-    var status = await Permission.camera.status;
-    if (!status.isGranted) {
-      status = await Permission.camera.request();
-      if (!status.isGranted) return;
+    if (!NetworkMonitor().isOnline) {
+      if (mounted) {
+        context.showToast("No internet connection. Offline check-in/out is disabled.", isError: true);
+      }
+      return;
     }
 
+    setState(() {
+      _isProcessing = true;
+    });
+
+    // Start getting location in the background
+    final Future<Position?> locationFuture = _getCurrentLocation();
+
     try {
+      var status = await Permission.camera.status;
+      if (!status.isGranted) {
+        status = await Permission.camera.request();
+        if (!status.isGranted) {
+          setState(() {
+            _isProcessing = false;
+          });
+          return;
+        }
+      }
+
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera, 
         preferredCameraDevice: CameraDevice.front,
       );
       
-      if (photo == null) return;
+      if (photo == null) {
+        setState(() {
+          _isProcessing = false;
+        });
+        return;
+      }
 
       if (!mounted) return;
+
+      // Await location now that camera has finished
+      final position = await locationFuture;
+      if (position == null) {
+        setState(() {
+          _isProcessing = false;
+        });
+        return; // error toast shown inside _getCurrentLocation
+      }
       
       void showLoading() {
         showDialog(
@@ -139,6 +173,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
         }
       }
 
+      // Online Submit Flow
       showLoading();
       bool success = false;
       String? caughtReasonError;
@@ -160,6 +195,9 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
              Navigator.pop(context); // Pop Loading
              context.showToast("Failed: $e", isError: true);
            }
+           setState(() {
+             _isProcessing = false;
+           });
            return;
         }
       }
@@ -169,16 +207,22 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
           Navigator.pop(context); // Pop Loading
           await _showSuccessDialog(isTimeIn);
         }
+        setState(() {
+          _isProcessing = false;
+        });
         return;
       }
 
       if (caughtReasonError != null) {
-        if (mounted) Navigator.pop(context); // Pop Loading
-        
         if (!mounted) return;
         final reason = await LateArrivalDialogMobile.show(context);
         
-        if (reason == null || reason.isEmpty) return;
+        if (reason == null || reason.isEmpty) {
+          setState(() {
+            _isProcessing = false;
+          });
+          return;
+        }
 
         if (!mounted) return;
         showLoading();
@@ -194,7 +238,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
         } catch (e) {
           if (mounted) {
             Navigator.pop(context); // Pop Loading
-            context.showToast("Failed with reason: $e", isError: true);
+            context.showToast("Failed: $e", isError: true);
           }
         }
       }
@@ -203,6 +247,12 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
        if (mounted) {
          context.showToast("Camera/Location Error: $e", isError: true);
        }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
     }
   }
 
@@ -244,8 +294,9 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
         final missedDate = provider.missedPunchDate;
 
         return ListView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          physics: const BouncingScrollPhysics(),
           children: [
             // 0. Missed Punch Warning Banner
             if (missedDate != null) ...[
@@ -387,7 +438,13 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
           icon: Icons.arrow_forward_rounded,
           color: const Color(0xFF10B981),
           isActive: !isCheckedIn, 
-          onTap: () => _handleAttendanceAction(true),
+          onTap: () {
+            if (isCheckedIn) {
+              context.showToast("You have already checked in.", isWarning: true);
+            } else {
+              _handleAttendanceAction(true);
+            }
+          },
         ),
         const SizedBox(height: 16),
         _buildLargeActionButton(
@@ -397,7 +454,13 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
           icon: Icons.logout_rounded,
           color: const Color(0xFFEF4444),
           isActive: isCheckedIn,
-          onTap: () => _handleAttendanceAction(false),
+          onTap: () {
+            if (!isCheckedIn) {
+              context.showToast("You have already checked out.", isWarning: true);
+            } else {
+              _handleAttendanceAction(false);
+            }
+          },
         ),
       ],
     );
@@ -413,61 +476,68 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    return InkWell(
-      onTap: isActive ? onTap : null,
-      borderRadius: BorderRadius.circular(20),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
       child: GlassContainer(
         width: double.infinity,
         borderRadius: 20,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isActive ? color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon, 
-                  color: isActive ? color : Colors.grey, 
-                  size: 24
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label, 
-                      style: GoogleFonts.poppins(
-                        fontSize: 16, 
-                        fontWeight: FontWeight.bold, 
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: isActive ? color.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subLabel, 
-                      style: GoogleFonts.poppins(
-                        fontSize: 11, 
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Icon(
+                      icon, 
+                      color: isActive ? color : Colors.grey, 
+                      size: 24
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          label, 
+                          style: GoogleFonts.poppins(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold, 
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subLabel, 
+                          style: GoogleFonts.poppins(
+                            fontSize: 11, 
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right, 
+                    color: isDark ? Colors.white38 : Colors.grey[400],
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right, 
-                color: isDark ? Colors.white38 : Colors.grey[400],
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -747,7 +817,7 @@ class _MarkAttendanceMobileState extends State<MarkAttendanceMobile> {
   String _formatTime(String? isoTime) {
     if (isoTime == null) return '--:--';
     try {
-      final dt = DateTime.parse(isoTime);
+      final dt = DateTime.parse(isoTime).toLocal();
       return DateFormat('hh:mm a').format(dt);
     } catch (e) {
       return 'Err'; 

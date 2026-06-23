@@ -15,7 +15,14 @@ import '../../widgets/attendance_common_widgets.dart'; // Keep for SummaryCard
 import 'attendance_mobile_common_widgets.dart'; // Mobile Header
 
 class AttendanceAnalyticsMobile extends StatefulWidget {
-  const AttendanceAnalyticsMobile({super.key});
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
+
+  const AttendanceAnalyticsMobile({
+    super.key,
+    this.shrinkWrap = false,
+    this.physics,
+  });
 
   @override
   State<AttendanceAnalyticsMobile> createState() => _AttendanceAnalyticsMobileState();
@@ -124,6 +131,8 @@ class _AttendanceAnalyticsMobileState extends State<AttendanceAnalyticsMobile> {
     final avgHours = recordsWithHours > 0 ? (totalHours / recordsWithHours).toStringAsFixed(1) : '0.0';
 
     return ListView(
+      shrinkWrap: widget.shrinkWrap,
+      physics: widget.physics,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       children: [
         MonthlyReportHeaderMobile(
