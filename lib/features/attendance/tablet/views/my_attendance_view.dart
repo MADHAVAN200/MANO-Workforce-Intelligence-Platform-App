@@ -11,6 +11,7 @@ import '../../../../shared/widgets/glass_container.dart';
 import '../../../../shared/widgets/glass_date_picker.dart';
 import '../../../../shared/widgets/custom_dialog.dart';
 import '../../../../shared/services/auth_service.dart';
+import '../../../../shared/services/network_monitor.dart';
 import '../../models/attendance_record.dart';
 import '../../services/attendance_service.dart';
 import '../widgets/correction_request_dialog.dart';
@@ -35,6 +36,7 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
   late AttendanceService _attendanceService;
   final ImagePicker _picker = ImagePicker();
   DateTime _selectedDate = DateTime.now();
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -84,47 +86,81 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     );
   }
-
   Future<void> _handleAttendanceAction(bool isTimeIn) async {
-    // 1. Get Location
-    final position = await _getCurrentLocation();
-    if (position == null) return;
+    if (_isProcessing) return;
 
-    // 1. Permission Check with Settings Prompt
-    var status = await Permission.camera.status;
-    if (!status.isGranted) {
-      status = await Permission.camera.request();
-      if (status.isPermanentlyDenied) {
-        if (mounted) {
-           CustomDialog.show(
-             context: context,
-             title: "Permission Required",
-             message: "Camera access is needed to mark attendance. Please enable it in settings.",
-             positiveButtonText: "Open Settings",
-             onPositivePressed: () {
-               openAppSettings();
-             },
-             negativeButtonText: "Cancel",
-             onNegativePressed: () {},
-             icon: Icons.camera_alt_outlined,
-           );
-        }
-        return;
+    if (!NetworkMonitor().isOnline) {
+      if (mounted) {
+        context.showToast("No internet connection. Offline check-in/out is disabled.", isError: true);
       }
-      if (!status.isGranted) return; // Denied but not permanently
+      return;
     }
 
-    // 2. Capture Selfie (System Camera)
+    setState(() {
+      _isProcessing = true;
+    });
+
+    // Start getting location in the background
+    final Future<Position?> locationFuture = _getCurrentLocation();
+
     try {
+      var status = await Permission.camera.status;
+      if (!status.isGranted) {
+        status = await Permission.camera.request();
+        if (status.isPermanentlyDenied) {
+          if (mounted) {
+             CustomDialog.show(
+               context: context,
+               title: "Permission Required",
+               message: "Camera access is needed to mark attendance. Please enable it in settings.",
+               positiveButtonText: "Open Settings",
+               onPositivePressed: () {
+                 openAppSettings();
+               },
+               negativeButtonText: "Cancel",
+               onNegativePressed: () {},
+               icon: Icons.camera_alt_outlined,
+             );
+          }
+          setState(() {
+            _isProcessing = false;
+          });
+          return;
+        }
+        if (!status.isGranted) {
+          setState(() {
+            _isProcessing = false;
+          });
+          return;
+        }
+      }
+
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera, 
         preferredCameraDevice: CameraDevice.front,
       );
       
-      if (photo == null) return; // User canceled
+      if (photo == null) {
+        setState(() {
+          _isProcessing = false;
+        });
+        return; // User canceled
+      }
+
+      if (!mounted) return;
+
+      // Await location now that camera has finished
+      final position = await locationFuture;
+      if (position == null) {
+        setState(() {
+          _isProcessing = false;
+        });
+        return; // error shown in _getCurrentLocation
+      }
+
+      if (!mounted) return;
 
       // Show loading
-      if (!mounted) return;
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -133,27 +169,25 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
 
       Future<void> performTimeIn({String? reason}) async {
          await _attendanceService.timeIn(
-             latitude: position.latitude,
-            longitude: position.longitude,
-            accuracy: position.accuracy,
-            imageFile: File(photo.path),
-            lateReason: reason,
-          );
+              latitude: position.latitude,
+              longitude: position.longitude,
+              accuracy: position.accuracy,
+              imageFile: File(photo.path),
+              lateReason: reason,
+           );
       }
 
-      // 3. Submit
+      // 3. Submit Online
       try {
         if (isTimeIn) {
           try {
              await performTimeIn(); // Try without reason first
           } catch (e) {
              final msg = e.toString().toLowerCase();
-             // Check for specific error message or key keywords
              if (msg.contains("reason") || 
                  msg.contains("late") || 
                  msg.contains("remark") ||
                  msg.contains("lateness")) {
-                // Show Input Dialog
                 if (!mounted) return;
                 Navigator.pop(context); // Hide loading
                 
@@ -166,11 +200,19 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
                       barrierDismissible: false,
                       builder: (_) => const Center(child: CircularProgressIndicator()),
                    );
-                   await performTimeIn(reason: reason); // Retry
+                   try {
+                     await performTimeIn(reason: reason); // Retry
+                   } catch (retryErr) {
+                     if (mounted) Navigator.pop(context); // Close loading
+                     rethrow;
+                   }
                    if (mounted) {
                      context.showToast("Late arrival reason submitted successfully.", isSuccess: true);
                    }
                 } else {
+                   setState(() {
+                     _isProcessing = false;
+                   });
                    return; // Cancelled
                 }
              } else {
@@ -189,7 +231,6 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
         if (mounted) {
           Navigator.pop(context); // Close loading
           
-          // Show toaster
           context.showToast(
             isTimeIn ? "Checked in successfully!" : "Checked out successfully!",
             isSuccess: true,
@@ -208,6 +249,12 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
        if (mounted) {
          context.showToast("Camera Error: $e", isError: true);
        }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
     }
   }
 
@@ -215,54 +262,59 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
   Widget build(BuildContext context) {
     return Consumer<AttendanceProvider>(
       builder: (context, provider, child) {
-        final records = provider.records;
-        final isLoading = provider.isLoading;
-
-        // Determine active state for buttons based on last record
-        bool isCheckedIn = false;
-        if (records.isNotEmpty) {
-          final activeRecord = records.any((r) => r.timeOut == null);
-          isCheckedIn = activeRecord;
-        }
-
         return LoadingScreen(
           isLoading: provider.isLoading,
           message: "Loading attendance records...",
           child: DefaultTabController(
             length: 2,
-            child: Column(
-              children: [
-              AttendanceHeaderWidget(showTabBar: false),
-              // Render the tab bar separately so it remains above the body and accepts taps
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                child: Center(child: AttendanceTabBar(maxWidth: 480)),
-              ),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  const AttendanceHeaderWidget(showTabBar: false),
+                  // Render the tab bar separately so it remains above the body and accepts taps
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    child: Center(child: AttendanceTabBar(maxWidth: 480)),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      final tabController = DefaultTabController.of(context);
 
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    // Tab 1: Mark Attendance
-                    SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildActionButtons(context, isCheckedIn),
-                          const SizedBox(height: 32),
-                          _buildDateSelector(context),
-                          const SizedBox(height: 16),
-                          _buildHistoryList(context, records, isLoading), // No Expanded
-                        ],
-                      ),
-                    ),
+                      return _TabContentBuilder(
+                        controller: tabController,
+                        builder: (context, index) {
+                          final records = provider.records;
+                          final isLoading = provider.isLoading;
 
-                    // Tab 2: My Attendance Reports
-                    const _MyAttendanceReportsTab(),
-                  ],
-                ),
+                          bool isCheckedIn = false;
+                          if (records.isNotEmpty) {
+                            isCheckedIn = records.any((r) => r.timeOut == null);
+                          }
+
+                          if (index == 0) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildActionButtons(context, isCheckedIn),
+                                  const SizedBox(height: 32),
+                                  _buildDateSelector(context),
+                                  const SizedBox(height: 16),
+                                  _buildHistoryList(context, records, isLoading),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return const _MyAttendanceReportsTab();
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
-              ],
             ),
           ),
         );
@@ -281,7 +333,13 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
           icon: Icons.login,
           color: const Color(0xFF10B981), // Green
           isActive: !isCheckedIn,
-          onTap: () => _handleAttendanceAction(true),
+          onTap: () {
+            if (isCheckedIn) {
+              context.showToast("You have already checked in.", isWarning: true);
+            } else {
+              _handleAttendanceAction(true);
+            }
+          },
         ),
         const SizedBox(height: 16),
         // Time Out Button
@@ -292,7 +350,13 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
           icon: Icons.logout,
           color: const Color(0xFFEF4444), // Red
           isActive: isCheckedIn,
-          onTap: () => _handleAttendanceAction(false),
+          onTap: () {
+            if (!isCheckedIn) {
+              context.showToast("You have already checked out.", isWarning: true);
+            } else {
+              _handleAttendanceAction(false);
+            }
+          },
         ),
       ],
     );
@@ -306,56 +370,63 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: isActive ? onTap : null, // Fix: Disable tap if not active
-      borderRadius: BorderRadius.circular(20),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
       child: GlassContainer(
         height: 100,
         width: double.infinity,
         borderRadius: 20,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: isActive ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  icon,
-                  color: isActive ? color : color.withValues(alpha: 0.7),
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 20),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
                 children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: isActive ? 1.0 : 0.5),
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: isActive ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isActive ? color : color.withValues(alpha: 0.7),
+                      size: 28,
                     ),
                   ),
-                  Text(
-                    subLabel,
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
+                  const SizedBox(width: 20),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: isActive ? 1.0 : 0.5),
+                        ),
+                      ),
+                      Text(
+                        subLabel,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                      ),
+                    ],
                   ),
+                  const Spacer(),
+                  if (isActive)
+                    Icon(Icons.chevron_right, color: Theme.of(context).textTheme.bodySmall?.color),
                 ],
               ),
-              const Spacer(),
-              if (isActive)
-                Icon(Icons.chevron_right, color: Theme.of(context).textTheme.bodySmall?.color),
-            ],
+            ),
           ),
         ),
       ),
@@ -576,7 +647,7 @@ class _MyAttendanceViewState extends State<MyAttendanceView> {
   String _formatTime(String? isoTime) {
     if (isoTime == null) return '--:--';
     try {
-      final dt = DateTime.parse(isoTime);
+      final dt = DateTime.parse(isoTime).toLocal();
       return DateFormat('hh:mm a').format(dt);
     } catch (e) {
       return 'Err'; 
@@ -858,16 +929,18 @@ class _MyAttendanceReportsTabState extends State<_MyAttendanceReportsTab> {
         ),
         
         // Content
-        Expanded(
-          child: _selectedIndex == 0 
-            ? const AttendanceHistoryTab() 
-            : _selectedIndex == 1
-              ? const AttendanceAnalyticsTab()
-              : Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: const AdminCorrectionRequests(isPersonalView: true),
+        _selectedIndex == 0 
+          ? const AttendanceHistoryTab(shrinkWrap: true, physics: NeverScrollableScrollPhysics()) 
+          : _selectedIndex == 1
+            ? const AttendanceAnalyticsTab(shrinkWrap: true, physics: NeverScrollableScrollPhysics())
+            : const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: AdminCorrectionRequests(
+                  isPersonalView: true,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                 ),
-        ),
+              ),
       ],
     );
   }
@@ -930,5 +1003,58 @@ class DottedBorderContainer extends StatelessWidget {
          child: child,
       ),
     );
+  }
+}
+
+class _TabContentBuilder extends StatefulWidget {
+  final TabController controller;
+  final Widget Function(BuildContext context, int index) builder;
+
+  const _TabContentBuilder({
+    required this.controller,
+    required this.builder,
+  });
+
+  @override
+  State<_TabContentBuilder> createState() => _TabContentBuilderState();
+}
+
+class _TabContentBuilderState extends State<_TabContentBuilder> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.controller.index;
+    widget.controller.addListener(_handleTabChange);
+  }
+
+  @override
+  void didUpdateWidget(_TabContentBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller.removeListener(_handleTabChange);
+      _currentIndex = widget.controller.index;
+      widget.controller.addListener(_handleTabChange);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_handleTabChange);
+    super.dispose();
+  }
+
+  void _handleTabChange() {
+    if (widget.controller.index != _currentIndex) {
+      setState(() {
+        _currentIndex = widget.controller.index;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, _currentIndex);
   }
 }

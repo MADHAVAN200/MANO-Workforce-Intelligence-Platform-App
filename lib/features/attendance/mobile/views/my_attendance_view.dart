@@ -17,8 +17,6 @@ class MobileMyAttendanceContent extends StatefulWidget {
 }
 
 class _MobileMyAttendanceContentState extends State<MobileMyAttendanceContent> {
-  // Logic has been moved to MarkAttendanceMobile
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AttendanceProvider>(
@@ -27,44 +25,45 @@ class _MobileMyAttendanceContentState extends State<MobileMyAttendanceContent> {
           isLoading: provider.isLoading,
           message: "Loading attendance records...",
           child: Container(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.transparent
-              : const Color(0xFFF8F9FA),
-          child: DefaultTabController(
-            length: 2, // Reduced to 2
-            child: NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return [
-                    const SliverToBoxAdapter(
-                      child: AttendanceHeaderWidget(showTabBar: false),
-                    ),
-                    // Render the tab bar inside a standard padding container
-                    SliverToBoxAdapter(
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                            child: AttendanceTabBar(maxWidth: 480),
-                          ),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.transparent
+                : const Color(0xFFF8F9FA),
+            child: DefaultTabController(
+              length: 2,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    const AttendanceHeaderWidget(showTabBar: false),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 480),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                          child: AttendanceTabBar(maxWidth: 480),
                         ),
                       ),
                     ),
-                  ];
-              },
-              body: TabBarView(
-                children: [
-                  // Tab 1: Mark Attendance
-                  const MarkAttendanceMobile(),
+                    Builder(
+                      builder: (context) {
+                        final tabController = DefaultTabController.of(context);
 
-                  // Tab 2: My Attendance (Sub-tabs: History / Analytics)
-                  _MyAttendanceReportsTab(),
-                ],
+                        return _TabContentBuilder(
+                          controller: tabController,
+                          builder: (context, index) {
+                            return index == 0
+                                ? const MarkAttendanceMobile()
+                                : _MyAttendanceReportsTab();
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-       );
+        );
       },
     );
   }
@@ -80,40 +79,39 @@ class _MyAttendanceReportsTabState extends State<_MyAttendanceReportsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          // Sub-tabs
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildSubTab('History', 0, Icons.history),
-                  const SizedBox(width: 24),
-                  _buildSubTab('Analytics', 1, Icons.analytics_outlined),
-                  const SizedBox(width: 24),
-                  _buildSubTab('Corrections', 2, Icons.edit_calendar_outlined),
-                ],
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Sub-tabs
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildSubTab('History', 0, Icons.history),
+                const SizedBox(width: 24),
+                _buildSubTab('Analytics', 1, Icons.analytics_outlined),
+                const SizedBox(width: 24),
+                _buildSubTab('Corrections', 2, Icons.edit_calendar_outlined),
+              ],
             ),
           ),
-          
-          
-          Expanded(
-            child: _selectedIndex == 0 
-              ? const AttendanceHistoryMobile() 
-              : _selectedIndex == 1
-                ? const AttendanceAnalyticsMobile()
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: const AdminCorrectionRequests(isPersonalView: true),
-                  ),
-          ),
-        ],
-      ),
+        ),
+        
+        _selectedIndex == 0 
+          ? const AttendanceHistoryMobile(shrinkWrap: true, physics: NeverScrollableScrollPhysics()) 
+          : _selectedIndex == 1
+            ? const AttendanceAnalyticsMobile(shrinkWrap: true, physics: NeverScrollableScrollPhysics())
+            : const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: AdminCorrectionRequests(
+                  isPersonalView: true,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                ),
+              ),
+      ],
     );
   }
 
@@ -154,5 +152,58 @@ class _MyAttendanceReportsTabState extends State<_MyAttendanceReportsTab> {
         ],
       ),
     );
+  }
+}
+
+class _TabContentBuilder extends StatefulWidget {
+  final TabController controller;
+  final Widget Function(BuildContext context, int index) builder;
+
+  const _TabContentBuilder({
+    required this.controller,
+    required this.builder,
+  });
+
+  @override
+  State<_TabContentBuilder> createState() => _TabContentBuilderState();
+}
+
+class _TabContentBuilderState extends State<_TabContentBuilder> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.controller.index;
+    widget.controller.addListener(_handleTabChange);
+  }
+
+  @override
+  void didUpdateWidget(_TabContentBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller.removeListener(_handleTabChange);
+      _currentIndex = widget.controller.index;
+      widget.controller.addListener(_handleTabChange);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_handleTabChange);
+    super.dispose();
+  }
+
+  void _handleTabChange() {
+    if (widget.controller.index != _currentIndex) {
+      setState(() {
+        _currentIndex = widget.controller.index;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, _currentIndex);
   }
 }
